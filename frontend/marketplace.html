@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DataChain — Marketplace</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .search-sticky{
+      position:sticky;top:var(--hdr-h);z-index:100;
+      background:rgba(239,244,238,.9);
+      backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      padding:14px var(--px) 12px;
+      margin:0 calc(-1*var(--px));
+      border-bottom:1px solid var(--border);
+      transition:background .4s;
+    }
+    body.dark .search-sticky{background:rgba(17,25,16,.92)}
+    @media(min-width:768px){
+      .search-sticky{
+        margin:0 -32px;
+        padding:14px 32px 12px;
+      }
+    }
+    @media(min-width:1024px){
+      .search-sticky{
+        margin:0 -48px;
+        padding:14px 48px 12px;
+      }
+    }
+    .s-row{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+    .results-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 0 4px}
+    .results-count{font-size:.77rem;font-weight:600;color:var(--text-3)}
+    .cards-list{display:flex;flex-direction:column;gap:14px}
+    .load-more-row{text-align:center;padding:20px 0 0}
+    .wallet-nag{
+      display:flex;align-items:flex-start;gap:10px;
+      background:var(--warm-sub);border:1px solid rgba(200,120,68,.28);
+      border-radius:var(--r-lg);padding:12px 14px;margin-bottom:16px;
+      font-size:.8rem;color:var(--warm);font-weight:600;
+    }
+    .wallet-nag svg{width:16px;height:16px;color:var(--warm);flex-shrink:0;margin-top:1px}
+    .wallet-nag a{color:var(--warm);text-decoration:underline}
+    .wallet-nag.hidden{display:none}
+  </style>
+</head>
+<body>
+<div class="orb orb-1"></div><div class="orb orb-2"></div>
+
+<div class="site-wrap">
+
+  <!-- Sidebar -->
+  <nav class="side-nav" aria-label="Sidebar navigation">
+    <div class="side-nav-logo">Data<em>Chain</em></div>
+    <a href="index.html" class="side-nav-link" data-page="index.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Home
+    </a>
+    <a href="marketplace.html" class="side-nav-link" data-page="marketplace.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      Marketplace
+    </a>
+    <a href="addData.html" class="side-nav-link nav-add-side" data-page="addData.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Dataset
+    </a>
+    <a href="profile.html" class="side-nav-link" data-page="profile.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      Profile
+    </a>
+    <div class="side-nav-spacer"></div>
+    <div class="side-wallet-chip">
+      <div class="w-dot"></div>
+      <span class="wallet-addr-txt">Not connected</span>
+    </div>
+  </nav>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="hdr-title">Marketplace</div>
+    <div class="hdr-spacer"></div>
+    <button class="icon-btn" id="refresh-btn" title="Refresh data">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+    </button>
+  </header>
+
+  <!-- Main -->
+  <main class="main-content">
+    <div class="content-inner">
+
+      <!-- Sticky search -->
+      <div class="search-sticky">
+        <div class="s-row">
+          <div class="input-wrap" style="flex:1">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="form-input" id="search-input" type="search" placeholder="Search datasets…" autocomplete="off"/>
+          </div>
+          <button class="btn btn-primary btn-sm" id="load-btn" style="flex-shrink:0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Load
+          </button>
+        </div>
+        <div class="chip-scroll" id="cat-chips">
+          <button class="chip active" data-cat="All">All</button>
+          <button class="chip" data-cat="Health">Health</button>
+          <button class="chip" data-cat="Finance">Finance</button>
+          <button class="chip" data-cat="Technology">Technology</button>
+          <button class="chip" data-cat="Environment">Environment</button>
+          <button class="chip" data-cat="Education">Education</button>
+          <button class="chip" data-cat="Research">Research</button>
+          <button class="chip" data-cat="Other">Other</button>
+        </div>
+      </div>
+
+      <!-- Wallet nag -->
+      <div class="wallet-nag" id="wallet-nag">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span><a href="profile.html">Connect your wallet</a> to purchase datasets.</span>
+      </div>
+
+      <!-- Results -->
+      <div class="results-bar">
+        <span class="results-count" id="results-count">Loading…</span>
+      </div>
+
+      <!-- Cards — two-column on desktop via .cards-grid -->
+      <div id="cards-list" class="cards-list cards-grid stagger"></div>
+
+      <div class="empty-state hidden" id="no-results">
+        <div class="empty-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+        <h3>Nothing found</h3>
+        <p>Try different keywords or reset the filter.</p>
+        <button class="btn btn-secondary mt-12" id="clear-btn">Clear search</button>
+      </div>
+
+      <div class="load-more-row hidden" id="load-more-row">
+        <button class="btn btn-secondary" id="load-more-btn">Load more</button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Bottom nav -->
+  <nav class="bottom-nav" aria-label="Bottom navigation">
+    <a href="index.html" class="b-nav-item" data-page="index.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="b-nav-label">Home</span>
+    </a>
+    <a href="marketplace.html" class="b-nav-item" data-page="marketplace.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      <span class="b-nav-label">Market</span>
+    </a>
+    <div class="b-nav-add-wrap">
+      <a href="addData.html" class="b-nav-add" aria-label="Add">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </a>
+      <span class="b-nav-add-label">Add</span>
+    </div>
+    <a href="profile.html" class="b-nav-item" data-page="profile.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <span class="b-nav-label">Profile</span>
+    </a>
+  </nav>
+
+</div>
+
+<script src="app.js"></script>
+<script>
+const MOCK=[
+  {id:1,name:'Global Health Metrics 2024',category:'Health',description:'Comprehensive dataset covering global health indicators across 150+ countries — mortality rates, disease prevalence, healthcare access, and vaccination coverage.',price:'0.0250'},
+  {id:2,name:'Crypto Market Sentiment Index',category:'Finance',description:'Real-time sentiment from 50+ sources. Social media trends, news scoring, and on-chain metrics for major coins and tokens.',price:'0.0180'},
+  {id:3,name:'EV Charging Network Statistics',category:'Environment',description:'Locations and usage data for 200,000+ charging stations globally. Updated monthly with uptime, throughput, and energy mix.',price:'0.0090'},
+  {id:4,name:'Multilingual NLP Corpus',category:'Technology',description:'Curated multilingual text corpus with 10B+ tokens across 30 languages. Cleaned, deduplicated, and labelled for ML training.',price:'0.0420'},
+  {id:5,name:'Academic Citation Graph',category:'Research',description:'Graph of 5M+ academic papers and citation networks. Includes author metadata, field of study, and impact factor scores.',price:'0.0150'},
+  {id:6,name:'K-12 Learning Outcomes Study',category:'Education',description:'Anonymised student performance data from 500 schools. Useful for educational research, policy analysis, and model training.',price:'0.0070'},
+  {id:7,name:'Supply Chain Disruption Index',category:'Finance',description:'Monthly supply chain stress scores by sector and region derived from shipping data, port congestion, and supplier surveys.',price:'0.0310'},
+  {id:8,name:'Satellite Land Use Maps',category:'Environment',description:'High-resolution land-use classification maps from satellite imagery, 2010–2024. 10m resolution in GeoTIFF format.',price:'0.0560'},
+  {id:9,name:'Genomics Variant Database',category:'Health',description:'2M+ common genetic variants with population frequency data, clinical annotations, and phenotype associations.',price:'0.0680'},
+  {id:10,name:'IoT Sensor Telemetry Archive',category:'Technology',description:'Three years of telemetry from 50,000 IoT sensors in smart manufacturing — temperature, vibration, power, anomaly labels.',price:'0.0230'},
+];
+
+let allData=[],filtered=[],activeCat='All',query='',visible=8;
+const listEl=document.getElementById('cards-list');
+const countEl=document.getElementById('results-count');
+const noRes=document.getElementById('no-results');
+const moreRow=document.getElementById('load-more-row');
+
+if(Wallet.isConnected()) document.getElementById('wallet-nag').classList.add('hidden');
+
+async function load(){
+  showSkel();
+  try{
+    const res = await API.get('/getData');
+    // Backend returns { success: true, data: [...] }
+    allData = res.data || res;
+  } catch {
+    allData = MOCK;
+    Toast.warning('Demo mode — backend not connected.');
+  }
+  apply();
+}
+function showSkel(){
+  listEl.innerHTML='';skeletonCards(4).forEach(s=>listEl.appendChild(s));
+  countEl.textContent='Loading…';noRes.classList.add('hidden');moreRow.classList.add('hidden');
+}
+function apply(){
+  filtered=allData.filter(d=>{
+    const cOk=activeCat==='All'||d.category===activeCat;
+    const q=query.toLowerCase();
+    const tOk=!q||d.name.toLowerCase().includes(q)||(d.description||'').toLowerCase().includes(q)||d.category.toLowerCase().includes(q);
+    return cOk&&tOk;
+  });
+  visible=8;render();
+}
+function render(){
+  listEl.innerHTML='';noRes.classList.add('hidden');moreRow.classList.add('hidden');
+  if(!filtered.length){countEl.textContent='0 results';noRes.classList.remove('hidden');return;}
+  countEl.textContent=`${filtered.length} dataset${filtered.length!==1?'s':''}`;
+  filtered.slice(0,visible).forEach(item=>listEl.appendChild(renderDataCard(item,handleBuy)));
+  if(filtered.length>visible) moreRow.classList.remove('hidden');
+}
+let timer;
+document.getElementById('search-input').addEventListener('input',e=>{
+  clearTimeout(timer);timer=setTimeout(()=>{query=e.target.value.trim();apply();},240);
+});
+document.getElementById('cat-chips').addEventListener('click',e=>{
+  const c=e.target.closest('.chip');if(!c)return;
+  document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
+  c.classList.add('active');activeCat=c.dataset.cat;apply();
+});
+document.getElementById('load-btn').addEventListener('click',load);
+document.getElementById('refresh-btn').addEventListener('click',load);
+document.getElementById('load-more-btn').addEventListener('click',()=>{visible+=8;render();});
+document.getElementById('clear-btn').addEventListener('click',()=>{
+  document.getElementById('search-input').value='';query='';apply();
+});
+load();
+</script>
+</body>
+</html>

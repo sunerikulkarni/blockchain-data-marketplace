@@ -12,13 +12,14 @@ async function main() {
 
   console.log("Contract address:", contract.target);
 
-  const owner = await contract.owner();
-
-  console.log("Contract owner:", owner);
-
   const dataCount = await contract.dataCount();
 
-  console.log("Number of datasets:", dataCount.toString());
+  console.log(
+    "Number of datasets:",
+    dataCount.toString()
+  );
+
+  console.log("Contract connection successful!");
 }
 
 main().catch((error) => {

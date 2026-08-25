@@ -5,8 +5,10 @@ require('dotenv').config();          // Load .env variables first
 const express    = require('express');
 const cors       = require('cors');
 const connectDB  = require('./config/db');
-const dataRoutes = require('./routes/dataRoutes');
-const txnRoutes  = require('./routes/transactionRoutes');
+const dataRoutes = require('./Routes/dataRoutes');
+const txnRoutes = require('./Routes/transactionRoutes');
+const companyRoutes = require('./Routes/companyRoutes');
+const accessRequestRoutes = require('./Routes/accessRequestRoutes');
 
 // ── Connect to MongoDB ───────────────────────────────────────
 connectDB();
@@ -40,8 +42,11 @@ app.get('/', (req, res) => {
 });
 
 // ── Routes ───────────────────────────────────────────────────
-app.use('/', dataRoutes);   // dataset CRUD
-app.use('/', txnRoutes);    // buy & transaction history
+app.use('/', dataRoutes);
+app.use('/', txnRoutes);
+
+app.use('/', companyRoutes);
+app.use('/', accessRequestRoutes);   // buy & transaction history
 
 // ── 404 handler ──────────────────────────────────────────────
 app.use((req, res) => {

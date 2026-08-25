@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Dataset Details - DataChain</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .detail-grid {
+      display: grid;
+      gap: 20px;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+
+    .detail-label {
+      color: var(--text-3);
+      font-size: .78rem;
+      font-weight: 700;
+    }
+
+    .detail-value {
+      color: var(--text-1);
+      text-align: right;
+      word-break: break-word;
+    }
+
+    .access-box {
+      padding: 18px;
+      border-radius: var(--r-xl);
+      background: var(--bg-tint);
+      border: 1px solid var(--border-card);
+    }
+
+    .access-status {
+      display: inline-flex;
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-size: .72rem;
+      font-weight: 800;
+      background: var(--warm-sub);
+      color: var(--warm);
+    }
+
+    .access-status.approved {
+      background: var(--info-sub);
+      color: var(--info);
+    }
+
+    .access-status.authorized {
+      background: var(--accent-sub);
+      color: var(--accent);
+    }
+
+    .access-status.rejected {
+      background: var(--danger-sub);
+      color: var(--danger);
+    }
+
+    .access-status.pending {
+      background: var(--warm-sub);
+      color: var(--warm);
+    }
+
+    .access-status.none {
+      background: var(--border-card);
+      color: var(--text-2);
+    }
+
+    .action-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .hash-box {
+      padding: 12px;
+      border-radius: var(--r-lg);
+      background: var(--bg-tint);
+      border: 1px dashed var(--border);
+      font-family: monospace;
+      font-size: .72rem;
+      word-break: break-all;
+    }
+
+    .tx-box {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: var(--r-lg);
+      background: var(--bg-tint);
+      border: 1px solid var(--border);
+      font-family: monospace;
+      font-size: .72rem;
+      word-break: break-all;
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="site-wrap">
+
+  <header class="app-header">
+    <div class="logo">
+      Data<em>Chain</em>
+    </div>
+
+    <div class="hdr-spacer"></div>
+
+    <button
+      class="btn btn-secondary"
+      data-wallet-connect
+      data-wallet-label="Connect Wallet">
+      Connect Wallet
+    </button>
+  </header>
+
+
+  <main class="main-content">
+
+    <div class="content-inner detail-grid">
+
+      <!-- DATASET DETAILS -->
+      <section class="card">
+
+        <div class="section-hdr">
+
+          <div>
+
+            <h1
+              class="section-ttl"
+              id="dataset-name">
+              Loading dataset...
+            </h1>
+
+            <p
+              id="dataset-category"
+              style="color:var(--text-2);margin-top:6px;">
+            </p>
+
+          </div>
+
+          <div>
+
+            <strong id="dataset-price">
+              —
+            </strong>
+
+            <span> ETH</span>
+
+          </div>
+
+        </div>
+
+
+        <div class="detail-row">
+
+          <span class="detail-label">
+            Description
+          </span>
+
+          <span
+            class="detail-value"
+            id="dataset-description">
+          </span>
+
+        </div>
+
+
+        <div class="detail-row">
+
+          <span class="detail-label">
+            Owner
+          </span>
+
+          <span
+            class="detail-value"
+            id="dataset-owner">
+          </span>
+
+        </div>
+
+
+        <div class="detail-row">
+
+          <span class="detail-label">
+            Sales
+          </span>
+
+          <span
+            class="detail-value"
+            id="dataset-sales">
+            Blockchain
+          </span>
+
+        </div>
+
+      </section>
+
+
+      <!-- ACCESS -->
+      <section class="card">
+
+        <div class="section-hdr">
+
+          <h2 class="section-ttl">
+            Access
+          </h2>
+
+        </div>
+
+
+        <div class="access-box">
+
+          <div>
+
+            <span class="detail-label">
+              Current status
+            </span>
+
+            <div style="margin-top:8px;">
+
+              <span
+                class="access-status"
+                id="access-status">
+                Checking...
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div class="action-row">
+
+            <button
+              class="btn btn-primary"
+              id="request-access-btn">
+              Request Access
+            </button>
+
+
+            <button
+              class="btn btn-secondary"
+              id="pay-btn"
+              style="display:none;">
+              Pay with MetaMask
+            </button>
+
+          </div>
+
+
+          <p
+            id="access-message"
+            class="muted-note"
+            style="margin-top:12px;">
+          </p>
+
+
+          <div
+            id="tx-box"
+            class="tx-box">
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- INTEGRITY -->
+      <section class="card">
+
+        <div class="section-hdr">
+
+          <h2 class="section-ttl">
+            Integrity Information
+          </h2>
+
+        </div>
+
+
+        <div>
+
+          <p class="detail-label">
+            Data Hash
+          </p>
+
+          <div
+            class="hash-box"
+            id="data-hash">
+            Not available
+          </div>
+
+        </div>
+
+
+        <div style="margin-top:16px;">
+
+          <p class="detail-label">
+            IPFS CID
+          </p>
+
+          <div
+            class="hash-box"
+            id="ipfs-cid">
+            Not available
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+</div>
+
+
+<!-- Existing shared frontend code -->
+<script src="app.js"></script>
+
+<!-- ethers.js -->
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.15.0/dist/ethers.umd.min.js"></script>
+
+
+<script>
+
+  /* =========================================================
+     BLOCKCHAIN CONFIGURATION
+  ========================================================= */
+
+  const CONTRACT_ADDRESS =
+    '0x02018B847dA98a987EE59d7F235b2c690085F044';
+
+
+  const CONTRACT_ABI = [
+
+    'function getData(uint256) view returns (uint256,string,string,string,uint256,address,string,string)',
+
+    'function getAccessStatus(uint256,address) view returns (uint8)',
+
+    'function hasAccess(uint256,address) view returns (bool)',
+
+    'function requestAccess(uint256)',
+
+    'function buyData(uint256) payable'
+
+  ];
+
+
+  /* =========================================================
+     ACCESS STATUS
+  ========================================================= */
+
+  const ACCESS_STATUS = {
+
+    0: 'NONE',
+
+    1: 'PENDING',
+
+    2: 'APPROVED',
+
+    3: 'REJECTED',
+
+    4: 'AUTHORIZED'
+
+  };
+
+
+  /* =========================================================
+     PAGE VARIABLES
+  ========================================================= */
+
+  const params =
+    new URLSearchParams(window.location.search);
+
+  const datasetId =
+    params.get('id');
+
+
+  let dataset = null;
+
+  let datasetPriceWei = null;
+
+
+  /* =========================================================
+     GET PROVIDER
+  ========================================================= */
+
+  function getProvider() {
+
+    if (
+      typeof window.ethereum === 'undefined'
+    ) {
+
+      throw new Error(
+        'MetaMask is not available.'
+      );
+
+    }
+
+
+    return new ethers.BrowserProvider(
+      window.ethereum
+    );
+
+  }
+
+
+  /* =========================================================
+     LOAD DATASET FROM BLOCKCHAIN
+  ========================================================= */
+
+  async function loadDatasetFromBlockchain() {
+
+    if (!datasetId) {
+
+      throw new Error(
+        'Dataset ID is missing.'
+      );
+
+    }
+
+
+    const provider =
+      getProvider();
+
+
+    const contract =
+      new ethers.Contract(
+        CONTRACT_ADDRESS,
+        CONTRACT_ABI,
+        provider
+      );
+
+
+    const data =
+      await contract.getData(datasetId);
+
+
+    datasetPriceWei =
+      data[4];
+
+
+    document.getElementById(
+      'dataset-name'
+    ).textContent =
+      data[1];
+
+
+    document.getElementById(
+      'dataset-category'
+    ).textContent =
+      data[2];
+
+
+    document.getElementById(
+      'dataset-price'
+    ).textContent =
+      ethers.formatEther(data[4]);
+
+
+    document.getElementById(
+      'dataset-description'
+    ).textContent =
+      data[3];
+
+
+    document.getElementById(
+      'dataset-owner'
+    ).textContent =
+      data[5];
+
+
+    document.getElementById(
+      'dataset-sales'
+    ).textContent =
+      'Blockchain';
+
+
+    document.getElementById(
+      'data-hash'
+    ).textContent =
+      data[7] || 'Not available';
+
+
+    document.getElementById(
+      'ipfs-cid'
+    ).textContent =
+      data[6] || 'Not available';
+
+  }
+
+
+  /* =========================================================
+     FALLBACK TO EXISTING BACKEND
+  ========================================================= */
+
+  async function loadDatasetFromBackend() {
+
+    if (!datasetId) {
+
+      throw new Error(
+        'Dataset ID is missing.'
+      );
+
+    }
+
+
+    const result =
+      await API.get(
+        `/getData/${datasetId}`
+      );
+
+
+    if (
+      !result.success ||
+      !result.data
+    ) {
+
+      throw new Error(
+        result.message ||
+        'Dataset not found.'
+      );
+
+    }
+
+
+    dataset =
+      result.data;
+
+
+    document.getElementById(
+      'dataset-name'
+    ).textContent =
+      dataset.name || '';
+
+
+    document.getElementById(
+      'dataset-category'
+    ).textContent =
+      dataset.category || '';
+
+
+    document.getElementById(
+      'dataset-price'
+    ).textContent =
+      dataset.price || '0';
+
+
+    document.getElementById(
+      'dataset-description'
+    ).textContent =
+      dataset.description || '';
+
+
+    document.getElementById(
+      'dataset-owner'
+    ).textContent =
+      dataset.seller || 'Not available';
+
+
+    document.getElementById(
+      'dataset-sales'
+    ).textContent =
+      dataset.sales || 0;
+
+
+    document.getElementById(
+      'data-hash'
+    ).textContent =
+      dataset.dataHash ||
+      'Not available';
+
+
+    document.getElementById(
+      'ipfs-cid'
+    ).textContent =
+      dataset.ipfsCID ||
+      'Not available';
+
+  }
+
+
+  /* =========================================================
+     LOAD DATASET
+  ========================================================= */
+
+  async function loadDataset() {
+
+    if (!datasetId) {
+
+      document.getElementById(
+        'dataset-name'
+      ).textContent =
+        'Dataset ID missing';
+
+      return;
+
+    }
+
+
+    try {
+
+      await loadDatasetFromBlockchain();
+
+      await loadAccessStatus();
+
+      return;
+
+    } catch (blockchainError) {
+
+      console.warn(
+        'Blockchain dataset read failed:',
+        blockchainError
+      );
+
+    }
+
+
+    try {
+
+      await loadDatasetFromBackend();
+
+      await loadAccessStatus();
+
+    } catch (backendError) {
+
+      console.error(
+        'Dataset loading failed:',
+        backendError
+      );
+
+
+      document.getElementById(
+        'dataset-name'
+      ).textContent =
+        'Unable to load dataset';
+
+    }
+
+  }
+
+
+  /* =========================================================
+     LOAD ACCESS STATUS
+  ========================================================= */
+
+  async function loadAccessStatus() {
+
+    const statusEl =
+      document.getElementById(
+        'access-status'
+      );
+
+
+    const payBtn =
+      document.getElementById(
+        'pay-btn'
+      );
+
+
+    const requestBtn =
+      document.getElementById(
+        'request-access-btn'
+      );
+
+
+    if (!Wallet.isConnected()) {
+
+      statusEl.textContent =
+        'Connect Wallet';
+
+      statusEl.className =
+        'access-status';
+
+      requestBtn.disabled =
+        false;
+
+      payBtn.style.display =
+        'none';
+
+      document.getElementById(
+        'access-message'
+      ).textContent =
+        'Connect your wallet to check access status.';
+
+      return;
+
+    }
+
+
+    try {
+
+      const provider =
+        getProvider();
+
+
+      const contract =
+        new ethers.Contract(
+          CONTRACT_ADDRESS,
+          CONTRACT_ABI,
+          provider
+        );
+
+
+      const status =
+        await contract.getAccessStatus(
+          datasetId,
+          Wallet.getAddress()
+        );
+
+
+      const statusNumber =
+        Number(status);
+
+
+      const statusText =
+        ACCESS_STATUS[statusNumber] ||
+        'UNKNOWN';
+
+
+      statusEl.textContent =
+        statusText;
+
+
+      statusEl.className =
+        'access-status';
+
+
+      requestBtn.disabled =
+        false;
+
+
+      if (
+        statusText === 'NONE'
+      ) {
+
+        statusEl.classList.add(
+          'none'
+        );
+
+
+        requestBtn.style.display =
+          'inline-flex';
+
+
+        payBtn.style.display =
+          'none';
+
+
+        document.getElementById(
+          'access-message'
+        ).textContent =
+          'You have not requested access yet.';
+
+      }
+
+
+      else if (
+        statusText === 'PENDING'
+      ) {
+
+        statusEl.classList.add(
+          'pending'
+        );
+
+
+        requestBtn.style.display =
+          'none';
+
+
+        payBtn.style.display =
+          'none';
+
+
+        document.getElementById(
+          'access-message'
+        ).textContent =
+          'Your access request is pending owner approval.';
+
+      }
+
+
+      else if (
+        statusText === 'APPROVED'
+      ) {
+
+        statusEl.classList.add(
+          'approved'
+        );
+
+
+        requestBtn.style.display =
+          'none';
+
+
+        payBtn.style.display =
+          'inline-flex';
+
+
+        document.getElementById(
+          'access-message'
+        ).textContent =
+          'Access approved. You can now pay for the dataset.';
+
+      }
+
+
+      else if (
+        statusText === 'REJECTED'
+      ) {
+
+        statusEl.classList.add(
+          'rejected'
+        );
+
+
+        requestBtn.style.display =
+          'inline-flex';
+
+
+        payBtn.style.display =
+          'none';
+
+
+        document.getElementById(
+          'access-message'
+        ).textContent =
+          'Your access request was rejected.';
+
+      }
+
+
+      else if (
+        statusText === 'AUTHORIZED'
+      ) {
+
+        statusEl.classList.add(
+          'authorized'
+        );
+
+
+        requestBtn.style.display =
+          'none';
+
+
+        payBtn.style.display =
+          'none';
+
+
+        document.getElementById(
+          'access-message'
+        ).textContent =
+          'You already have authorized access.';
+
+      }
+
+
+    } catch (error) {
+
+      console.error(
+        'Access status error:',
+        error
+      );
+
+
+      statusEl.textContent =
+        'Unable to check';
+
+
+      statusEl.className =
+        'access-status';
+
+
+      payBtn.style.display =
+        'none';
+
+
+      document.getElementById(
+        'access-message'
+      ).textContent =
+        'Could not read access status from the blockchain.';
+
+    }
+
+  }
+
+
+  /* =========================================================
+     REQUEST ACCESS
+  ========================================================= */
+
+  async function requestAccess() {
+
+    if (!Wallet.isConnected()) {
+
+      Toast.warning(
+        'Connect your wallet first.'
+      );
+
+      return;
+
+    }
+
+
+    if (!datasetId) {
+
+      Toast.error(
+        'Dataset ID is missing.'
+      );
+
+      return;
+
+    }
+
+
+    const btn =
+      document.getElementById(
+        'request-access-btn'
+      );
+
+
+    btn.disabled =
+      true;
+
+
+    document.getElementById(
+      'access-message'
+    ).textContent =
+      'Waiting for MetaMask confirmation...';
+
+
+    try {
+
+      const provider =
+        getProvider();
+
+
+      const signer =
+        await provider.getSigner();
+
+
+      const contract =
+        new ethers.Contract(
+          CONTRACT_ADDRESS,
+          CONTRACT_ABI,
+          signer
+        );
+
+
+      const tx =
+        await contract.requestAccess(
+          datasetId
+        );
+
+
+      document.getElementById(
+        'access-message'
+      ).textContent =
+        'Transaction submitted. Waiting for confirmation...';
+
+
+      showTransactionHash(
+        tx.hash
+      );
+
+
+      await tx.wait();
+
+
+      Toast.success(
+        'Access request submitted successfully.'
+      );
+
+
+      await loadAccessStatus();
+
+
+    } catch (error) {
+
+      console.error(
+        'Request access error:',
+        error
+      );
+
+
+      if (
+        error.code === 4001 ||
+        error.code === 'ACTION_REJECTED'
+      ) {
+
+        Toast.warning(
+          'MetaMask transaction was rejected.'
+        );
+
+      } else {
+
+        Toast.error(
+          error.shortMessage ||
+          error.reason ||
+          error.message ||
+          'Access request failed.'
+        );
+
+      }
+
+
+      btn.disabled =
+        false;
+
+
+      await loadAccessStatus();
+
+    }
+
+  }
+
+
+  /* =========================================================
+     PAYMENT
+  ========================================================= */
+
+  async function payForDataset() {
+
+    if (!Wallet.isConnected()) {
+
+      Toast.warning(
+        'Connect your wallet first.'
+      );
+
+      return;
+
+    }
+
+
+    if (!datasetId) {
+
+      Toast.error(
+        'Dataset ID is missing.'
+      );
+
+      return;
+
+    }
+
+
+    if (
+      datasetPriceWei === null
+    ) {
+
+      Toast.error(
+        'Dataset price is not available.'
+      );
+
+      return;
+
+    }
+
+
+    const payBtn =
+      document.getElementById(
+        'pay-btn'
+      );
+
+
+    payBtn.disabled =
+      true;
+
+
+    document.getElementById(
+      'access-message'
+    ).textContent =
+      'Waiting for MetaMask payment confirmation...';
+
+
+    try {
+
+      const provider =
+        getProvider();
+
+
+      const signer =
+        await provider.getSigner();
+
+
+      const contract =
+        new ethers.Contract(
+          CONTRACT_ADDRESS,
+          CONTRACT_ABI,
+          signer
+        );
+
+
+      const tx =
+        await contract.buyData(
+          datasetId,
+          {
+            value: datasetPriceWei
+          }
+        );
+
+
+      showTransactionHash(
+        tx.hash
+      );
+
+
+      document.getElementById(
+        'access-message'
+      ).textContent =
+        'Payment submitted. Waiting for confirmation...';
+
+
+      await tx.wait();
+
+
+      Toast.success(
+        'Payment successful. Access is now authorized.'
+      );
+
+
+      await loadAccessStatus();
+
+    } catch (error) {
+
+      console.error(
+        'Payment error:',
+        error
+      );
+
+
+      if (
+        error.code === 4001 ||
+        error.code === 'ACTION_REJECTED'
+      ) {
+
+        Toast.warning(
+          'MetaMask payment was rejected.'
+        );
+
+      } else {
+
+        Toast.error(
+          error.shortMessage ||
+          error.reason ||
+          error.message ||
+          'Payment failed.'
+        );
+
+      }
+
+    } finally {
+
+      payBtn.disabled =
+        false;
+
+    }
+
+  }
+
+
+  /* =========================================================
+     TRANSACTION HASH DISPLAY
+  ========================================================= */
+
+  function showTransactionHash(hash) {
+
+    const box =
+      document.getElementById(
+        'tx-box'
+      );
+
+
+    box.style.display =
+      'block';
+
+
+    box.textContent =
+      `Transaction hash: ${hash}`;
+
+  }
+
+
+  /* =========================================================
+     BUTTON EVENTS
+  ========================================================= */
+
+  document
+    .getElementById(
+      'request-access-btn'
+    )
+    .addEventListener(
+      'click',
+      requestAccess
+    );
+
+
+  document
+    .getElementById(
+      'pay-btn'
+    )
+    .addEventListener(
+      'click',
+      payForDataset
+    );
+
+
+  /* =========================================================
+     REFRESH ACCESS STATUS AFTER WALLET CONNECT
+  ========================================================= */
+
+  const walletButton =
+    document.querySelector(
+      '[data-wallet-connect]'
+    );
+
+
+  if (walletButton) {
+
+    walletButton.addEventListener(
+      'click',
+      () => {
+
+        setTimeout(
+          () => {
+            loadAccessStatus();
+          },
+          800
+        );
+
+      }
+    );
+
+  }
+
+
+  /* =========================================================
+     META MASK ACCOUNT CHANGE
+  ========================================================= */
+
+  if (
+    typeof window.ethereum !== 'undefined'
+  ) {
+
+    window.ethereum.on(
+      'accountsChanged',
+      async (accounts) => {
+
+        if (
+          accounts &&
+          accounts.length
+        ) {
+
+          Wallet.setAddress(
+            accounts[0]
+          );
+
+        } else {
+
+          Wallet.disconnect();
+
+        }
+
+
+        syncWalletUI(
+          Wallet.getAddress()
+        );
+
+
+        await loadAccessStatus();
+
+      }
+    );
+
+  }
+
+
+  /* =========================================================
+     INITIAL PAGE LOAD
+  ========================================================= */
+
+  document.addEventListener(
+    'DOMContentLoaded',
+    async () => {
+
+      await loadDataset();
+
+    }
+  );
+
+</script>
+
+</body>
+</html>

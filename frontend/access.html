@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Company Access - DataChain</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .page-grid {
+      display: grid;
+      gap: 20px;
+    }
+
+    .status-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-size: .72rem;
+      font-weight: 800;
+      background: var(--warm-sub);
+      color: var(--warm);
+    }
+
+    .status-badge.verified {
+      background: var(--accent-sub);
+      color: var(--accent);
+    }
+
+    .request-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .request-card:last-child {
+      border-bottom: none;
+    }
+
+    .request-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .muted-note {
+      color: var(--text-3);
+      font-size: .78rem;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="site-wrap">
+
+  <header class="app-header">
+    <div class="logo">Data<em>Chain</em></div>
+
+    <div class="hdr-spacer"></div>
+
+    <button
+      class="btn btn-secondary"
+      data-wallet-connect
+      data-wallet-label="Connect Wallet">
+      Connect Wallet
+    </button>
+  </header>
+
+  <main class="main-content">
+    <div class="content-inner page-grid">
+
+      <!-- Company registration -->
+      <section class="card">
+
+        <div class="section-hdr">
+          <div>
+            <h1 class="section-ttl">Company Access</h1>
+            <p style="color:var(--text-2);margin-top:6px;">
+              Register your company and manage dataset access.
+            </p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="company-name">
+            Company Name
+          </label>
+
+          <input
+            id="company-name"
+            class="form-input"
+            type="text"
+            placeholder="Enter company name">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="company-email">
+            Company Email
+          </label>
+
+          <input
+            id="company-email"
+            class="form-input"
+            type="email"
+            placeholder="company@example.com">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="company-purpose">
+            Intended Data Usage
+          </label>
+
+          <textarea
+            id="company-purpose"
+            class="form-input form-textarea"
+            placeholder="Explain how your company intends to use marketplace data."></textarea>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+
+          <button
+            class="btn btn-primary"
+            id="register-company-btn">
+            Register Company
+          </button>
+
+          <span
+            id="company-status"
+            class="status-badge">
+            Not registered
+          </span>
+
+        </div>
+
+        <p class="muted-note" style="margin-top:12px;">
+          Company registration will be connected to the Phase 2 backend API once
+          the company-management endpoint is available.
+        </p>
+
+      </section>
+
+
+      <!-- Wallet -->
+      <section class="card">
+
+        <h2 style="margin-bottom:10px;">
+          Connected Wallet
+        </h2>
+
+        <span class="wallet-addr-txt">
+          Not connected
+        </span>
+
+      </section>
+
+
+      <!-- Access requests -->
+      <section class="card">
+
+        <div class="section-hdr">
+          <h2 class="section-ttl">
+            My Access Requests
+          </h2>
+        </div>
+
+        <div id="requests-list">
+
+          <div class="empty-state">
+            <h3>No requests loaded</h3>
+            <p>
+              Access-request APIs will be connected when available.
+            </p>
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+</div>
+
+
+<script src="app.js"></script>
+
+<script>
+
+document.getElementById('register-company-btn')
+  .addEventListener('click', async () => {
+
+    const wallet = Wallet.getAddress();
+
+    if (!wallet) {
+      Toast.warning('Connect your wallet first.');
+      return;
+    }
+
+    const name =
+      document.getElementById('company-name').value.trim();
+
+    const email =
+      document.getElementById('company-email').value.trim();
+
+    const purpose =
+      document.getElementById('company-purpose').value.trim();
+
+    if (!name || !email || !purpose) {
+      Toast.warning('Please fill in all company details.');
+      return;
+    }
+
+    /*
+     * The actual company-registration API will be added
+     * after Member 2 provides its endpoint and request format.
+     */
+
+    document.getElementById('company-status').textContent =
+      'Pending API';
+
+    Toast.show(
+      'Company registration UI is ready. Backend API integration is pending.'
+    );
+  });
+
+</script>
+
+</body>
+</html>

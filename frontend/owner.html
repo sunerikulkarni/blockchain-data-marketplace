@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Owner Dashboard - DataChain</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="site-wrap">
+
+  <header class="app-header">
+    <div class="logo">Data<em>Chain</em></div>
+
+    <div class="hdr-spacer"></div>
+
+    <button
+      class="btn btn-secondary"
+      data-wallet-connect
+      data-wallet-label="Connect Wallet">
+      Connect Wallet
+    </button>
+  </header>
+
+  <main class="main-content">
+
+    <div class="content-inner">
+
+      <!-- Page heading -->
+      <div class="section-hdr">
+        <div>
+          <h1 class="section-ttl">Owner Dashboard</h1>
+          <p style="color:var(--text-2);margin-top:6px;">
+            Manage your datasets and access requests.
+          </p>
+        </div>
+      </div>
+
+
+      <!-- Wallet -->
+      <section class="card" style="margin-bottom:20px;">
+
+        <h2 style="margin-bottom:12px;">
+          Wallet
+        </h2>
+
+        <div>
+          <strong>Connected Address:</strong>
+
+          <span class="wallet-addr-txt">
+            Not connected
+          </span>
+        </div>
+
+      </section>
+
+
+      <!-- Owner datasets -->
+      <section class="card" style="margin-bottom:20px;">
+
+        <div class="section-hdr">
+          <h2 class="section-ttl">
+            My Datasets
+          </h2>
+
+          <a href="addData.html" class="btn btn-primary btn-sm">
+            + Add Dataset
+          </a>
+        </div>
+
+        <div id="owner-datasets">
+
+          <div class="empty-state">
+            <h3>Loading datasets...</h3>
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- Access requests -->
+      <section class="card">
+
+        <div class="section-hdr">
+          <h2 class="section-ttl">
+            Access Requests
+          </h2>
+        </div>
+
+        <div id="access-requests">
+
+          <div class="empty-state">
+            <h3>Loading requests...</h3>
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+</div>
+
+
+<script src="app.js"></script>
+
+<script>
+
+async function loadOwnerDashboard() {
+
+  const wallet = Wallet.getAddress();
+
+  if (!wallet) {
+
+    document.getElementById('owner-datasets').innerHTML = `
+      <div class="empty-state">
+        <h3>Connect your wallet</h3>
+        <p>
+          Connect your MetaMask wallet to view your datasets.
+        </p>
+      </div>
+    `;
+
+    document.getElementById('access-requests').innerHTML = `
+      <div class="empty-state">
+        <h3>Wallet required</h3>
+        <p>
+          Connect your wallet to view access requests.
+        </p>
+      </div>
+    `;
+
+    return;
+  }
+
+
+  /*
+   * TEMPORARY:
+   * The existing backend does not yet provide
+   * a "get my datasets" endpoint.
+   *
+   * We will connect this section to Member 2's
+   * Phase 2 API when that endpoint is available.
+   */
+
+  document.getElementById('owner-datasets').innerHTML = `
+    <div class="empty-state">
+      <h3>Owner dataset API pending</h3>
+      <p>
+        Your datasets will appear here once the
+        Phase 2 owner API is connected.
+      </p>
+    </div>
+  `;
+
+
+  /*
+   * TEMPORARY:
+   * Access-request API will be connected once
+   * Member 2 provides the Phase 2 endpoint.
+   */
+
+  document.getElementById('access-requests').innerHTML = `
+    <div class="empty-state">
+      <h3>Access request API pending</h3>
+      <p>
+        Incoming requests will appear here once
+        the Phase 2 API is available.
+      </p>
+    </div>
+  `;
+
+}
+
+
+document.addEventListener(
+  'DOMContentLoaded',
+  loadOwnerDashboard
+);
+
+</script>
+
+</body>
+</html>

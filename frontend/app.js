@@ -192,6 +192,13 @@ function renderDataCard(item, onBuy) {
       </button>
     </div>`;
   el.querySelector('.buy-btn').addEventListener('click', () => onBuy && onBuy(item));
+    el.addEventListener('click', (e) => {
+      if (e.target.closest('.buy-btn')) return;
+
+      if (item._id) {
+        window.location.href = `dataset.html?id=${encodeURIComponent(item._id)}`;
+      }
+    });
   return el;
 }
 

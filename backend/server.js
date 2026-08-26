@@ -7,7 +7,7 @@ const cors       = require('cors');
 const connectDB  = require('./config/db');
 const dataRoutes = require('./routes/dataRoutes');
 const txnRoutes  = require('./routes/transactionRoutes');
-
+const member3Routes = require('./routes/member3Routes');
 // ── Connect to MongoDB ───────────────────────────────────────
 connectDB();
 
@@ -42,7 +42,7 @@ app.get('/', (req, res) => {
 // ── Routes ───────────────────────────────────────────────────
 app.use('/', dataRoutes);   // dataset CRUD
 app.use('/', txnRoutes);    // buy & transaction history
-
+app.use('/', member3Routes);
 // ── 404 handler ──────────────────────────────────────────────
 app.use((req, res) => {
   res.status(404).json({ success: false, message: `Route ${req.method} ${req.path} not found` });

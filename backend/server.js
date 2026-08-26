@@ -9,7 +9,7 @@ const dataRoutes = require('./Routes/dataRoutes');
 const txnRoutes = require('./Routes/transactionRoutes');
 const companyRoutes = require('./Routes/companyRoutes');
 const accessRequestRoutes = require('./Routes/accessRequestRoutes');
-
+const member3Routes = require('./Routes/member3Routes');
 // ── Connect to MongoDB ───────────────────────────────────────
 connectDB();
 
@@ -42,13 +42,13 @@ app.get('/', (req, res) => {
 });
 
 // ── Routes ───────────────────────────────────────────────────
+// ── Routes ───────────────────────────────────────────────────
 app.use('/', dataRoutes);
 app.use('/', txnRoutes);
 
 app.use('/', companyRoutes);
-app.use('/', accessRequestRoutes);   // buy & transaction history
-
-// ── 404 handler ──────────────────────────────────────────────
+app.use('/', accessRequestRoutes);
+app.use('/', member3Routes);// ── 404 handler ──────────────────────────────────────────────
 app.use((req, res) => {
   res.status(404).json({ success: false, message: `Route ${req.method} ${req.path} not found` });
 });

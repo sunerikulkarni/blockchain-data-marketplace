@@ -16,8 +16,13 @@ async function uploadToIPFS(content, fileName) {
         fileName
     );
 
+    formData.append(
+        "network",
+        "public"
+    );
+
     const response = await fetch(
-        "https://api.pinata.cloud/pinning/pinFileToIPFS",
+        "https://uploads.pinata.cloud/v3/files",
         {
             method: "POST",
             headers: {
@@ -37,9 +42,18 @@ async function uploadToIPFS(content, fileName) {
 
     const result = await response.json();
 
-    return result.IpfsHash;
+const cid =
+    result.cid ||
+    result.data?.cid;
+
+if (!cid) {
+    throw new Error(
+        `IPFS upload succeeded but CID was not returned: ${JSON.stringify(result)}`
+    );
 }
 
+return cid;
+}
 async function retrieveFromIPFS(cid) {
     const response = await fetch(
         `https://gateway.pinata.cloud/ipfs/${cid}`

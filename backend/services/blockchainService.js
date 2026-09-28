@@ -7,7 +7,24 @@ const contractABI = [
     "event DataAdded(uint indexed id, address indexed owner, uint price)"
 ];
 
-function getContract() {
+function getReadContract() {
+
+    const provider = new ethers.JsonRpcProvider(
+        process.env.BLOCKCHAIN_RPC_URL
+    );
+
+    return new ethers.Contract(
+        process.env.CONTRACT_ADDRESS,
+        contractABI,
+        provider
+    );
+}
+
+function getWriteContract() {
+
+    if (!process.env.PRIVATE_KEY) {
+        throw new Error("PRIVATE_KEY is missing in .env");
+    }
 
     const provider = new ethers.JsonRpcProvider(
         process.env.BLOCKCHAIN_RPC_URL
@@ -25,7 +42,6 @@ function getContract() {
     );
 }
 
-
 /*
  * Add a dataset to the existing DataMarketplace contract.
  *
@@ -41,7 +57,7 @@ async function addDataset(
     dataHash
 ) {
 
-    const contract = getContract();
+    const contract = getWriteContract();
 
     const priceInWei =
         ethers.parseEther(String(price));
@@ -114,7 +130,7 @@ async function addDataset(
  */
 async function getDataset(datasetId) {
 
-    const contract = getContract();
+    const contract = getReadContract();
 
     const dataset =
         await contract.getData(datasetId);

@@ -2,6 +2,7 @@
 // Records and retrieves purchase transactions.
 
 const express = require('express');
+const mongoose = require('mongoose');
 const { body, validationResult } = require('express-validator');
 const Transaction = require('../models/Transaction');
 const Data        = require('../models/Data');
@@ -28,27 +29,56 @@ router.post(
   async (req, res) => {
     if (validate(req, res)) return;
     try {
-      const { dataId, buyer, txHash } = req.body;
+      const { dataId, buyer, txHash, seller, amount, name, category, blockchainId } = req.body;
 
-      // Fetch the dataset being purchased
-      const dataset = await Data.findById(dataId);
-      if (!dataset) return res.status(404).json({ success: false, message: 'Dataset not found' });
-      if (dataset.status !== 'active') return res.status(400).json({ success: false, message: 'Dataset is not available' });
+      if (txHash) {
+        const existing = await Transaction.findOne({ txHash });
+        if (existing) {
+          return res.json({ success: true, transaction: existing, duplicate: true });
+        }
+      }
 
-      // Record the transaction
+      const isMongoId = mongoose.Types.ObjectId.isValid(dataId) && String(new mongoose.Types.ObjectId(dataId)) === String(dataId);
+
+      if (isMongoId) {
+        const dataset = await Data.findById(dataId);
+        if (!dataset) return res.status(404).json({ success: false, message: 'Dataset not found' });
+        if (dataset.status !== 'active') return res.status(400).json({ success: false, message: 'Dataset is not available' });
+
+        const txn = await Transaction.create({
+          dataId: dataset._id,
+          blockchainId: dataset.blockchainId || blockchainId || null,
+          dataName: dataset.name,
+          buyer: buyer || null,
+          seller: dataset.seller || seller || null,
+          amount: dataset.price,
+          category: dataset.category,
+          txHash: txHash || null,
+          status: 'confirmed',
+        });
+
+        await Data.findByIdAndUpdate(dataId, { $inc: { sales: 1 } });
+        return res.status(201).json({ success: true, transaction: txn });
+      }
+
+      if (!name || !amount) {
+        return res.status(400).json({
+          success: false,
+          message: 'On-chain purchases require name and amount (or a Mongo dataId).',
+        });
+      }
+
       const txn = await Transaction.create({
-        dataId:   dataset._id,
-        dataName: dataset.name,
-        buyer:    buyer   || null,
-        seller:   dataset.seller || null,
-        amount:   dataset.price,
-        category: dataset.category,
-        txHash:   txHash  || null,
-        status:   'confirmed',
+        dataId: null,
+        blockchainId: blockchainId || Number(dataId) || null,
+        dataName: name,
+        buyer: buyer || null,
+        seller: seller || null,
+        amount: String(amount),
+        category: category || '',
+        txHash: txHash || null,
+        status: 'confirmed',
       });
-
-      // Increment the sales counter on the dataset
-      await Data.findByIdAndUpdate(dataId, { $inc: { sales: 1 } });
 
       res.status(201).json({ success: true, transaction: txn });
     } catch (err) {

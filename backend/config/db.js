@@ -12,7 +12,7 @@ const connectDB = async () => {
     console.log(`MongoDB connected: ${conn.connection.host}`);
   } catch (error) {
     console.error(`MongoDB connection error: ${error.message}`);
-    process.exit(1); // Stop the server if DB is unreachable
+    console.error('Server will continue. MongoDB-backed routes will fail until the database is available.');
   }
 };
 

@@ -6,7 +6,6 @@
   <title>DataChain — My Listings</title>
   <link rel="stylesheet" href="style.css"/>
   <style>
-    /* ── LISTINGS-SPECIFIC ── */
     .page-banner {
       background: var(--g-hero);
       border: 1px solid var(--border-card);
@@ -32,11 +31,8 @@
     .banner-text h2 { font-family: var(--font-d); font-size: 1.1rem; font-weight: 600; margin-bottom: 3px; }
     .banner-text p  { font-size: .8rem; color: var(--text-2); line-height: 1.55; }
 
-    /* Filter bar */
     .filter-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 12px; flex-wrap: wrap; }
-    .filter-bar .chip-scroll { flex: 1; min-width: 0; }
 
-    /* Listing card — slightly richer than marketplace */
     .listing-card { position: relative; }
     .listing-card .status-dot {
       position: absolute; top: 18px; right: 18px;
@@ -58,7 +54,6 @@
 
     .listing-actions { display: flex; gap: 8px; margin-left: auto; }
 
-    /* Earn summary card */
     .earn-card {
       background: linear-gradient(135deg, var(--accent-sub) 0%, rgba(255,255,255,.5) 100%);
       border: 1px solid var(--accent-pale);
@@ -76,7 +71,6 @@
     }
     .earn-icon svg { width: 24px; height: 24px; }
 
-    /* No wallet banner */
     .no-wallet {
       display: flex; align-items: flex-start; gap: 10px;
       background: var(--warm-sub); border: 1px solid rgba(200,120,68,.28);
@@ -87,7 +81,6 @@
     .no-wallet a { color: var(--warm); text-decoration: underline; }
     .no-wallet.hidden { display: none; }
 
-    /* Cards grid inherits from style.css .cards-grid */
     .listings-list { display: flex; flex-direction: column; gap: 14px; }
 
     @media(min-width:1024px){
@@ -101,82 +94,103 @@
 <div class="site-wrap">
 
   <!-- Sidebar -->
-  <nav class="side-nav" aria-label="Sidebar">
+  <nav class="side-nav" aria-label="Sidebar navigation">
     <div class="side-nav-logo">Data<em>Chain</em></div>
-    <a href="index.html"       class="side-nav-link" data-page="index.html">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home
+    <a href="index.html" class="side-nav-link" data-page="index.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Home
     </a>
     <a href="marketplace.html" class="side-nav-link" data-page="marketplace.html">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Marketplace
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      Marketplace
     </a>
-    <a href="listings.html"    class="side-nav-link" data-page="listings.html">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>My Listings
+    <a href="listings.html" class="side-nav-link" data-page="listings.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      My Listings
+    </a>
+    <a href="addData.html" class="side-nav-link nav-add-side" data-page="addData.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Dataset
     </a>
     <a href="transactions.html" class="side-nav-link" data-page="transactions.html">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>Transactions
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      Transactions
     </a>
-    <a href="addData.html"     class="side-nav-link nav-add-side" data-page="addData.html">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Dataset
+    <a href="access.html" class="side-nav-link" data-page="access.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Company Access
     </a>
-    <a href="profile.html"     class="side-nav-link" data-page="profile.html">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Profile
+    <a href="owner.html" class="side-nav-link" data-page="owner.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-1.5 6.1L12 15l-4-4 4.9-5.5a5.5 5.5 0 1 1 7.1 6.6z"/></svg>
+      Owner Hub
+    </a>
+    <a href="profile.html" class="side-nav-link" data-page="profile.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      Profile
     </a>
     <div class="side-nav-spacer"></div>
-    <div class="side-wallet-chip"><div class="w-dot"></div><span class="wallet-addr-txt">Not connected</span></div>
+    <div class="side-wallet-chip">
+      <div class="w-dot"></div>
+      <span class="wallet-addr-txt">Not connected</span>
+    </div>
   </nav>
 
   <!-- Header -->
   <header class="app-header">
     <div class="hdr-title">My Listings</div>
     <div class="hdr-spacer"></div>
-    <a href="addData.html" class="btn btn-primary btn-sm" style="gap:5px">
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      New
-    </a>
+    <a href="addData.html" class="btn btn-primary btn-sm" style="margin-right:8px;">+ Add Dataset</a>
+    <button class="btn btn-secondary btn-sm" data-wallet-connect data-wallet-label="Connect Wallet">
+      Connect Wallet
+    </button>
   </header>
 
   <!-- Main -->
   <main class="main-content">
     <div class="content-inner">
 
-      <!-- No wallet -->
-      <div class="no-wallet" id="no-wallet-nag">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <span><a href="profile.html">Connect your wallet</a> to view and manage your listings.</span>
+      <div class="page-banner anim-up">
+        <div class="banner-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        </div>
+        <div class="banner-text">
+          <h2>Seller Portfolio</h2>
+          <p>Monitor real datasets registered by your wallet on the blockchain and manage incoming buyer requests in the Owner Hub.</p>
+        </div>
       </div>
 
-      <!-- Earnings summary -->
+      <div class="no-wallet" id="no-wallet-nag">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>Connect your MetaMask wallet on Sepolia to view the datasets you own and track sales.</span>
+      </div>
+
+      <!-- Earn card -->
       <div class="earn-card anim-up">
         <div class="earn-left">
           <h3 id="total-earned">0.0000 ETH</h3>
-          <p>Total earned</p>
+          <p>Potential Revenue from Listings</p>
         </div>
         <div class="earn-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
         </div>
       </div>
 
       <!-- Filter bar -->
       <div class="filter-bar">
-        <div class="chip-scroll" id="status-chips">
-          <button class="chip active" data-status="all">All</button>
-          <button class="chip" data-status="active">Active</button>
-          <button class="chip" data-status="inactive">Inactive</button>
-        </div>
-        <span class="text-xs text-muted" id="listing-count"></span>
+        <span class="results-count" id="listing-count">Loading listings…</span>
+        <a href="owner.html" class="btn btn-secondary btn-sm">
+          Open Owner Hub ↗
+        </a>
       </div>
 
-      <!-- List -->
-      <div class="listings-list stagger" id="listings-list"></div>
+      <!-- Listings container -->
+      <div id="listings-list" class="listings-list"></div>
 
-      <!-- Empty -->
       <div class="empty-state hidden" id="empty-listings">
-        <div class="empty-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        </div>
-        <h3>No listings yet</h3>
-        <p>Start earning by publishing your first dataset.</p>
-        <a href="addData.html" class="btn btn-primary mt-12">+ Add Dataset</a>
+        <div class="empty-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+        <h3>No datasets listed by this wallet</h3>
+        <p>You haven't listed any datasets on the blockchain yet.</p>
+        <a href="addData.html" class="btn btn-primary mt-12">+ List Your First Dataset</a>
       </div>
 
     </div>
@@ -193,9 +207,15 @@
       <span class="b-nav-label">Market</span>
     </a>
     <div class="b-nav-add-wrap">
-      <a href="addData.html" class="b-nav-add" aria-label="Add"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></a>
+      <a href="addData.html" class="b-nav-add" aria-label="Add Dataset">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </a>
       <span class="b-nav-add-label">Add</span>
     </div>
+    <a href="owner.html" class="b-nav-item" data-page="owner.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-1.5 6.1L12 15l-4-4 4.9-5.5a5.5 5.5 0 1 1 7.1 6.6z"/></svg>
+      <span class="b-nav-label">Owner</span>
+    </a>
     <a href="profile.html" class="b-nav-item" data-page="profile.html">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
       <span class="b-nav-label">Profile</span>
@@ -205,47 +225,47 @@
 </div>
 
 <script src="app.js"></script>
+<!-- ethers.js -->
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.15.0/dist/ethers.umd.min.js"></script>
+
 <script>
   let allListings = [];
-  let activeStatus = 'all';
-
-  if (Wallet.isConnected()) document.getElementById('no-wallet-nag').classList.add('hidden');
 
   async function loadListings() {
     const listEl = document.getElementById('listings-list');
-    listEl.innerHTML = '';
-    skeletonCards(3).forEach(s => listEl.appendChild(s));
+    const emptyEl = document.getElementById('empty-listings');
+    const nagEl = document.getElementById('no-wallet-nag');
+    const walletAddr = Wallet.getAddress();
 
-    try {
-      const walletAddr = Wallet.getAddress();
-      // Fetch user's listings from backend (filter by seller address)
-      const data = await API.get('/getData');
-      // In a real app, filter by seller === walletAddr
-      // For now show all local sell transactions + fetched data
-      const localSells = Transactions.getAll()
-        .filter(t => t.type === 'sell')
-        .map((t, i) => ({
-          _id: 'local_' + i,
-          name: t.name, category: t.category, price: t.price,
-          description: 'Your published dataset.',
-          status: 'active', sales: 0, createdAt: t.timestamp
-        }));
-      allListings = localSells.length ? localSells : data.map(d => ({ ...d, status: 'active', sales: Math.floor(Math.random() * 12) }));
-    } catch {
-      // Fallback mock
-      allListings = Transactions.getAll()
-        .filter(t => t.type === 'sell')
-        .map((t, i) => ({
-          _id: 'local_' + i,
-          name: t.name, category: t.category, price: t.price,
-          description: 'Your published dataset.',
-          status: 'active', sales: 0, createdAt: t.timestamp
-        }));
+    if (!walletAddr) {
+      if (nagEl) nagEl.classList.remove('hidden');
+      listEl.innerHTML = '';
+      emptyEl.classList.remove('hidden');
+      document.getElementById('listing-count').textContent = 'Connect wallet to view';
+      document.getElementById('total-earned').textContent = '0.0000 ETH';
+      return;
     }
 
-    // Compute total earned
-    const earned = allListings.reduce((sum, d) => sum + (parseFloat(d.price) * (d.sales || 0)), 0);
-    document.getElementById('total-earned').textContent = earned.toFixed(4) + ' ETH';
+    if (nagEl) nagEl.classList.add('hidden');
+    listEl.innerHTML = '';
+    skeletonCards(2).forEach(s => listEl.appendChild(s));
+
+    allListings = [];
+    const normalizedWallet = walletAddr.toLowerCase();
+
+    try {
+      const datasets = await loadOnChainDatasets();
+      allListings = datasets.filter(d => d.owner && d.owner.toLowerCase() === normalizedWallet);
+    } catch (chainErr) {
+      listEl.innerHTML = `<div class="error-banner">${esc(chainErr.message || 'Could not load listings from Sepolia.')}</div>`;
+      document.getElementById('listing-count').textContent = 'Unable to load listings';
+      document.getElementById('total-earned').textContent = '—';
+      return;
+    }
+
+    // Calculate total potential value
+    const totalPotential = allListings.reduce((sum, d) => sum + parseFloat(d.price || 0), 0);
+    document.getElementById('total-earned').textContent = totalPotential.toFixed(4) + ' ETH';
 
     renderListings();
   }
@@ -255,22 +275,21 @@
     const emptyEl = document.getElementById('empty-listings');
     listEl.innerHTML = '';
 
-    const filtered = activeStatus === 'all'
-      ? allListings
-      : allListings.filter(d => d.status === activeStatus);
+    document.getElementById('listing-count').textContent = `${allListings.length} listing${allListings.length !== 1 ? 's' : ''}`;
 
-    document.getElementById('listing-count').textContent = `${filtered.length} listing${filtered.length !== 1 ? 's' : ''}`;
-
-    if (!filtered.length) { emptyEl.classList.remove('hidden'); return; }
+    if (!allListings.length) {
+      emptyEl.classList.remove('hidden');
+      return;
+    }
     emptyEl.classList.add('hidden');
 
-    filtered.forEach(item => {
+    allListings.forEach(item => {
       const bc = badgeClass(item.category);
-      const isActive = item.status !== 'inactive';
+      const targetId = item.id !== undefined ? item.id : item._id;
       const card = document.createElement('div');
       card.className = 'card card-hover listing-card anim-up';
       card.innerHTML = `
-        <div class="status-dot ${isActive ? 'active' : 'inactive'}" title="${isActive ? 'Active' : 'Inactive'}"></div>
+        <div class="status-dot active" title="Active on Sepolia"></div>
         <div class="dc-header" style="padding-right:16px">
           <div>
             <div class="dc-name">${esc(item.name)}</div>
@@ -284,49 +303,31 @@
         <p class="dc-desc">${esc(item.description || '')}</p>
         <div class="listing-meta-row">
           <div class="listing-meta-item">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-            <span>${item.sales || 0} sales</span>
-          </div>
-          <div class="listing-meta-item">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span>${item.createdAt ? fmtDate(item.createdAt) : 'Recently'}</span>
+            <span>${item.id !== undefined ? `Sepolia Dataset #${item.id}` : 'Backend Listing'}</span>
           </div>
           <div class="listing-actions">
-            <button class="btn btn-secondary btn-sm toggle-status-btn" data-id="${item._id}" data-status="${item.status}">
-              ${isActive ? 'Deactivate' : 'Activate'}
-            </button>
-            <button class="btn btn-ghost btn-sm delete-btn" data-id="${item._id}" style="color:var(--danger)">Remove</button>
+            <a href="dataset.html?id=${encodeURIComponent(targetId)}" class="btn btn-secondary btn-sm">
+              View Dataset
+            </a>
+            <a href="owner.html" class="btn btn-primary btn-sm">
+              Manage Access
+            </a>
           </div>
         </div>`;
-
-      card.querySelector('.toggle-status-btn').addEventListener('click', function () {
-        const idx = allListings.findIndex(d => String(d._id) === this.dataset.id);
-        if (idx > -1) {
-          allListings[idx].status = allListings[idx].status === 'active' ? 'inactive' : 'active';
-          Toast.success(`Listing ${allListings[idx].status === 'active' ? 'activated' : 'deactivated'}.`);
-          renderListings();
-        }
-      });
-      card.querySelector('.delete-btn').addEventListener('click', function () {
-        if (!confirm('Remove this listing?')) return;
-        allListings = allListings.filter(d => String(d._id) !== this.dataset.id);
-        Toast.show('Listing removed.');
-        renderListings();
-      });
-
       listEl.appendChild(card);
     });
   }
 
-  document.getElementById('status-chips').addEventListener('click', e => {
-    const chip = e.target.closest('.chip'); if (!chip) return;
-    document.querySelectorAll('#status-chips .chip').forEach(c => c.classList.remove('active'));
-    chip.classList.add('active');
-    activeStatus = chip.dataset.status;
-    renderListings();
-  });
+  // Refresh upon wallet connection
+  const walletBtn = document.querySelector('[data-wallet-connect]');
+  if (walletBtn) {
+    walletBtn.addEventListener('click', () => {
+      setTimeout(loadListings, 800);
+    });
+  }
 
-  loadListings();
+  document.addEventListener('DOMContentLoaded', loadListings);
 </script>
 </body>
 </html>

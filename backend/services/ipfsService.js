@@ -55,17 +55,26 @@ if (!cid) {
 return cid;
 }
 async function retrieveFromIPFS(cid) {
-    const response = await fetch(
-        `https://gateway.pinata.cloud/ipfs/${cid}`
-    );
+    const gateways = [
+        `https://gateway.pinata.cloud/ipfs/${cid}`,
+        `https://dweb.link/ipfs/${cid}`,
+        `https://ipfs.filebase.io/ipfs/${cid}`
+    ];
 
-    if (!response.ok) {
-        throw new Error("Unable to retrieve data from IPFS");
+    for (const url of gateways) {
+        try {
+            const response = await fetch(url);
+
+            if (response.ok) {
+                return await response.text();
+            }
+        } catch (error) {
+            console.log(`IPFS gateway failed: ${url}`);
+        }
     }
 
-    return await response.text();
+    throw new Error("Unable to retrieve data from IPFS");
 }
-
 module.exports = {
     uploadToIPFS,
     retrieveFromIPFS

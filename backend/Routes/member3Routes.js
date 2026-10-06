@@ -4,7 +4,8 @@ const router = express.Router();
 
 const {
     uploadDataset,
-    verifyDataset
+    verifyDataset,
+    getIPFSData
 } = require("../controllers/dataController");
 
 // Member 3: Upload encrypted + hashed dataset
@@ -17,6 +18,12 @@ router.post(
 router.get(
     "/verify/:datasetId",
     verifyDataset
+);
+
+// Member 3: Retrieve encrypted dataset from IPFS with on-chain access verification
+router.get(
+    "/ipfs/:cid",
+    getIPFSData
 );
 
 module.exports = router;

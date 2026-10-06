@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Company Access - DataChain</title>
+  <title>DataChain — Company Access</title>
   <link rel="stylesheet" href="style.css">
 
   <style>
@@ -11,72 +11,145 @@
       display: grid;
       gap: 20px;
     }
+    .page-grid > * { min-width: 0; }
 
-    .status-card {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
+    .page-intro {
+      background: var(--g-hero); border: 1px solid var(--border-card);
+      border-radius: var(--r-2xl); padding: 22px 20px; margin-bottom: 4px;
+      display: flex; align-items: center; gap: 16px;
+      position: relative; overflow: hidden;
     }
+    .page-intro::after {
+      content: ''; position: absolute; right: -30px; bottom: -30px;
+      width: 120px; height: 120px;
+      background: radial-gradient(circle, rgba(130,196,138,.26) 0%, transparent 65%);
+      border-radius: 50%; pointer-events: none;
+    }
+    .intro-icon {
+      width: 52px; height: 52px; border-radius: var(--r-xl);
+      background: var(--g-btn); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: var(--sh-btn); color: #fff;
+    }
+    .intro-icon svg { width: 24px; height: 24px; }
+    .intro-text h2 { font-family: var(--font-d); font-size: 1.1rem; font-weight: 600; margin-bottom: 3px; }
+    .intro-text p  { font-size: .8rem; color: var(--text-2); line-height: 1.55; }
+
+    .status-banner {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 14px; flex-wrap: wrap;
+      padding: 14px 18px; border-radius: var(--r-lg);
+      border: 1px solid var(--border-card);
+      background: var(--g-card); margin-bottom: 8px;
+    }
+    .status-lbl { font-size: .78rem; font-weight: 700; color: var(--text-2); }
 
     .status-badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 7px 12px;
-      border-radius: 999px;
-      font-size: .72rem;
-      font-weight: 800;
-      background: var(--warm-sub);
-      color: var(--warm);
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 6px 14px; border-radius: 999px;
+      font-size: .72rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .04em;
     }
-
-    .status-badge.verified {
-      background: var(--accent-sub);
-      color: var(--accent);
-    }
+    .status-badge.not-registered { background: var(--bg-tint); color: var(--text-3); }
+    .status-badge.pending   { background: var(--warm-sub); color: var(--warm); border: 1px solid rgba(200,120,68,.3); }
+    .status-badge.verified  { background: var(--accent-sub); color: var(--accent); border: 1px solid var(--accent-pale); }
+    .status-badge.rejected  { background: var(--danger-sub); color: var(--danger); border: 1px solid rgba(180,64,56,.3); }
 
     .request-card {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
-      padding: 16px 0;
-      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap;
+      padding: 14px 0; border-bottom: 1px solid var(--border);
     }
+    .request-card:last-child { border-bottom: none; }
+    .request-card:first-child { padding-top: 0; }
 
-    .request-card:last-child {
-      border-bottom: none;
+    .req-name { font-size: .875rem; font-weight: 700; color: var(--text-1); }
+    .req-meta { font-size: .72rem; color: var(--text-3); margin-top: 2px; }
+
+    .req-status {
+      display: inline-flex; align-items: center;
+      padding: 4px 12px; border-radius: 999px;
+      font-size: .7rem; font-weight: 800; text-transform: uppercase;
     }
+    .req-status.pending   { background: var(--warm-sub); color: var(--warm); }
+    .req-status.approved  { background: var(--info-sub); color: var(--info); }
+    .req-status.rejected  { background: var(--danger-sub); color: var(--danger); }
+    .req-status.authorized { background: var(--accent-sub); color: var(--accent); }
 
-    .request-actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
+    .no-wallet-banner {
+      display: flex; align-items: flex-start; gap: 10px;
+      background: var(--warm-sub); border: 1px solid rgba(200,120,68,.28);
+      border-radius: var(--r-lg); padding: 12px 14px; margin-bottom: 18px;
+      font-size: .8rem; color: var(--warm); font-weight: 600;
     }
+    .no-wallet-banner svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
+    .no-wallet-banner.hidden { display: none; }
 
-    .muted-note {
-      color: var(--text-3);
-      font-size: .78rem;
-      line-height: 1.6;
+    .form-card {
+      background: var(--g-card); border: 1px solid var(--border-card);
+      border-radius: var(--r-2xl); padding: 24px 20px;
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      box-shadow: var(--sh-sm); display: flex; flex-direction: column; gap: 18px;
+    }
+    .form-section-title {
+      font-size: .72rem; font-weight: 800; color: var(--text-3);
+      text-transform: uppercase; letter-spacing: .07em; margin-bottom: 4px;
     }
   </style>
 </head>
 
 <body>
+<div class="orb orb-1"></div><div class="orb orb-2"></div>
 
 <div class="site-wrap">
 
+  <!-- Sidebar -->
+  <nav class="side-nav" aria-label="Sidebar navigation">
+    <div class="side-nav-logo">Data<em>Chain</em></div>
+    <a href="index.html" class="side-nav-link" data-page="index.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Home
+    </a>
+    <a href="marketplace.html" class="side-nav-link" data-page="marketplace.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      Marketplace
+    </a>
+    <a href="listings.html" class="side-nav-link" data-page="listings.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      My Listings
+    </a>
+    <a href="addData.html" class="side-nav-link nav-add-side" data-page="addData.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Dataset
+    </a>
+    <a href="transactions.html" class="side-nav-link" data-page="transactions.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      Transactions
+    </a>
+    <a href="access.html" class="side-nav-link" data-page="access.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Company Access
+    </a>
+    <a href="owner.html" class="side-nav-link" data-page="owner.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-1.5 6.1L12 15l-4-4 4.9-5.5a5.5 5.5 0 1 1 7.1 6.6z"/></svg>
+      Owner Hub
+    </a>
+    <a href="profile.html" class="side-nav-link" data-page="profile.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      Profile
+    </a>
+    <div class="side-nav-spacer"></div>
+    <div class="side-wallet-chip">
+      <div class="w-dot"></div>
+      <span class="wallet-addr-txt">Not connected</span>
+    </div>
+  </nav>
+
+  <!-- Header -->
   <header class="app-header">
-    <div class="logo">Data<em>Chain</em></div>
-
+    <div class="hdr-title">Company Access</div>
     <div class="hdr-spacer"></div>
-
-    <button
-      class="btn btn-secondary"
-      data-wallet-connect
-      data-wallet-label="Connect Wallet">
+    <button class="btn btn-secondary btn-sm" data-wallet-connect data-wallet-label="Connect Wallet">
       Connect Wallet
     </button>
   </header>
@@ -84,160 +157,364 @@
   <main class="main-content">
     <div class="content-inner page-grid">
 
-      <!-- Company registration -->
-      <section class="card">
+      <!-- Hero intro -->
+      <div class="page-intro anim-up">
+        <div class="intro-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="intro-text">
+          <h2>Company Access Portal</h2>
+          <p>Register your company to request authorized access to DataChain datasets. After registration, your admin will review and verify your account.</p>
+        </div>
+      </div>
 
+      <!-- No wallet banner -->
+      <div class="no-wallet-banner" id="no-wallet-nag">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>Connect your MetaMask wallet to register your company and check registration status.</span>
+      </div>
+
+      <!-- Status banner (shown after wallet connect) -->
+      <div class="status-banner" id="status-banner" style="display:none">
+        <div>
+          <div class="status-lbl">Company Registration Status</div>
+          <div style="font-size:.78rem;color:var(--text-3);margin-top:2px;" id="status-detail">Checking…</div>
+        </div>
+        <span class="status-badge not-registered" id="company-status-badge">Not Registered</span>
+      </div>
+
+      <!-- Registration form -->
+      <section class="card anim-up" id="register-section">
         <div class="section-hdr">
           <div>
-            <h1 class="section-ttl">Company Access</h1>
-            <p style="color:var(--text-2);margin-top:6px;">
-              Register your company and manage dataset access.
+            <h2 class="section-ttl">Register Your Company</h2>
+            <p style="color:var(--text-2);margin-top:6px;font-size:.82rem;">
+              Submit your company details for verification. Registration requires a connected MetaMask wallet.
             </p>
           </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label" for="company-name">
-            Company Name
-          </label>
+        <div style="display:flex;flex-direction:column;gap:16px;margin-top:4px;">
 
-          <input
-            id="company-name"
-            class="form-input"
-            type="text"
-            placeholder="Enter company name">
+          <div class="form-group">
+            <label class="form-label" for="company-name">Company Name *</label>
+            <input id="company-name" class="form-input" type="text" placeholder="e.g. HealthTech Analytics Ltd" maxlength="150">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="company-email">Company Email *</label>
+            <input id="company-email" class="form-input" type="email" placeholder="contact@yourcompany.com">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="company-reg">Registration Number *</label>
+            <input id="company-reg" class="form-input" type="text" placeholder="e.g. CIN-U74999MH2024PLC12345" maxlength="100">
+            <span class="form-helper">Company CIN, LLC number, or official registration ID</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="company-desc">Intended Data Usage</label>
+            <textarea id="company-desc" class="form-input form-textarea" placeholder="Explain how your company intends to use marketplace data — research purpose, analysis type, data handling policy, etc." maxlength="500"></textarea>
+          </div>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            <button class="btn btn-primary" id="register-company-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Register Company
+            </button>
+            <button class="btn btn-secondary" id="check-status-btn">
+              ↻ Check Status
+            </button>
+          </div>
         </div>
-
-        <div class="form-group">
-          <label class="form-label" for="company-email">
-            Company Email
-          </label>
-
-          <input
-            id="company-email"
-            class="form-input"
-            type="email"
-            placeholder="company@example.com">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="company-purpose">
-            Intended Data Usage
-          </label>
-
-          <textarea
-            id="company-purpose"
-            class="form-input form-textarea"
-            placeholder="Explain how your company intends to use marketplace data."></textarea>
-        </div>
-
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-
-          <button
-            class="btn btn-primary"
-            id="register-company-btn">
-            Register Company
-          </button>
-
-          <span
-            id="company-status"
-            class="status-badge">
-            Not registered
-          </span>
-
-        </div>
-
-        <p class="muted-note" style="margin-top:12px;">
-          Company registration will be connected to the Phase 2 backend API once
-          the company-management endpoint is available.
-        </p>
-
       </section>
 
-
-      <!-- Wallet -->
-      <section class="card">
-
-        <h2 style="margin-bottom:10px;">
-          Connected Wallet
-        </h2>
-
-        <span class="wallet-addr-txt">
-          Not connected
-        </span>
-
-      </section>
-
-
-      <!-- Access requests -->
-      <section class="card">
-
+      <!-- Access Requests -->
+      <section class="card anim-up">
         <div class="section-hdr">
-          <h2 class="section-ttl">
-            My Access Requests
-          </h2>
-        </div>
-
-        <div id="requests-list">
-
-          <div class="empty-state">
-            <h3>No requests loaded</h3>
-            <p>
-              Access-request APIs will be connected when available.
+          <div>
+            <h2 class="section-ttl">My Access Requests</h2>
+            <p style="font-size:.78rem;color:var(--text-3);margin-top:4px;">
+              Dataset access requests associated with your company wallet.
             </p>
           </div>
-
+          <button class="btn btn-secondary btn-sm" id="refresh-requests-btn">↻ Refresh</button>
         </div>
 
+        <div id="requests-list" style="margin-top:8px;">
+          <div class="empty-state" style="padding:28px 0">
+            <div class="empty-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <h3>No access requests</h3>
+            <p>Connect your wallet to load access requests for your company.</p>
+          </div>
+        </div>
       </section>
 
     </div>
   </main>
 
+  <!-- Bottom nav -->
+  <nav class="bottom-nav" aria-label="Bottom navigation">
+    <a href="index.html" class="b-nav-item" data-page="index.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="b-nav-label">Home</span>
+    </a>
+    <a href="marketplace.html" class="b-nav-item" data-page="marketplace.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      <span class="b-nav-label">Market</span>
+    </a>
+    <div class="b-nav-add-wrap">
+      <a href="addData.html" class="b-nav-add" aria-label="Add">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </a>
+      <span class="b-nav-add-label">Add</span>
+    </div>
+    <a href="access.html" class="b-nav-item" data-page="access.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span class="b-nav-label">Access</span>
+    </a>
+    <a href="profile.html" class="b-nav-item" data-page="profile.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <span class="b-nav-label">Profile</span>
+    </a>
+  </nav>
+
 </div>
 
-
 <script src="app.js"></script>
-
 <script>
 
-document.getElementById('register-company-btn')
-  .addEventListener('click', async () => {
+/* ──────────────────────────────────────────────────────────
+   Company Status — calls GET /companies/status/:wallet
+   Backend verificationStatus values: 'pending', 'verified', 'rejected'
+────────────────────────────────────────────────────────── */
+async function checkCompanyStatus(wallet) {
+  const bannerEl = document.getElementById('status-banner');
+  const badgeEl  = document.getElementById('company-status-badge');
+  const detailEl = document.getElementById('status-detail');
 
-    const wallet = Wallet.getAddress();
+  bannerEl.style.display = 'flex';
 
-    if (!wallet) {
-      Toast.warning('Connect your wallet first.');
-      return;
+  if (!wallet) {
+    badgeEl.textContent = 'Not Registered';
+    badgeEl.className = 'status-badge not-registered';
+    detailEl.textContent = 'Connect wallet to check registration status.';
+    return;
+  }
+
+  detailEl.textContent = 'Checking…';
+  badgeEl.textContent = '…';
+
+  try {
+    const res = await API.get(`/companies/status/${wallet}`);
+    if (res.success && res.data) {
+      const s = res.data.verificationStatus;
+      const name = res.data.companyName;
+      detailEl.textContent = name ? `Registered as: ${name}` : 'Company found';
+      if (s === 'pending') {
+        badgeEl.textContent = 'Pending Verification';
+        badgeEl.className = 'status-badge pending';
+      } else if (s === 'verified') {
+        badgeEl.textContent = 'Verified ✓';
+        badgeEl.className = 'status-badge verified';
+      } else if (s === 'rejected') {
+        badgeEl.textContent = 'Rejected';
+        badgeEl.className = 'status-badge rejected';
+        if (res.data.rejectionReason) {
+          detailEl.textContent += ` — Reason: ${res.data.rejectionReason}`;
+        }
+      }
     }
-
-    const name =
-      document.getElementById('company-name').value.trim();
-
-    const email =
-      document.getElementById('company-email').value.trim();
-
-    const purpose =
-      document.getElementById('company-purpose').value.trim();
-
-    if (!name || !email || !purpose) {
-      Toast.warning('Please fill in all company details.');
-      return;
+  } catch (err) {
+    // 404 = not registered
+    if (err.message.includes('404') || err.message.includes('HTTP 404')) {
+      badgeEl.textContent = 'Not Registered';
+      badgeEl.className = 'status-badge not-registered';
+      detailEl.textContent = 'Your wallet is not registered. Submit the form below.';
+    } else {
+      // Try API response directly
+      try {
+        const res2 = await fetch(`${API_BASE}/companies/status/${wallet}`);
+        const data = await res2.json();
+        if (!data.success && res2.status === 404) {
+          badgeEl.textContent = 'Not Registered';
+          badgeEl.className = 'status-badge not-registered';
+          detailEl.textContent = 'Your wallet is not registered. Submit the form below.';
+        } else {
+          badgeEl.textContent = '—';
+          detailEl.textContent = 'Backend unavailable. Check server.';
+        }
+      } catch {
+        badgeEl.textContent = '—';
+        detailEl.textContent = 'Backend unavailable. Start backend server.';
+      }
     }
+  }
+}
 
-    /*
-     * The actual company-registration API will be added
-     * after Member 2 provides its endpoint and request format.
-     */
+/* ──────────────────────────────────────────────────────────
+   Load access requests — GET /access-requests/company/:wallet
+────────────────────────────────────────────────────────── */
+async function loadAccessRequests(wallet) {
+  const listEl = document.getElementById('requests-list');
+  if (!wallet) {
+    listEl.innerHTML = `<div class="empty-state" style="padding:28px 0">
+      <h3>Wallet not connected</h3>
+      <p>Connect your wallet to load your access requests.</p>
+    </div>`;
+    return;
+  }
 
-    document.getElementById('company-status').textContent =
-      'Pending API';
+  listEl.innerHTML = `<div style="padding:14px;text-align:center;color:var(--text-3);font-size:.82rem;">Loading…</div>`;
 
-    Toast.show(
-      'Company registration UI is ready. Backend API integration is pending.'
-    );
+  try {
+    const res = await API.get(`/access-requests/company/${wallet}`);
+    if (res.success && Array.isArray(res.data) && res.data.length) {
+      listEl.innerHTML = '';
+      res.data.forEach(req => {
+        const datasetName = req.dataId?.name || `Dataset #${req.dataId?.onChainId || req.dataId}`;
+        const status = req.status || 'pending';
+        const card = document.createElement('div');
+        card.className = 'request-card';
+        card.innerHTML = `
+          <div>
+            <div class="req-name">${esc(datasetName)}</div>
+            <div class="req-meta">Requested ${req.createdAt ? fmtDate(req.createdAt) : 'recently'}${req.purpose ? ' · ' + esc(req.purpose) : ''}</div>
+          </div>
+          <span class="req-status ${status}">${status.toUpperCase()}</span>
+        `;
+        listEl.appendChild(card);
+      });
+    } else {
+      listEl.innerHTML = `<div class="empty-state" style="padding:28px 0">
+        <div class="empty-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <h3>No access requests yet</h3>
+        <p>Request dataset access from the Marketplace to see it here.</p>
+        <a href="marketplace.html" class="btn btn-primary mt-12">Browse Marketplace</a>
+      </div>`;
+    }
+  } catch (err) {
+    console.warn('Access requests fetch error:', err.message);
+    listEl.innerHTML = `<div class="empty-state" style="padding:28px 0">
+      <h3>Could not load requests</h3>
+      <p>Backend server may be offline. <a href="marketplace.html" style="color:var(--accent)">Go to Marketplace</a></p>
+    </div>`;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────
+   Register company — POST /companies/register
+   Required fields: companyName, email, registrationNumber, walletAddress
+   Optional: description
+────────────────────────────────────────────────────────── */
+document.getElementById('register-company-btn').addEventListener('click', async () => {
+  const wallet = Wallet.getAddress();
+  if (!wallet) {
+    Toast.warning('Connect your MetaMask wallet first.');
+    return;
+  }
+
+  const companyName        = document.getElementById('company-name').value.trim();
+  const email              = document.getElementById('company-email').value.trim();
+  const registrationNumber = document.getElementById('company-reg').value.trim();
+  const description        = document.getElementById('company-desc').value.trim();
+
+  if (!companyName || !email || !registrationNumber) {
+    Toast.warning('Company name, email, and registration number are required.');
+    return;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    Toast.error('Please enter a valid email address.');
+    return;
+  }
+
+  const btn = document.getElementById('register-company-btn');
+  btn.disabled = true;
+  btn.textContent = 'Registering…';
+
+  try {
+    const res = await API.post('/companies/register', {
+      companyName,
+      email,
+      registrationNumber,
+      walletAddress: wallet,
+      description
+    });
+
+    if (res.success) {
+      Toast.success('Company registered successfully! Awaiting admin verification.');
+      await checkCompanyStatus(wallet);
+    } else {
+      // Show specific error
+      const msg = res.message || (res.errors && res.errors[0]?.msg) || 'Registration failed.';
+      Toast.error(msg);
+    }
+  } catch (err) {
+    if (err.message.includes('409') || err.message.includes('already registered')) {
+      Toast.warning('This wallet is already registered. Checking status…');
+      await checkCompanyStatus(wallet);
+    } else {
+      Toast.error('Backend unavailable. Please ensure the backend server is running.');
+      console.error('Register error:', err.message);
+    }
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Register Company`;
+  }
+});
+
+document.getElementById('check-status-btn').addEventListener('click', async () => {
+  const wallet = Wallet.getAddress();
+  if (!wallet) { Toast.warning('Connect your wallet first.'); return; }
+  await checkCompanyStatus(wallet);
+  Toast.show('Status refreshed.');
+});
+
+document.getElementById('refresh-requests-btn').addEventListener('click', () => {
+  loadAccessRequests(Wallet.getAddress());
+});
+
+/* ── Init ── */
+function initPage() {
+  const wallet = Wallet.getAddress();
+  if (wallet) {
+    document.getElementById('no-wallet-nag').classList.add('hidden');
+    checkCompanyStatus(wallet);
+    loadAccessRequests(wallet);
+  }
+}
+
+// Listen to wallet connect button
+document.querySelectorAll('[data-wallet-connect]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    setTimeout(() => {
+      const wallet = Wallet.getAddress();
+      if (wallet) {
+        document.getElementById('no-wallet-nag').classList.add('hidden');
+        checkCompanyStatus(wallet);
+        loadAccessRequests(wallet);
+      }
+    }, 800);
   });
+});
 
+if (typeof window.ethereum !== 'undefined') {
+  window.ethereum.on('accountsChanged', (accounts) => {
+    if (accounts && accounts.length) {
+      Wallet.setAddress(accounts[0]);
+    } else {
+      Wallet.disconnect();
+    }
+    syncWalletUI(Wallet.getAddress());
+    initPage();
+  });
+}
+
+initPage();
 </script>
 
 </body>

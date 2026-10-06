@@ -8,6 +8,7 @@ const {
   validationResult,
 } = require('express-validator');
 
+const mongoose = require('mongoose');
 const AccessRequest = require('../models/AccessRequest');
 const Company = require('../models/Company');
 const Data = require('../models/Data');
@@ -80,10 +81,16 @@ router.post(
       } = req.body;
 
       // ------------------------------------------------------
-      // 1. Check whether dataset exists
+      // 1. Check whether dataset exists (by ObjectId or on-chain blockchainId)
       // ------------------------------------------------------
 
-      const dataset = await Data.findById(dataId);
+      let dataset = null;
+      if (mongoose.Types.ObjectId.isValid(dataId)) {
+        dataset = await Data.findById(dataId);
+      }
+      if (!dataset && !isNaN(Number(dataId))) {
+        dataset = await Data.findOne({ blockchainId: Number(dataId) });
+      }
 
       if (!dataset) {
         return res.status(404).json({

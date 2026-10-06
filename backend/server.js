@@ -1,7 +1,9 @@
 // server.js
 // Entry point — sets up Express, connects to MongoDB, mounts routes.
 
-require('dotenv').config();          // Load .env variables first
+// Always load backend/.env regardless of CWD the server is started from.
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const express    = require('express');
 const cors       = require('cors');
 const connectDB  = require('./config/db');
@@ -10,6 +12,7 @@ const txnRoutes = require('./Routes/transactionRoutes');
 const companyRoutes = require('./Routes/companyRoutes');
 const accessRequestRoutes = require('./Routes/accessRequestRoutes');
 const member3Routes = require('./Routes/member3Routes');
+const chainRoutes = require('./Routes/chainRoutes');
 // ── Connect to MongoDB ───────────────────────────────────────
 connectDB();
 
@@ -22,11 +25,11 @@ const app = express();
 app.use(cors({
   origin: process.env.FRONTEND_ORIGIN || '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-wallet-address'],
 }));
 
 // Parse JSON bodies
-app.use(express.json({ limit: '1mb' }));
+app.use(express.json({ limit: '8mb' }));
 
 // ── Health check ─────────────────────────────────────────────
 app.get('/', (req, res) => {
@@ -37,6 +40,8 @@ app.get('/', (req, res) => {
     endpoints: {
       data:         '/getData  /addData  /updateData/:id  /deleteData/:id  /categories',
       transactions: '/buyData  /transactions  /transactions/stats',
+      ipfs:         '/upload  /verify/:datasetId  /ipfs/:cid',
+      chain:        '/chain/datasets  /chain/access-requests  /chain/purchases  /chain/health',
     },
   });
 });
@@ -48,7 +53,9 @@ app.use('/', txnRoutes);
 
 app.use('/', companyRoutes);
 app.use('/', accessRequestRoutes);
-app.use('/', member3Routes);// ── 404 handler ──────────────────────────────────────────────
+app.use('/', member3Routes);
+app.use('/', chainRoutes);
+// ── 404 handler ──────────────────────────────────────────────
 app.use((req, res) => {
   res.status(404).json({ success: false, message: `Route ${req.method} ${req.path} not found` });
 });

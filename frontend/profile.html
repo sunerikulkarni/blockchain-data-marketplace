@@ -6,8 +6,7 @@
   <title>DataChain — Profile</title>
   <link rel="stylesheet" href="style.css"/>
   <style>
-    /* On tablet/desktop profile hero + settings sit side by side */
-    @media(min-width:900px){
+    @media(min-width:820px){
       .profile-layout{
         display:grid;
         grid-template-columns:300px 1fr;
@@ -16,8 +15,8 @@
       }
       .profile-col-left{position:sticky;top:calc(var(--hdr-h)+20px)}
     }
+    .profile-layout > * { min-width: 0; }
 
-    /* Hero */
     .profile-hero{
       background:var(--g-hero);border:1px solid var(--border-card);
       border-radius:var(--r-2xl);padding:28px 20px 24px;
@@ -27,7 +26,6 @@
     .profile-hero::before{content:'';position:absolute;left:-50px;top:-50px;width:160px;height:160px;background:var(--g-orb1);border-radius:50%;pointer-events:none}
     .profile-hero::after {content:'';position:absolute;right:-40px;bottom:-40px;width:130px;height:130px;background:var(--g-orb2);border-radius:50%;pointer-events:none}
 
-    /* Avatar */
     .av-wrap{position:relative;display:inline-block;margin-bottom:14px;cursor:pointer;z-index:1}
     .av-ring{width:90px;height:90px;border-radius:50%;padding:3px;background:var(--g-btn);box-shadow:var(--sh-btn)}
     .av-inner{
@@ -65,10 +63,8 @@
       margin:14px 0;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
     }
 
-    /* Stats */
     .p-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
 
-    /* Settings card */
     .s-card{
       background:var(--g-card);border:1px solid var(--border-card);
       border-radius:var(--r-xl);overflow:hidden;
@@ -107,6 +103,15 @@
     .danger-row .s-lbl{color:var(--danger)}
 
     [data-wallet-connect].connected{background:var(--accent-sub);color:var(--accent);border-color:var(--accent-pale)}
+
+    .network-badge{
+      display:inline-flex;align-items:center;gap:5px;
+      background:var(--accent-sub);border:1px solid var(--accent-pale);
+      border-radius:var(--r-f);padding:3px 10px;
+      font-size:.65rem;font-weight:800;color:var(--accent);
+      text-transform:uppercase;letter-spacing:.04em;
+    }
+    .network-badge.wrong{background:var(--danger-sub);border-color:rgba(180,64,56,.25);color:var(--danger)}
   </style>
 </head>
 <body>
@@ -125,9 +130,25 @@
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
       Marketplace
     </a>
+    <a href="listings.html" class="side-nav-link" data-page="listings.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      My Listings
+    </a>
     <a href="addData.html" class="side-nav-link nav-add-side" data-page="addData.html">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Add Dataset
+    </a>
+    <a href="transactions.html" class="side-nav-link" data-page="transactions.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      Transactions
+    </a>
+    <a href="access.html" class="side-nav-link" data-page="access.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Company Access
+    </a>
+    <a href="owner.html" class="side-nav-link" data-page="owner.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-1.5 6.1L12 15l-4-4 4.9-5.5a5.5 5.5 0 1 1 7.1 6.6z"/></svg>
+      Owner Hub
     </a>
     <a href="profile.html" class="side-nav-link" data-page="profile.html">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
@@ -183,8 +204,14 @@
           </div>
 
           <div class="p-stats">
-            <div class="stat-chip"><div class="stat-val" id="stat-listed">0</div><div class="stat-lbl">Listed</div></div>
-            <div class="stat-chip"><div class="stat-val" id="stat-bought">0</div><div class="stat-lbl">Purchased</div></div>
+            <div class="stat-chip">
+              <div class="stat-val" id="stat-listed">—</div>
+              <div class="stat-lbl">Listed</div>
+            </div>
+            <div class="stat-chip">
+              <div class="stat-val" id="stat-bought">0</div>
+              <div class="stat-lbl">Purchased</div>
+            </div>
           </div>
         </div>
 
@@ -223,9 +250,12 @@
             <div class="s-row">
               <div class="s-left">
                 <div class="s-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="2 12 12 2 22 12"/></svg></div>
-                <div><div class="s-lbl">Network</div><div class="s-sub">Ethereum Mainnet</div></div>
+                <div>
+                  <div class="s-lbl">Network</div>
+                  <div class="s-sub" id="network-display">Detecting…</div>
+                </div>
               </div>
-              <span class="badge badge-green">Active</span>
+              <span class="network-badge" id="network-badge">—</span>
             </div>
           </div>
 
@@ -235,15 +265,15 @@
             <div class="s-row">
               <div class="s-left">
                 <div class="s-icon neut"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
-                <div><div class="s-lbl">Version</div><div class="s-sub">DataChain v1.0.0 · Beta</div></div>
+                <div><div class="s-lbl">Version</div><div class="s-sub">DataChain v1.0.0 · Sepolia Testnet</div></div>
               </div>
             </div>
-            <div class="s-row click">
+            <div class="s-row">
               <div class="s-left">
-                <div class="s-icon neut"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-                <div class="s-lbl">Privacy Policy</div>
+                <div class="s-icon neut"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+                <div><div class="s-lbl">Smart Contract</div><div class="s-sub" style="font-family:monospace;font-size:.68rem">0x02018B…F044</div></div>
               </div>
-              <div class="s-chev"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+              <a href="https://sepolia.etherscan.io/address/0x02018B847dA98a987EE59d7F235b2c690085F044" target="_blank" rel="noopener" style="font-size:.72rem;color:var(--accent);font-weight:700">Etherscan ↗</a>
             </div>
           </div>
 
@@ -259,7 +289,7 @@
             <div class="s-row click danger-row" id="clear-row">
               <div class="s-left">
                 <div class="s-icon red"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></div>
-                <div class="s-lbl">Clear Local Data</div>
+                <div class="s-lbl">Clear Local UI Data</div>
               </div>
             </div>
           </div>
@@ -285,6 +315,10 @@
       </a>
       <span class="b-nav-add-label">Add</span>
     </div>
+    <a href="owner.html" class="b-nav-item" data-page="owner.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-1.5 6.1L12 15l-4-4 4.9-5.5a5.5 5.5 0 1 1 7.1 6.6z"/></svg>
+      <span class="b-nav-label">Owner</span>
+    </a>
     <a href="profile.html" class="b-nav-item" data-page="profile.html">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
       <span class="b-nav-label">Profile</span>
@@ -294,53 +328,174 @@
 </div>
 
 <script src="app.js"></script>
+<!-- ethers.js for on-chain queries -->
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.15.0/dist/ethers.umd.min.js"></script>
 <script>
-function loadProfile(){
-  const name=Profile.getName();
-  document.getElementById('p-name').value=name;
-  document.getElementById('p-handle').textContent=name.toLowerCase().replace(/\s+/g,'').slice(0,20)+'.eth';
-  const av=Profile.getAvatar();
-  if(av){const d=document.getElementById('av-display');d.innerHTML='';const img=new Image();img.src=av;d.appendChild(img);}
-  const txns=Transactions.getAll();
-  document.getElementById('stat-listed').textContent=txns.filter(t=>t.type==='sell').length;
-  document.getElementById('stat-bought').textContent=txns.filter(t=>t.type==='buy').length;
+/* ── Profile name & avatar ── */
+function loadProfileUI() {
+  const name = Profile.getName();
+  document.getElementById('p-name').value = name;
+  document.getElementById('p-handle').textContent =
+    name.toLowerCase().replace(/\s+/g,'').slice(0,20) + '.eth';
+  const av = Profile.getAvatar();
+  if (av) {
+    const d = document.getElementById('av-display');
+    d.innerHTML = '';
+    const img = new Image(); img.src = av; d.appendChild(img);
+  }
 }
 
-document.getElementById('avatar-input').addEventListener('change',function(){
-  const f=this.files[0];if(!f)return;
-  if(f.size>5*1024*1024){Toast.error('Image too large (max 5 MB).');return;}
-  const r=new FileReader();
-  r.onload=e=>{
+document.getElementById('avatar-input').addEventListener('change', function() {
+  const f = this.files[0]; if (!f) return;
+  if (f.size > 5*1024*1024) { Toast.error('Image too large (max 5 MB).'); return; }
+  const r = new FileReader();
+  r.onload = e => {
     Profile.setAvatar(e.target.result);
-    const d=document.getElementById('av-display');
-    d.innerHTML='';const img=new Image();img.src=e.target.result;d.appendChild(img);
+    const d = document.getElementById('av-display');
+    d.innerHTML = ''; const img = new Image(); img.src = e.target.result; d.appendChild(img);
     Toast.success('Photo updated!');
   };
   r.readAsDataURL(f);
 });
 
-const nameEl=document.getElementById('p-name');
-const saveBtn=document.getElementById('save-btn');
-nameEl.addEventListener('input',()=>{
-  saveBtn.style.display='flex';
-  document.getElementById('p-handle').textContent=nameEl.value.trim().toLowerCase().replace(/\s+/g,'').slice(0,20)+'.eth';
+const nameEl = document.getElementById('p-name');
+const saveBtn = document.getElementById('save-btn');
+nameEl.addEventListener('input', () => {
+  saveBtn.style.display = 'flex';
+  document.getElementById('p-handle').textContent =
+    nameEl.value.trim().toLowerCase().replace(/\s+/g,'').slice(0,20) + '.eth';
 });
-saveBtn.addEventListener('click',()=>{
-  const n=nameEl.value.trim()||'Anonymous';
-  Profile.setName(n);saveBtn.style.display='none';Toast.success('Profile saved!');
+saveBtn.addEventListener('click', () => {
+  const n = nameEl.value.trim() || 'Anonymous';
+  Profile.setName(n); saveBtn.style.display = 'none'; Toast.success('Profile saved!');
 });
-nameEl.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();saveBtn.click();nameEl.blur();}});
+nameEl.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); saveBtn.click(); nameEl.blur(); } });
 
-document.getElementById('disconnect-row').addEventListener('click',()=>{
-  if(!Wallet.isConnected()){Toast.warning('No wallet connected.');return;}
-  Wallet.disconnect();Toast.show('Wallet disconnected.');setTimeout(()=>location.reload(),700);
+/* ── Network detection ── */
+async function detectNetwork() {
+  const badgeEl = document.getElementById('network-badge');
+  const displayEl = document.getElementById('network-display');
+  if (typeof window.ethereum === 'undefined') {
+    displayEl.textContent = 'MetaMask not installed';
+    badgeEl.textContent = '—';
+    return;
+  }
+  try {
+    const chainHex = await window.ethereum.request({ method: 'eth_chainId' });
+    const chainId = parseInt(chainHex, 16);
+    if (chainId === 11155111) {
+      displayEl.textContent = 'Ethereum Sepolia (11155111)';
+      badgeEl.textContent = 'Sepolia';
+      badgeEl.className = 'network-badge';
+    } else {
+      displayEl.textContent = `Chain ID: ${chainId}`;
+      badgeEl.textContent = 'Wrong Network';
+      badgeEl.className = 'network-badge wrong';
+    }
+  } catch {
+    displayEl.textContent = 'Unknown';
+    badgeEl.textContent = '—';
+  }
+}
+
+/* ── On-chain owned dataset count ── */
+async function loadOnChainStats() {
+  const listedEl = document.getElementById('stat-listed');
+  const boughtEl = document.getElementById('stat-bought');
+  const wallet = Wallet.getAddress();
+
+  if (!wallet) {
+    listedEl.textContent = '—';
+    boughtEl.textContent = '0';
+    return;
+  }
+
+  listedEl.textContent = '…';
+
+  try {
+    let provider;
+    if (typeof window.ethereum !== 'undefined') {
+      provider = new ethers.BrowserProvider(window.ethereum);
+    } else {
+      provider = new ethers.JsonRpcProvider('https://rpc.sepolia.org');
+    }
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
+    const countBN = await contract.dataCount();
+    const count = Number(countBN);
+    const normalizedWallet = wallet.toLowerCase();
+    let owned = 0;
+    let authorized = 0;
+
+    for (let i = 1; i <= count; i++) {
+      try {
+        const d = await contract.getData(i);
+        if (d[5].toLowerCase() === normalizedWallet) {
+          owned++;
+        } else {
+          // Check if buyer has authorized access
+          try {
+            const statusBN = await contract.getAccessStatus(i, wallet);
+            if (Number(statusBN) === 4) authorized++; // AUTHORIZED
+          } catch { /* skip */ }
+        }
+      } catch { /* skip */ }
+    }
+
+    listedEl.textContent = owned;
+    boughtEl.textContent = authorized;
+  } catch (err) {
+    console.warn('Profile stats error:', err.message);
+    listedEl.textContent = '?';
+    boughtEl.textContent = '0';
+  }
+}
+
+/* ── Account actions ── */
+document.getElementById('disconnect-row').addEventListener('click', () => {
+  if (!Wallet.isConnected()) { Toast.warning('No wallet connected.'); return; }
+  Wallet.disconnect(); Toast.show('Wallet disconnected.');
+  setTimeout(() => location.reload(), 700);
 });
-document.getElementById('clear-row').addEventListener('click',()=>{
-  if(!confirm('Clear all local data? This cannot be undone.'))return;
-  localStorage.clear();Toast.show('Data cleared.');setTimeout(()=>location.reload(),700);
+document.getElementById('clear-row').addEventListener('click', () => {
+  if (!confirm('Clear all local UI data? This cannot be undone.')) return;
+  // Only clear UI preferences, not blockchain data
+  localStorage.removeItem('dc_theme');
+  localStorage.removeItem('dc_avatar');
+  localStorage.removeItem('dc_name');
+  localStorage.removeItem('dc_txns');
+  Toast.show('Local UI data cleared.');
+  setTimeout(() => location.reload(), 700);
 });
 
-loadProfile();
+/* ── MetaMask event listeners ── */
+if (typeof window.ethereum !== 'undefined') {
+  window.ethereum.on('chainChanged', () => detectNetwork());
+  window.ethereum.on('accountsChanged', (accounts) => {
+    if (accounts && accounts.length) {
+      Wallet.setAddress(accounts[0]);
+    } else {
+      Wallet.disconnect();
+    }
+    syncWalletUI(Wallet.getAddress());
+    loadOnChainStats();
+    detectNetwork();
+  });
+}
+
+/* ── After wallet connect button ── */
+document.querySelectorAll('[data-wallet-connect]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    setTimeout(() => {
+      loadOnChainStats();
+      detectNetwork();
+    }, 800);
+  });
+});
+
+/* ── Init ── */
+loadProfileUI();
+detectNetwork();
+loadOnChainStats();
 </script>
 </body>
 </html>

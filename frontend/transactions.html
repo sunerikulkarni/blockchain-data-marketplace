@@ -6,9 +6,6 @@
   <title>DataChain — Transactions</title>
   <link rel="stylesheet" href="style.css"/>
   <style>
-    /* ── TRANSACTIONS-SPECIFIC ── */
-
-    /* Summary cards */
     .summary-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -16,6 +13,7 @@
       margin-bottom: 22px;
     }
     @media(min-width: 640px) { .summary-grid { grid-template-columns: repeat(4, 1fr); } }
+    .summary-grid > * { min-width: 0; }
 
     .sum-card {
       background: var(--g-card);
@@ -29,11 +27,9 @@
     .sum-lbl { font-size: .66rem; font-weight: 800; color: var(--text-3); text-transform: uppercase; letter-spacing: .07em; }
     .sum-card.highlight .sum-val { color: var(--accent); }
 
-    /* Filter row */
     .filter-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
     .filter-row .chip-scroll { flex: 1; min-width: 0; }
 
-    /* Transaction item */
     .txn-list { display: flex; flex-direction: column; gap: 10px; }
     .txn-item {
       background: var(--g-card);
@@ -72,14 +68,14 @@
     .txn-status { font-size: .68rem; font-weight: 700; color: var(--text-3); margin-top: 3px; }
     .txn-status.confirmed { color: #4CAF50; }
 
-    /* Hash display */
     .txn-hash {
       font-size: .66rem; color: var(--text-3); font-weight: 500;
       font-family: monospace; margin-top: 2px;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;
     }
+    .txn-hash a { color: var(--accent); text-decoration: none; }
+    .txn-hash a:hover { text-decoration: underline; }
 
-    /* Month separator */
     .month-sep {
       font-size: .72rem; font-weight: 800; color: var(--text-3);
       text-transform: uppercase; letter-spacing: .08em;
@@ -87,10 +83,6 @@
     }
     .month-sep:first-child { padding-top: 0; }
 
-    /* Export button */
-    .export-btn { display: flex; align-items: center; gap: 6px; }
-
-    /* No wallet */
     .no-wallet-banner {
       display: flex; align-items: flex-start; gap: 10px;
       background: var(--warm-sub); border: 1px solid rgba(200,120,68,.28);
@@ -100,6 +92,12 @@
     .no-wallet-banner svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
     .no-wallet-banner a { color: var(--warm); text-decoration: underline; }
     .no-wallet-banner.hidden { display: none; }
+
+    .info-note {
+      font-size: .75rem; color: var(--text-3); padding: 10px 14px;
+      background: var(--bg-tint); border-radius: var(--r-md);
+      border: 1px solid var(--border); margin-bottom: 14px;
+    }
   </style>
 </head>
 <body>
@@ -117,13 +115,19 @@
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Marketplace
     </a>
     <a href="listings.html"     class="side-nav-link" data-page="listings.html">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>My Listings
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>My Listings
+    </a>
+    <a href="addData.html"      class="side-nav-link nav-add-side" data-page="addData.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Dataset
     </a>
     <a href="transactions.html" class="side-nav-link" data-page="transactions.html">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>Transactions
     </a>
-    <a href="addData.html"      class="side-nav-link nav-add-side" data-page="addData.html">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Dataset
+    <a href="access.html"       class="side-nav-link" data-page="access.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Company Access
+    </a>
+    <a href="owner.html"        class="side-nav-link" data-page="owner.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-1.5 6.1L12 15l-4-4 4.9-5.5a5.5 5.5 0 1 1 7.1 6.6z"/></svg>Owner Hub
     </a>
     <a href="profile.html"      class="side-nav-link" data-page="profile.html">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Profile
@@ -136,7 +140,7 @@
   <header class="app-header">
     <div class="hdr-title">Transactions</div>
     <div class="hdr-spacer"></div>
-    <button class="icon-btn export-btn" id="export-btn" title="Export CSV">
+    <button class="icon-btn" id="export-btn" title="Export CSV">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
     </button>
   </header>
@@ -169,6 +173,12 @@
         <span class="text-xs text-muted" id="txn-count"></span>
       </div>
 
+      <!-- Info note -->
+      <div class="info-note" id="txn-info-note" style="display:none">
+        Showing transactions confirmed on the Sepolia blockchain and cached locally during this session.
+        <a href="https://sepolia.etherscan.io" target="_blank" rel="noopener" style="color:var(--accent)">View all on Etherscan ↗</a>
+      </div>
+
       <!-- List -->
       <div class="txn-list" id="txn-list"></div>
 
@@ -178,7 +188,7 @@
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
         </div>
         <h3>No transactions yet</h3>
-        <p>Your purchases and sales will appear here.</p>
+        <p>Your confirmed purchases and sales on Sepolia will appear here.</p>
         <a href="marketplace.html" class="btn btn-primary mt-12">Browse Market</a>
       </div>
 
@@ -199,6 +209,10 @@
       <a href="addData.html" class="b-nav-add" aria-label="Add"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></a>
       <span class="b-nav-add-label">Add</span>
     </div>
+    <a href="owner.html" class="b-nav-item" data-page="owner.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-1.5 6.1L12 15l-4-4 4.9-5.5a5.5 5.5 0 1 1 7.1 6.6z"/></svg>
+      <span class="b-nav-label">Owner</span>
+    </a>
     <a href="profile.html" class="b-nav-item" data-page="profile.html">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
       <span class="b-nav-label">Profile</span>
@@ -207,6 +221,7 @@
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.umd.min.js"></script>
 <script src="app.js"></script>
 <script>
   if (Wallet.isConnected()) document.getElementById('no-wallet-nag').classList.add('hidden');
@@ -214,17 +229,115 @@
   let allTxns = [];
   let activeType = 'all';
 
-  function loadTxns() {
-    allTxns = Transactions.getAll();
+  /* ──────────────────────────────────────────────────────────
+     Load transactions: backend first, then localStorage cache.
+     localStorage is used ONLY as a session-cache of real txns
+     (e.g. purchases made via dataset.html in this browser).
+     Old demo "asthma / 100 ETH" data is NOT loaded.
+  ────────────────────────────────────────────────────────── */
+  async function loadTxns() {
+  const wallet = Wallet.getAddress();
+  allTxns = [];
+
+  if (!wallet) {
     updateSummary();
     renderTxns();
+    return;
   }
+
+  try {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const contract = getReadContract(provider);
+
+    const latestBlock = await provider.getBlockNumber();
+const startBlock = Math.max(0, latestBlock - 50000);
+
+const logs = [];
+const CHUNK_SIZE = 9000;
+
+for (
+    let fromBlock = startBlock;
+    fromBlock <= latestBlock;
+    fromBlock += CHUNK_SIZE + 1
+) {
+    const toBlock = Math.min(
+        fromBlock + CHUNK_SIZE,
+        latestBlock
+    );
+
+    const chunkLogs = await contract.queryFilter(
+        contract.filters.DataPurchased(),
+        fromBlock,
+        toBlock
+    );
+
+    logs.push(...chunkLogs);
+}
+
+    for (const log of logs) {
+      const buyer = log.args.buyer;
+      const owner = log.args.owner;
+      const dataId = Number(log.args.dataId);
+      const amount = log.args.amount;
+
+      let datasetName = `Dataset #${dataId}`;
+      let category = '';
+
+      try {
+        const data = await contract.getData(dataId);
+        datasetName = data[1];
+        category = data[2];
+      } catch (e) {
+        console.warn(`Could not read dataset #${dataId}:`, e.message);
+      }
+
+      if (buyer && buyer.toLowerCase() === wallet.toLowerCase()) {
+        allTxns.push({
+          type: 'buy',
+          name: datasetName,
+          category,
+          price: ethers.formatEther(amount),
+          status: 'confirmed',
+          txHash: log.transactionHash,
+          timestamp: new Date().toISOString(),
+          id: `${log.transactionHash}-buy`
+        });
+      }
+
+      if (owner && owner.toLowerCase() === wallet.toLowerCase()) {
+        allTxns.push({
+          type: 'sell',
+          name: datasetName,
+          category,
+          price: ethers.formatEther(amount),
+          status: 'confirmed',
+          txHash: log.transactionHash,
+          timestamp: new Date().toISOString(),
+          id: `${log.transactionHash}-sell`
+        });
+      }
+    }
+
+    allTxns.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+  } catch (err) {
+    console.error('Blockchain transaction query failed:', err);
+    Toast.error('Unable to load blockchain transactions.');
+  }
+
+  updateSummary();
+  renderTxns();
+
+  if (allTxns.length) {
+    document.getElementById('txn-info-note').style.display = 'block';
+  }
+}
 
   function updateSummary() {
     const bought = allTxns.filter(t => t.type === 'buy');
     const sold   = allTxns.filter(t => t.type === 'sell');
-    const spent  = bought.reduce((s, t) => s + parseFloat(t.price), 0);
-    const earned = sold.reduce((s, t) => s + parseFloat(t.price), 0);
+    const spent  = bought.reduce((s, t) => s + parseFloat(t.price || 0), 0);
+    const earned = sold.reduce((s, t) => s + parseFloat(t.price || 0), 0);
     document.getElementById('sum-total').textContent  = allTxns.length;
     document.getElementById('sum-spent').textContent  = spent.toFixed(4);
     document.getElementById('sum-earned').textContent = earned.toFixed(4);
@@ -265,9 +378,16 @@
 
       txns.forEach(tx => {
         const isBuy = tx.type === 'buy';
-        const fakeHash = '0x' + tx.id.toString(16).padStart(8, '0') + 'a4f3…c2b1';
         const item = document.createElement('div');
         item.className = 'txn-item anim-up';
+
+        // Build hash display — only show if real hash exists
+        let hashHtml = '';
+        if (tx.txHash) {
+          const shortHash = tx.txHash.slice(0, 10) + '…' + tx.txHash.slice(-6);
+          hashHtml = `<div class="txn-hash"><a href="https://sepolia.etherscan.io/tx/${esc(tx.txHash)}" target="_blank" rel="noopener">${esc(shortHash)}</a></div>`;
+        }
+
         item.innerHTML = `
           <div class="txn-icon ${tx.type}">
             ${isBuy
@@ -281,10 +401,10 @@
               <span class="txn-type-label ${tx.type}">${isBuy ? 'Purchase' : 'Sale'}</span>
               <span class="txn-date">${fmtDate(tx.timestamp)}</span>
             </div>
-            <div class="txn-hash">${fakeHash}</div>
+            ${hashHtml}
           </div>
           <div class="txn-right">
-            <div class="txn-amount ${tx.type}">${parseFloat(tx.price).toFixed(4)} ETH</div>
+            <div class="txn-amount ${tx.type}">${parseFloat(tx.price || 0).toFixed(4)} ETH</div>
             <div class="txn-status confirmed">Confirmed</div>
           </div>`;
         listEl.appendChild(item);
@@ -303,10 +423,10 @@
   // CSV Export
   document.getElementById('export-btn').addEventListener('click', () => {
     if (!allTxns.length) { Toast.warning('No transactions to export.'); return; }
-    const rows = [['Date','Name','Category','Type','Price (ETH)','Status']];
+    const rows = [['Date','Name','Category','Type','Price (ETH)','Status','Tx Hash']];
     allTxns.forEach(t => rows.push([
       new Date(t.timestamp).toISOString().split('T')[0],
-      t.name, t.category || '', t.type, t.price, t.status || 'confirmed'
+      t.name, t.category || '', t.type, t.price || '0', t.status || 'confirmed', t.txHash || ''
     ]));
     const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });

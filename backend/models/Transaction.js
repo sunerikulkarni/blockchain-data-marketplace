@@ -9,7 +9,13 @@ const TransactionSchema = new mongoose.Schema(
     dataId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Data',
-      required: true,
+      required: false,
+      default: null,
+    },
+
+    blockchainId: {
+      type: Number,
+      default: null,
     },
 
     // Snapshot of the dataset name at time of purchase (in case it changes later)
@@ -66,5 +72,6 @@ const TransactionSchema = new mongoose.Schema(
 TransactionSchema.index({ buyer: 1 });
 TransactionSchema.index({ seller: 1 });
 TransactionSchema.index({ dataId: 1 });
+TransactionSchema.index({ txHash: 1 }, { unique: true, sparse: true });
 
 module.exports = mongoose.model('Transaction', TransactionSchema);

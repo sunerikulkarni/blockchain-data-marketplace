@@ -9,17 +9,53 @@
   <link rel="stylesheet" href="style.css">
 
   <style>
-    .detail-grid {
+    .detail-layout {
       display: grid;
       gap: 20px;
     }
 
+    @media(min-width: 820px) {
+      .detail-layout {
+        grid-template-columns: 1fr 340px;
+        gap: 24px;
+        align-items: start;
+      }
+      .detail-side-col {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        position: sticky;
+        top: calc(var(--hdr-h) + 20px);
+        min-width: 0;
+      }
+    }
+
+    /* Ensure both columns shrink safely */
+    .detail-layout > * { min-width: 0; }
+
     .detail-row {
       display: flex;
       justify-content: space-between;
-      gap: 20px;
+      gap: 12px;
       padding: 12px 0;
       border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .detail-row.stack {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .detail-row.stack .detail-value {
+      text-align: left;
+    }
+
+    .detail-value {
+      color: var(--text-1);
+      text-align: right;
+      word-break: break-word;
+      max-width: 100%;
     }
 
     .detail-row:last-child {
@@ -32,12 +68,6 @@
       font-weight: 700;
     }
 
-    .detail-value {
-      color: var(--text-1);
-      text-align: right;
-      word-break: break-word;
-    }
-
     .access-box {
       padding: 18px;
       border-radius: var(--r-xl);
@@ -47,12 +77,14 @@
 
     .access-status {
       display: inline-flex;
-      padding: 7px 12px;
+      padding: 7px 14px;
       border-radius: 999px;
       font-size: .72rem;
       font-weight: 800;
       background: var(--warm-sub);
       color: var(--warm);
+      text-transform: uppercase;
+      letter-spacing: .04em;
     }
 
     .access-status.approved {
@@ -116,217 +148,146 @@
 <div class="site-wrap">
 
   <header class="app-header">
-    <div class="logo">
-      Data<em>Chain</em>
-    </div>
-
+    <div class="hdr-title">Dataset Details</div>
     <div class="hdr-spacer"></div>
-
+    <div class="live-badge" style="margin-right:12px;">
+      <div class="live-dot"></div>
+      Sepolia
+    </div>
     <button
-      class="btn btn-secondary"
+      class="btn btn-secondary btn-sm"
       data-wallet-connect
       data-wallet-label="Connect Wallet">
       Connect Wallet
     </button>
   </header>
 
-
   <main class="main-content">
+    <div class="content-inner">
 
-    <div class="content-inner detail-grid">
+      <div style="margin-bottom:18px;">
+        <a href="marketplace.html" class="btn btn-secondary btn-sm">
+          ← Back to Marketplace
+        </a>
+      </div>
 
-      <!-- DATASET DETAILS -->
-      <section class="card">
+      <div class="detail-layout">
 
-        <div class="section-hdr">
-
-          <div>
-
-            <h1
-              class="section-ttl"
-              id="dataset-name">
-              Loading dataset...
-            </h1>
-
-            <p
-              id="dataset-category"
-              style="color:var(--text-2);margin-top:6px;">
-            </p>
-
+        <!-- LEFT COLUMN: DATASET INFORMATION -->
+        <section class="card anim-up">
+          <div class="section-hdr">
+            <div>
+              <span id="dataset-id-tag" style="font-size:.72rem;font-weight:800;color:var(--text-3);text-transform:uppercase;">On-Chain Dataset</span>
+              <h1 class="section-ttl" id="dataset-name" style="margin-top:4px;">
+                Loading dataset...
+              </h1>
+              <p id="dataset-category" style="color:var(--text-2);margin-top:6px;font-weight:600;">
+              </p>
+            </div>
+            <div style="text-align:right;">
+              <strong id="dataset-price" style="font-family:var(--font-d);font-size:1.3rem;color:var(--accent);">
+                —
+              </strong>
+              <span style="font-size:.78rem;font-weight:800;color:var(--text-3);"> ETH</span>
+            </div>
           </div>
 
-          <div>
-
-            <strong id="dataset-price">
-              —
-            </strong>
-
-            <span> ETH</span>
-
+          <div class="detail-row stack">
+            <span class="detail-label">Description</span>
+            <span class="detail-value" id="dataset-description"></span>
           </div>
 
-        </div>
+          <div class="detail-row">
+            <span class="detail-label">Owner</span>
+            <span class="detail-value" id="dataset-owner" style="font-family:monospace;font-size:.8rem;"></span>
+          </div>
 
+          <div class="detail-row">
+            <span class="detail-label">Network / Settlement</span>
+            <span class="detail-value" id="dataset-sales">Sepolia Blockchain</span>
+          </div>
+        </section>
 
-        <div class="detail-row">
+        <!-- RIGHT COLUMN: ACCESS & INTEGRITY -->
+        <div class="detail-side-col anim-up">
 
-          <span class="detail-label">
-            Description
-          </span>
-
-          <span
-            class="detail-value"
-            id="dataset-description">
-          </span>
-
-        </div>
-
-
-        <div class="detail-row">
-
-          <span class="detail-label">
-            Owner
-          </span>
-
-          <span
-            class="detail-value"
-            id="dataset-owner">
-          </span>
-
-        </div>
-
-
-        <div class="detail-row">
-
-          <span class="detail-label">
-            Sales
-          </span>
-
-          <span
-            class="detail-value"
-            id="dataset-sales">
-            Blockchain
-          </span>
-
-        </div>
-
-      </section>
-
-
-      <!-- ACCESS -->
-      <section class="card">
-
-        <div class="section-hdr">
-
-          <h2 class="section-ttl">
-            Access
-          </h2>
-
-        </div>
-
-
-        <div class="access-box">
-
-          <div>
-
-            <span class="detail-label">
-              Current status
-            </span>
-
-            <div style="margin-top:8px;">
-
-              <span
-                class="access-status"
-                id="access-status">
-                Checking...
-              </span>
-
+          <!-- ACCESS CARD -->
+          <section class="card">
+            <div class="section-hdr">
+              <h2 class="section-ttl">Access Control</h2>
             </div>
 
-          </div>
+            <div class="access-box">
+              <div>
+                <span class="detail-label">Current Access Status</span>
+                <div style="margin-top:8px;">
+                  <span class="access-status" id="access-status">
+                    Checking...
+                  </span>
+                </div>
+              </div>
 
+              <div class="action-row">
+                <button class="btn btn-primary" id="request-access-btn">
+                  Request Access
+                </button>
+                <button class="btn btn-primary" id="pay-btn" style="display:none;">
+                  Pay with MetaMask
+                </button>
+                <button class="btn btn-primary" id="access-data-btn" style="display:none;">
+                  🔓 Access Dataset Payload
+                </button>
+                <button class="btn btn-secondary btn-sm" id="verify-integrity-btn" style="display:none;">
+                  🔍 Verify Integrity
+                </button>
+                <button class="btn btn-secondary btn-sm" id="refresh-status-btn">
+                  ↻ Refresh
+                </button>
+              </div>
 
-          <div class="action-row">
+              <p id="access-message" class="muted-note" style="margin-top:12px;font-size:.78rem;line-height:1.5;">
+              </p>
 
-            <button
-              class="btn btn-primary"
-              id="request-access-btn">
-              Request Access
-            </button>
+              <div id="tx-box" class="tx-box"></div>
 
+              <!-- DECRYPTED PAYLOAD VIEWER -->
+              <div id="payload-box" style="display:none;margin-top:16px;padding:16px;background:var(--bg-tint);border-radius:var(--r-xl);border:1px solid var(--border-card);">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
+                  <span class="detail-label" style="font-size:.78rem;font-weight:800;color:var(--text-1);">Decrypted Dataset Payload</span>
+                  <button class="btn btn-secondary btn-sm" id="download-payload-btn" style="font-size:.72rem;padding:4px 10px;">💾 Download JSON</button>
+                </div>
+                <pre id="payload-content" style="background:var(--g-card);padding:12px;border-radius:var(--r-lg);border:1px solid var(--border);font-family:monospace;font-size:.75rem;max-height:220px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;color:var(--text-1);"></pre>
+                <div id="integrity-feedback" style="margin-top:8px;font-size:.72rem;font-weight:700;"></div>
+              </div>
+            </div>
+          </section>
 
-            <button
-              class="btn btn-secondary"
-              id="pay-btn"
-              style="display:none;">
-              Pay with MetaMask
-            </button>
+          <!-- INTEGRITY CARD -->
+          <section class="card">
+            <div class="section-hdr">
+              <h2 class="section-ttl">Data Integrity</h2>
+            </div>
 
-          </div>
+            <div>
+              <p class="detail-label">SHA-256 Hash</p>
+              <div class="hash-box" id="data-hash">
+                Not available
+              </div>
+            </div>
 
+            <div style="margin-top:14px;">
+              <p class="detail-label">IPFS CID</p>
+              <div class="hash-box" id="ipfs-cid">
+                Not available
+              </div>
+            </div>
+          </section>
 
-          <p
-            id="access-message"
-            class="muted-note"
-            style="margin-top:12px;">
-          </p>
+        </div><!-- /detail-side-col -->
 
+      </div><!-- /detail-layout -->
 
-          <div
-            id="tx-box"
-            class="tx-box">
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <!-- INTEGRITY -->
-      <section class="card">
-
-        <div class="section-hdr">
-
-          <h2 class="section-ttl">
-            Integrity Information
-          </h2>
-
-        </div>
-
-
-        <div>
-
-          <p class="detail-label">
-            Data Hash
-          </p>
-
-          <div
-            class="hash-box"
-            id="data-hash">
-            Not available
-          </div>
-
-        </div>
-
-
-        <div style="margin-top:16px;">
-
-          <p class="detail-label">
-            IPFS CID
-          </p>
-
-          <div
-            class="hash-box"
-            id="ipfs-cid">
-            Not available
-          </div>
-
-        </div>
-
-      </section>
-
-    </div>
-
+    </div><!-- /content-inner -->
   </main>
 
 </div>
@@ -342,61 +303,26 @@
 <script>
 
   /* =========================================================
-     BLOCKCHAIN CONFIGURATION
-  ========================================================= */
-
-  const CONTRACT_ADDRESS =
-    '0x02018B847dA98a987EE59d7F235b2c690085F044';
-
-
-  const CONTRACT_ABI = [
-
-    'function getData(uint256) view returns (uint256,string,string,string,uint256,address,string,string)',
-
-    'function getAccessStatus(uint256,address) view returns (uint8)',
-
-    'function hasAccess(uint256,address) view returns (bool)',
-
-    'function requestAccess(uint256)',
-
-    'function buyData(uint256) payable'
-
-  ];
-
-
-  /* =========================================================
-     ACCESS STATUS
-  ========================================================= */
-
-  const ACCESS_STATUS = {
-
-    0: 'NONE',
-
-    1: 'PENDING',
-
-    2: 'APPROVED',
-
-    3: 'REJECTED',
-
-    4: 'AUTHORIZED'
-
-  };
-
-
-  /* =========================================================
      PAGE VARIABLES
   ========================================================= */
 
-  const params =
-    new URLSearchParams(window.location.search);
-
+  const datasetUrl = new URL(window.location.href);
+  const datasetParams = datasetUrl.searchParams;
   const datasetId =
-    params.get('id');
+    datasetParams.get('id') || datasetParams.get('datasetId');
+
+  // Temporary, non-sensitive trace for diagnosing broken detail links.
+  console.info('[Dataset load diagnostic]', {
+    href: window.location.href,
+    datasetId
+  });
 
 
   let dataset = null;
 
   let datasetPriceWei = null;
+
+  let datasetOwner = null;
 
 
   /* =========================================================
@@ -439,15 +365,11 @@
 
 
     const provider =
-      getProvider();
+      getReadProvider();
 
 
     const contract =
-      new ethers.Contract(
-        CONTRACT_ADDRESS,
-        CONTRACT_ABI,
-        provider
-      );
+      getReadContract(provider);
 
 
     const data =
@@ -457,48 +379,49 @@
     datasetPriceWei =
       data[4];
 
+    datasetOwner =
+      data[5];
+
+    dataset =
+      mapOnChainDataset(datasetId, data);
+
+    const idTag = document.getElementById('dataset-id-tag');
+    if (idTag) idTag.textContent = `Sepolia Dataset #${datasetId}`;
 
     document.getElementById(
       'dataset-name'
     ).textContent =
       data[1];
 
-
     document.getElementById(
       'dataset-category'
     ).textContent =
       data[2];
-
 
     document.getElementById(
       'dataset-price'
     ).textContent =
       ethers.formatEther(data[4]);
 
-
     document.getElementById(
       'dataset-description'
     ).textContent =
       data[3];
-
 
     document.getElementById(
       'dataset-owner'
     ).textContent =
       data[5];
 
-
     document.getElementById(
       'dataset-sales'
     ).textContent =
       'Blockchain';
 
-
     document.getElementById(
       'data-hash'
     ).textContent =
       data[7] || 'Not available';
-
 
     document.getElementById(
       'ipfs-cid'
@@ -523,10 +446,13 @@
     }
 
 
-    const result =
-      await API.get(
-        `/getData/${datasetId}`
-      );
+    const apiUrl = `${API_BASE}/getData/${encodeURIComponent(datasetId)}`;
+    console.info('[Dataset load diagnostic] requesting API:', apiUrl);
+    const response = await fetch(apiUrl);
+    console.info('[Dataset load diagnostic] API HTTP status:', response.status);
+    const result = await response.json();
+    console.info('[Dataset load diagnostic] API returned dataset ID:',
+      result?.data?.blockchainId ?? result?.data?.onChainId ?? result?.data?._id ?? null);
 
 
     if (
@@ -544,6 +470,9 @@
 
     dataset =
       result.data;
+
+    const idTag = document.getElementById('dataset-id-tag');
+    if (idTag) idTag.textContent = `Backend Listing #${dataset.onChainId || dataset._id || datasetId}`;
 
 
     document.getElementById(
@@ -663,243 +592,117 @@
   ========================================================= */
 
   async function loadAccessStatus() {
-
-    const statusEl =
-      document.getElementById(
-        'access-status'
-      );
-
-
-    const payBtn =
-      document.getElementById(
-        'pay-btn'
-      );
-
-
-    const requestBtn =
-      document.getElementById(
-        'request-access-btn'
-      );
-
+    const statusEl = document.getElementById('access-status');
+    const payBtn = document.getElementById('pay-btn');
+    const requestBtn = document.getElementById('request-access-btn');
+    const accessDataBtn = document.getElementById('access-data-btn');
+    const verifyBtn = document.getElementById('verify-integrity-btn');
 
     if (!Wallet.isConnected()) {
-
-      statusEl.textContent =
-        'Connect Wallet';
-
-      statusEl.className =
-        'access-status';
-
-      requestBtn.disabled =
-        false;
-
-      payBtn.style.display =
-        'none';
-
-      document.getElementById(
-        'access-message'
-      ).textContent =
-        'Connect your wallet to check access status.';
-
+      statusEl.textContent = 'Connect Wallet';
+      statusEl.className = 'access-status';
+      requestBtn.disabled = false;
+      requestBtn.style.display = 'inline-flex';
+      payBtn.style.display = 'none';
+      if (accessDataBtn) accessDataBtn.style.display = 'none';
+      if (verifyBtn) verifyBtn.style.display = 'none';
+      document.getElementById('access-message').textContent = 'Connect your wallet to check access status.';
       return;
-
     }
 
+    const wallet = Wallet.getAddress();
+
+    if (datasetOwner && wallet.toLowerCase() === datasetOwner.toLowerCase()) {
+      statusEl.textContent = 'OWNER';
+      statusEl.className = 'access-status authorized';
+      requestBtn.style.display = 'none';
+      payBtn.style.display = 'none';
+      if (accessDataBtn) accessDataBtn.style.display = 'inline-flex';
+      if (verifyBtn) verifyBtn.style.display = 'inline-flex';
+      document.getElementById('access-message').textContent = 'You own this dataset. Click "Access Dataset Payload" to inspect the file from IPFS.';
+      return;
+    }
 
     try {
-
-      const provider =
-        getProvider();
-
-
-      const contract =
-        new ethers.Contract(
-          CONTRACT_ADDRESS,
-          CONTRACT_ABI,
-          provider
-        );
-
-
-      const status =
-        await contract.getAccessStatus(
-          datasetId,
-          Wallet.getAddress()
-        );
-
-
-      const statusNumber =
-        Number(status);
-
-
-      const statusText =
-        ACCESS_STATUS[statusNumber] ||
-        'UNKNOWN';
-
-
-      statusEl.textContent =
-        statusText;
-
-
-      statusEl.className =
-        'access-status';
-
-
-      requestBtn.disabled =
-        false;
-
-
-      if (
-        statusText === 'NONE'
-      ) {
-
-        statusEl.classList.add(
-          'none'
-        );
-
-
-        requestBtn.style.display =
-          'inline-flex';
-
-
-        payBtn.style.display =
-          'none';
-
-
-        document.getElementById(
-          'access-message'
-        ).textContent =
-          'You have not requested access yet.';
-
-      }
-
-
-      else if (
-        statusText === 'PENDING'
-      ) {
-
-        statusEl.classList.add(
-          'pending'
-        );
-
-
-        requestBtn.style.display =
-          'none';
-
-
-        payBtn.style.display =
-          'none';
-
-
-        document.getElementById(
-          'access-message'
-        ).textContent =
-          'Your access request is pending owner approval.';
-
-      }
-
-
-      else if (
-        statusText === 'APPROVED'
-      ) {
-
-        statusEl.classList.add(
-          'approved'
-        );
-
-
-        requestBtn.style.display =
-          'none';
-
-
-        payBtn.style.display =
-          'inline-flex';
-
-
-        document.getElementById(
-          'access-message'
-        ).textContent =
-          'Access approved. You can now pay for the dataset.';
-
-      }
-
-
-      else if (
-        statusText === 'REJECTED'
-      ) {
-
-        statusEl.classList.add(
-          'rejected'
-        );
-
-
-        requestBtn.style.display =
-          'inline-flex';
-
-
-        payBtn.style.display =
-          'none';
-
-
-        document.getElementById(
-          'access-message'
-        ).textContent =
-          'Your access request was rejected.';
-
-      }
-
-
-      else if (
-        statusText === 'AUTHORIZED'
-      ) {
-
-        statusEl.classList.add(
-          'authorized'
-        );
-
-
-        requestBtn.style.display =
-          'none';
-
-
-        payBtn.style.display =
-          'none';
-
-
-        document.getElementById(
-          'access-message'
-        ).textContent =
-          'You already have authorized access.';
-
-      }
-
-
-    } catch (error) {
-
-      console.error(
-        'Access status error:',
-        error
+      const provider = getReadProvider();
+      const contract = getReadContract(provider);
+
+      // Safe diagnostic logging as requested by user
+      console.log('[AccessControl Diagnostic]', {
+        datasetId,
+        wallet,
+        contractAddress: CONTRACT_ADDRESS,
+        hasGetAccessStatus: typeof contract.getAccessStatus === 'function'
+      });
+
+      // Timeout promise to prevent hanging RPC calls
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('getAccessStatus timed out after 5000ms')), 5000)
       );
 
+      const status = await Promise.race([
+        contract.getAccessStatus(datasetId, wallet),
+        timeoutPromise
+      ]);
 
-      statusEl.textContent =
-        'Unable to check';
+      const statusNumber = Number(status);
+      const statusText = ACCESS_STATUS[statusNumber] || 'UNKNOWN';
 
+      statusEl.textContent = statusText;
+      statusEl.className = 'access-status';
+      requestBtn.disabled = false;
 
-      statusEl.className =
-        'access-status';
-
-
-      payBtn.style.display =
-        'none';
-
-
-      document.getElementById(
-        'access-message'
-      ).textContent =
-        'Could not read access status from the blockchain.';
-
+      if (statusText === 'NONE') {
+        statusEl.classList.add('none');
+        requestBtn.style.display = 'inline-flex';
+        payBtn.style.display = 'none';
+        if (accessDataBtn) accessDataBtn.style.display = 'none';
+        if (verifyBtn) verifyBtn.style.display = 'none';
+        document.getElementById('access-message').textContent = 'You have not requested access yet.';
+      } else if (statusText === 'PENDING') {
+        statusEl.classList.add('pending');
+        requestBtn.style.display = 'none';
+        payBtn.style.display = 'none';
+        if (accessDataBtn) accessDataBtn.style.display = 'none';
+        if (verifyBtn) verifyBtn.style.display = 'none';
+        document.getElementById('access-message').textContent = 'Your access request is pending owner approval.';
+      } else if (statusText === 'APPROVED') {
+        statusEl.classList.add('approved');
+        requestBtn.style.display = 'none';
+        payBtn.style.display = 'inline-flex';
+        if (accessDataBtn) accessDataBtn.style.display = 'none';
+        if (verifyBtn) verifyBtn.style.display = 'none';
+        document.getElementById('access-message').textContent = 'Access approved. You can now pay for the dataset.';
+      } else if (statusText === 'REJECTED') {
+        statusEl.classList.add('rejected');
+        requestBtn.style.display = 'inline-flex';
+        payBtn.style.display = 'none';
+        if (accessDataBtn) accessDataBtn.style.display = 'none';
+        if (verifyBtn) verifyBtn.style.display = 'none';
+        document.getElementById('access-message').textContent = 'Your access request was rejected.';
+      } else if (statusText === 'AUTHORIZED') {
+        statusEl.classList.add('authorized');
+        requestBtn.style.display = 'none';
+        payBtn.style.display = 'none';
+        if (accessDataBtn) accessDataBtn.style.display = 'inline-flex';
+        if (verifyBtn) verifyBtn.style.display = 'inline-flex';
+        document.getElementById('access-message').textContent = 'Access authorized on-chain! Click "Access Dataset Payload" to retrieve and decrypt the file from IPFS.';
+      }
+    } catch (error) {
+      console.error('[AccessControl Error]', {
+        datasetId,
+        wallet,
+        contractAddress: CONTRACT_ADDRESS,
+        errorMessage: error.message,
+        errorCode: error.code || 'N/A'
+      });
+      statusEl.textContent = 'Unable to check';
+      statusEl.className = 'access-status';
+      payBtn.style.display = 'none';
+      if (accessDataBtn) accessDataBtn.style.display = 'none';
+      if (verifyBtn) verifyBtn.style.display = 'none';
+      document.getElementById('access-message').textContent = 'Could not read access status from the blockchain.';
     }
-
   }
 
 
@@ -913,6 +716,21 @@
 
       Toast.warning(
         'Connect your wallet first.'
+      );
+
+      return;
+
+    }
+
+
+    if (
+      datasetOwner &&
+      Wallet.getAddress().toLowerCase() ===
+        datasetOwner.toLowerCase()
+    ) {
+
+      Toast.warning(
+        'You already own this dataset.'
       );
 
       return;
@@ -952,6 +770,10 @@
       const provider =
         getProvider();
 
+      if (!(await ensureSepolia())) {
+        btn.disabled = false;
+        return;
+      }
 
       const signer =
         await provider.getSigner();
@@ -984,6 +806,31 @@
 
       await tx.wait();
 
+      Transactions.addLocal({
+        txHash: tx.hash,
+        type: 'request',
+        name: dataset ? dataset.name : `Dataset #${datasetId}`,
+        dataId: String(datasetId),
+        price: '0',
+        status: 'confirmed'
+      });
+
+      try {
+        const stored = JSON.parse(localStorage.getItem('dc_access_requests') || '[]');
+        const buyerAddr = Wallet.getAddress();
+        const exists = stored.some(r => String(r.dataId) === String(datasetId) && r.requester.toLowerCase() === buyerAddr.toLowerCase());
+        if (!exists) {
+          stored.unshift({
+            dataId: String(datasetId),
+            requester: buyerAddr,
+            purpose: 'Access request from buyer',
+            timestamp: new Date().toISOString()
+          });
+          localStorage.setItem('dc_access_requests', JSON.stringify(stored.slice(0, 100)));
+        }
+      } catch (e) {
+        // non-blocking
+      }
 
       Toast.success(
         'Access request submitted successfully.'
@@ -1092,9 +939,13 @@
 
     try {
 
+      if (!(await ensureSepolia())) {
+        payBtn.disabled = false;
+        return;
+      }
+
       const provider =
         getProvider();
-
 
       const signer =
         await provider.getSigner();
@@ -1107,6 +958,20 @@
           signer
         );
 
+      const liveData = await contract.getData(datasetId);
+      datasetPriceWei = liveData[4];
+
+      const liveStatus = Number(await contract.getAccessStatus(
+        datasetId,
+        Wallet.getAddress()
+      ));
+
+      if (ACCESS_STATUS[liveStatus] !== 'APPROVED') {
+        Toast.error('Payment requires APPROVED access on-chain.');
+        payBtn.disabled = false;
+        await loadAccessStatus();
+        return;
+      }
 
       const tx =
         await contract.buyData(
@@ -1130,10 +995,29 @@
 
       await tx.wait();
 
+      Transactions.addLocal({
+        txHash: tx.hash,
+        type: 'buy',
+        name: dataset ? dataset.name : `Dataset #${datasetId}`,
+        dataId: String(datasetId),
+        price: ethers.formatEther(datasetPriceWei),
+        status: 'confirmed'
+      });
 
-      Toast.success(
-        'Payment successful. Access is now authorized.'
-      );
+      const paidStatus = Number(await contract.getAccessStatus(
+        datasetId,
+        Wallet.getAddress()
+      ));
+
+      if (ACCESS_STATUS[paidStatus] === 'AUTHORIZED') {
+        Toast.success(
+          'Payment confirmed. Access is now authorized on-chain.'
+        );
+      } else {
+        Toast.warning(
+          `Payment mined, but live status is ${ACCESS_STATUS[paidStatus] || paidStatus}. Refreshing…`
+        );
+      }
 
 
       await loadAccessStatus();
@@ -1199,6 +1083,92 @@
 
 
   /* =========================================================
+     RETRIEVE & DECRYPT DATASET FROM IPFS
+  ========================================================= */
+
+  let lastRetrievedPayload = null;
+
+  async function accessDatasetPayload() {
+    if (!Wallet.isConnected()) {
+      Toast.warning('Connect your wallet first.');
+      return;
+    }
+
+    const btn = document.getElementById('access-data-btn');
+    const payloadBox = document.getElementById('payload-box');
+    const payloadContent = document.getElementById('payload-content');
+    const integrityFeedback = document.getElementById('integrity-feedback');
+    const cid = (dataset && dataset.ipfsCID) || document.getElementById('ipfs-cid').textContent.trim();
+
+    if (!cid || cid === 'Not available') {
+      Toast.error('IPFS CID is not available for this dataset.');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Retrieving from IPFS…';
+
+    try {
+      const walletAddr = Wallet.getAddress();
+      const url = `${API_BASE}/ipfs/${encodeURIComponent(cid)}?wallet=${encodeURIComponent(walletAddr)}&datasetId=${encodeURIComponent(datasetId || '')}`;
+      const res = await fetch(url);
+      const result = await res.json();
+
+      if (!res.ok || !result.success) {
+        throw new Error(result.message || 'Failed to retrieve data from IPFS');
+      }
+
+      Toast.success('Dataset retrieved and verified from IPFS!');
+      payloadBox.style.display = 'block';
+
+      let formatted = typeof result.data === 'object' ? JSON.stringify(result.data, null, 2) : String(result.data);
+      try {
+        formatted = JSON.stringify(JSON.parse(formatted), null, 2);
+      } catch {}
+
+      payloadContent.textContent = formatted;
+      lastRetrievedPayload = formatted;
+
+      if (result.integrityVerified) {
+        integrityFeedback.innerHTML = `<span style="color:var(--accent);">✓ SHA-256 Verified: ${result.currentHash || result.originalHash}</span>`;
+      } else {
+        integrityFeedback.innerHTML = `<span style="color:var(--warm);">⚠ Hash: ${result.currentHash || 'N/A'} (Original: ${result.originalHash || 'N/A'})</span>`;
+      }
+
+    } catch (err) {
+      console.error('Access payload error:', err);
+      Toast.error(err.message || 'Error accessing IPFS payload');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '🔓 Access Dataset Payload';
+    }
+  }
+
+  async function verifyDatasetIntegrity() {
+    if (!datasetId) return;
+    const btn = document.getElementById('verify-integrity-btn');
+    btn.disabled = true;
+    btn.textContent = 'Verifying…';
+
+    try {
+      const res = await fetch(`${API_BASE}/verify/${datasetId}`);
+      const data = await res.json();
+      if (data.success && data.integrityVerified) {
+        Toast.success(`Integrity Verified! SHA-256 matches on-chain hash: ${data.originalHash?.slice(0, 14)}…`);
+      } else if (data.success) {
+        Toast.warning(`Integrity check: ${data.status}`);
+      } else {
+        Toast.error(data.message || 'Verification failed');
+      }
+    } catch (err) {
+      Toast.error('Integrity verification failed: ' + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '🔍 Verify Integrity';
+    }
+  }
+
+  /* =========================================================
      BUTTON EVENTS
   ========================================================= */
 
@@ -1211,7 +1181,6 @@
       requestAccess
     );
 
-
   document
     .getElementById(
       'pay-btn'
@@ -1220,6 +1189,34 @@
       'click',
       payForDataset
     );
+
+  const accessDataBtnEl = document.getElementById('access-data-btn');
+  if (accessDataBtnEl) {
+    accessDataBtnEl.addEventListener('click', accessDatasetPayload);
+  }
+
+  const verifyBtnEl = document.getElementById('verify-integrity-btn');
+  if (verifyBtnEl) {
+    verifyBtnEl.addEventListener('click', verifyDatasetIntegrity);
+  }
+
+  const downloadBtnEl = document.getElementById('download-payload-btn');
+  if (downloadBtnEl) {
+    downloadBtnEl.addEventListener('click', () => {
+      if (!lastRetrievedPayload) return;
+      const blob = new Blob([lastRetrievedPayload], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${dataset ? dataset.name.toLowerCase().replace(/\s+/g, '_') : 'dataset'}_payload.json`;
+      a.click();
+      Toast.show('Dataset downloaded.');
+    });
+  }
+
+  const refreshBtnEl = document.getElementById('refresh-status-btn');
+  if (refreshBtnEl) {
+    refreshBtnEl.addEventListener('click', loadAccessStatus);
+  }
 
 
   /* =========================================================

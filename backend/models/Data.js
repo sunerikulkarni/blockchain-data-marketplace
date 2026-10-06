@@ -49,6 +49,21 @@ const DataSchema = new mongoose.Schema(
       default: null,
     },
 
+    blockchainId: {
+      type: Number,
+      default: null,
+    },
+
+    ipfsCID: {
+      type: String,
+      default: null,
+    },
+
+    dataHash: {
+      type: String,
+      default: null,
+    },
+
     // Whether this listing is currently available for purchase
     status: {
       type: String,

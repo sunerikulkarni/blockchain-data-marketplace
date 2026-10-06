@@ -5,19 +5,339 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Owner Dashboard - DataChain</title>
   <link rel="stylesheet" href="style.css">
+
+  <style>
+    .network-alert {
+      display: none;
+      background: var(--danger-sub);
+      border: 1px solid rgba(180,64,56,.35);
+      border-radius: var(--r-lg);
+      padding: 14px 18px;
+      margin-bottom: 20px;
+      color: var(--danger);
+      font-size: .85rem;
+      font-weight: 600;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .network-alert.visible {
+      display: flex;
+    }
+
+    .owner-grid {
+      display: grid;
+      gap: 20px;
+    }
+    .owner-grid > * { min-width: 0; }
+
+    .wallet-card-body {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .wallet-info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .wallet-info-row:last-child {
+      border-bottom: none;
+    }
+
+    .info-label {
+      color: var(--text-3);
+      font-size: .78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .info-val {
+      font-family: monospace;
+      font-size: .88rem;
+      color: var(--text-1);
+      word-break: break-all;
+    }
+
+    .dataset-item {
+      padding: 16px;
+      background: var(--bg-tint);
+      border: 1px solid var(--border-card);
+      border-radius: var(--r-xl);
+      margin-bottom: 14px;
+      transition: border-color .2s;
+    }
+
+    .dataset-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .dataset-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .dataset-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-1);
+    }
+
+    .dataset-price {
+      font-family: var(--font-d);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .request-card {
+      padding: 18px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: var(--r-xl);
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .request-card.is-pending {
+      border-color: rgba(200,120,68,.45);
+    }
+
+    .request-card.is-new {
+      border-color: var(--warm);
+      box-shadow: 0 0 0 3px rgba(200,120,68,.18);
+    }
+
+    .new-pill {
+      display: inline-flex;
+      align-items: center;
+      margin-left: 8px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: .62rem;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      background: var(--warm-sub);
+      color: var(--warm);
+    }
+
+    .request-card:last-child {
+      margin-bottom: 0;
+    }
+
+    .request-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .request-requester {
+      font-family: monospace;
+      font-size: .85rem;
+      color: var(--text-1);
+      font-weight: 600;
+      word-break: break-all;
+    }
+
+    .access-status {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: .72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .access-status.pending {
+      background: var(--warm-sub);
+      color: var(--warm);
+      border: 1px solid rgba(200,120,68,.3);
+    }
+
+    .access-status.approved {
+      background: var(--info-sub);
+      color: var(--info);
+      border: 1px solid rgba(78,128,168,.3);
+    }
+
+    .access-status.rejected {
+      background: var(--danger-sub);
+      color: var(--danger);
+      border: 1px solid rgba(180,64,56,.3);
+    }
+
+    .access-status.authorized {
+      background: var(--accent-sub);
+      color: var(--accent);
+      border: 1px solid var(--accent-pale);
+    }
+
+    .access-status.none {
+      background: var(--border-card);
+      color: var(--text-3);
+    }
+
+    .request-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 6px;
+    }
+
+    .btn-approve {
+      background: var(--g-btn);
+      color: #fff;
+      box-shadow: var(--sh-btn);
+    }
+
+    .btn-approve:hover:not(:disabled) {
+      background: var(--g-btnh);
+      transform: translateY(-1px);
+    }
+
+    .btn-reject {
+      background: transparent;
+      color: var(--danger);
+      border: 1.5px solid var(--danger);
+    }
+
+    .btn-reject:hover:not(:disabled) {
+      background: var(--danger-sub);
+      transform: translateY(-1px);
+    }
+
+    .tx-feedback {
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: var(--r-md);
+      background: var(--bg-tint);
+      border: 1px dashed var(--border);
+      font-family: monospace;
+      font-size: .75rem;
+      word-break: break-all;
+      display: none;
+    }
+
+    .tx-feedback.visible {
+      display: block;
+    }
+
+    .lookup-box {
+      margin-top: 14px;
+      padding: 16px;
+      background: var(--bg-tint);
+      border-radius: var(--r-lg);
+      border: 1px solid var(--border-card);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .lookup-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .lookup-row input {
+      flex: 1;
+      min-width: 260px;
+    }
+
+    .hash-badge {
+      font-family: monospace;
+      font-size: .72rem;
+      padding: 4px 8px;
+      background: rgba(255,255,255,.6);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      word-break: break-all;
+    }
+  </style>
 </head>
 
 <body>
+<div class="orb orb-1"></div><div class="orb orb-2"></div>
 
 <div class="site-wrap">
 
-  <header class="app-header">
-    <div class="logo">Data<em>Chain</em></div>
+  <!-- Sidebar -->
+  <nav class="side-nav" aria-label="Sidebar navigation">
+    <div class="side-nav-logo">Data<em>Chain</em></div>
+    <a href="index.html" class="side-nav-link" data-page="index.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Home
+    </a>
+    <a href="marketplace.html" class="side-nav-link" data-page="marketplace.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      Marketplace
+    </a>
+    <a href="listings.html" class="side-nav-link" data-page="listings.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      My Listings
+    </a>
+    <a href="addData.html" class="side-nav-link nav-add-side" data-page="addData.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Dataset
+    </a>
+    <a href="transactions.html" class="side-nav-link" data-page="transactions.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      Transactions
+    </a>
+    <a href="access.html" class="side-nav-link" data-page="access.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Company Access
+    </a>
+    <a href="owner.html" class="side-nav-link" data-page="owner.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-1.5 6.1L12 15l-4-4 4.9-5.5a5.5 5.5 0 1 1 7.1 6.6z"/></svg>
+      Owner Hub
+    </a>
+    <a href="profile.html" class="side-nav-link" data-page="profile.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      Profile
+    </a>
+    <div class="side-nav-spacer"></div>
+    <div class="side-wallet-chip">
+      <div class="w-dot"></div>
+      <span class="wallet-addr-txt">Not connected</span>
+    </div>
+  </nav>
 
+  <!-- Header -->
+  <header class="app-header">
+    <div class="hdr-title">Owner Hub</div>
     <div class="hdr-spacer"></div>
 
+    <div class="live-badge" id="network-chip" style="margin-right:12px;">
+      <div class="live-dot"></div>
+      <span id="network-name">Sepolia</span>
+    </div>
+
     <button
-      class="btn btn-secondary"
+      class="btn btn-secondary btn-sm"
       data-wallet-connect
       data-wallet-label="Connect Wallet">
       Connect Wallet
@@ -25,45 +345,71 @@
   </header>
 
   <main class="main-content">
+    <div class="content-inner owner-grid">
 
-    <div class="content-inner">
+      <!-- Network Warning Banner -->
+      <div class="network-alert" id="network-alert">
+        <div>
+          <strong>Wrong Network Detected!</strong>
+          Please switch your MetaMask network to <strong>Sepolia Testnet</strong> to interact with the marketplace contract.
+        </div>
+        <button class="btn btn-sm btn-primary" id="switch-network-btn">
+          Switch to Sepolia
+        </button>
+      </div>
 
       <!-- Page heading -->
       <div class="section-hdr">
         <div>
           <h1 class="section-ttl">Owner Dashboard</h1>
           <p style="color:var(--text-2);margin-top:6px;">
-            Manage your datasets and access requests.
+            Manage your datasets and review incoming access requests directly on Sepolia.
           </p>
         </div>
+        <a href="marketplace.html" class="btn btn-secondary btn-sm">
+          ← Marketplace
+        </a>
       </div>
 
-
-      <!-- Wallet -->
-      <section class="card" style="margin-bottom:20px;">
-
-        <h2 style="margin-bottom:12px;">
-          Wallet
-        </h2>
-
-        <div>
-          <strong>Connected Address:</strong>
-
-          <span class="wallet-addr-txt">
-            Not connected
-          </span>
+      <!-- Wallet Overview -->
+      <section class="card">
+        <div class="section-hdr">
+          <h2 class="section-ttl">Connected Wallet</h2>
         </div>
 
+        <div class="wallet-card-body">
+          <div class="wallet-info-row">
+            <span class="info-label">Owner Address</span>
+            <span class="info-val wallet-addr-txt">Not connected</span>
+          </div>
+          <div class="wallet-info-row">
+            <span class="info-label">Network</span>
+            <span class="info-val" id="wallet-network-txt">—</span>
+          </div>
+          <div class="wallet-info-row">
+            <span class="info-label">Sepolia Balance</span>
+            <span class="info-val" id="wallet-balance-txt">—</span>
+          </div>
+          <div class="wallet-info-row">
+            <span class="info-label">Smart Contract</span>
+            <span class="info-val">
+              <a href="https://sepolia.etherscan.io/address/0x02018B847dA98a987EE59d7F235b2c690085F044" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;">
+                0x02018B847dA98a987EE59d7F235b2c690085F044
+              </a>
+            </span>
+          </div>
+        </div>
       </section>
 
-
-      <!-- Owner datasets -->
-      <section class="card" style="margin-bottom:20px;">
-
+      <!-- Owner Datasets -->
+      <section class="card">
         <div class="section-hdr">
-          <h2 class="section-ttl">
-            My Datasets
-          </h2>
+          <div>
+            <h2 class="section-ttl">My Datasets on Sepolia</h2>
+            <p style="font-size:.78rem;color:var(--text-3);margin-top:4px;">
+              Datasets where your connected address is the registered owner.
+            </p>
+          </div>
 
           <a href="addData.html" class="btn btn-primary btn-sm">
             + Add Dataset
@@ -71,118 +417,834 @@
         </div>
 
         <div id="owner-datasets">
-
           <div class="empty-state">
-            <h3>Loading datasets...</h3>
+            <h3>Checking datasets...</h3>
+            <p>Connect your MetaMask wallet to view datasets you own on the blockchain.</p>
           </div>
-
         </div>
-
       </section>
 
-
-      <!-- Access requests -->
+      <!-- Access Requests -->
       <section class="card">
-
         <div class="section-hdr">
-          <h2 class="section-ttl">
-            Access Requests
-          </h2>
+          <div>
+            <h2 class="section-ttl">Pending &amp; Processed Access Requests</h2>
+            <p style="font-size:.78rem;color:var(--text-3);margin-top:4px;">
+              Review access requests from buyers, approve with MetaMask, or reject.
+            </p>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="refresh-requests-btn">
+            ↻ Refresh
+          </button>
         </div>
 
-        <div id="access-requests">
+        <!-- Requester Lookup / Direct Access Manager -->
+        <div class="lookup-box">
+          <div style="font-size:.8rem;font-weight:700;color:var(--text-2);">
+            🔍 Look up or process request by buyer address:
+          </div>
+          <div class="lookup-row">
+            <select id="lookup-dataset-select" class="form-input form-select" style="max-width:220px;">
+              <option value="">Select Dataset…</option>
+            </select>
+            <input
+              type="text"
+              id="lookup-requester-input"
+              class="form-input"
+              placeholder="Buyer Ethereum address (0x...)">
+            <button class="btn btn-secondary btn-sm" id="lookup-btn">
+              Check Access
+            </button>
+          </div>
+        </div>
 
+        <div id="access-requests" style="margin-top:20px;">
           <div class="empty-state">
             <h3>Loading requests...</h3>
+            <p>Connect your wallet to inspect access requests.</p>
           </div>
-
         </div>
-
       </section>
 
     </div>
-
   </main>
+
+  <!-- Bottom nav (mobile) -->
+  <nav class="bottom-nav" aria-label="Bottom navigation">
+    <a href="index.html" class="b-nav-item" data-page="index.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="b-nav-label">Home</span>
+    </a>
+    <a href="marketplace.html" class="b-nav-item" data-page="marketplace.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      <span class="b-nav-label">Market</span>
+    </a>
+    <div class="b-nav-add-wrap">
+      <a href="addData.html" class="b-nav-add" aria-label="Add Dataset">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </a>
+      <span class="b-nav-add-label">Add</span>
+    </div>
+    <a href="owner.html" class="b-nav-item" data-page="owner.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-1.5 6.1L12 15l-4-4 4.9-5.5a5.5 5.5 0 1 1 7.1 6.6z"/></svg>
+      <span class="b-nav-label">Owner</span>
+    </a>
+    <a href="profile.html" class="b-nav-item" data-page="profile.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <span class="b-nav-label">Profile</span>
+    </a>
+  </nav>
 
 </div>
 
-
+<!-- Shared helpers -->
 <script src="app.js"></script>
 
+<!-- ethers.js UMD -->
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.15.0/dist/ethers.umd.min.js"></script>
+
 <script>
+  let ownerDatasets = [];
+  let isSepolia = false;
 
-async function loadOwnerDashboard() {
-
-  const wallet = Wallet.getAddress();
-
-  if (!wallet) {
-
-    document.getElementById('owner-datasets').innerHTML = `
-      <div class="empty-state">
-        <h3>Connect your wallet</h3>
-        <p>
-          Connect your MetaMask wallet to view your datasets.
-        </p>
-      </div>
-    `;
-
-    document.getElementById('access-requests').innerHTML = `
-      <div class="empty-state">
-        <h3>Wallet required</h3>
-        <p>
-          Connect your wallet to view access requests.
-        </p>
-      </div>
-    `;
-
-    return;
+  /* =========================================================
+     PROVIDER & NETWORK HELPERS
+  ========================================================= */
+  function getProvider() {
+    if (typeof window.ethereum === 'undefined') {
+      throw new Error('MetaMask is not installed or available.');
+    }
+    return new ethers.BrowserProvider(window.ethereum);
   }
 
+  async function checkNetwork() {
+    if (typeof window.ethereum === 'undefined') return false;
+    try {
+      const provider = getProvider();
+      const network = await provider.getNetwork();
+      isSepolia = (network.chainId === SEPOLIA_CHAIN_ID);
 
-  /*
-   * TEMPORARY:
-   * The existing backend does not yet provide
-   * a "get my datasets" endpoint.
-   *
-   * We will connect this section to Member 2's
-   * Phase 2 API when that endpoint is available.
-   */
+      const alertEl = document.getElementById('network-alert');
+      const netNameEl = document.getElementById('network-name');
+      const netTxtEl = document.getElementById('wallet-network-txt');
 
-  document.getElementById('owner-datasets').innerHTML = `
-    <div class="empty-state">
-      <h3>Owner dataset API pending</h3>
-      <p>
-        Your datasets will appear here once the
-        Phase 2 owner API is connected.
-      </p>
-    </div>
-  `;
+      if (isSepolia) {
+        alertEl.classList.remove('visible');
+        netNameEl.textContent = 'Sepolia';
+        netTxtEl.textContent = 'Sepolia (11155111)';
+        netTxtEl.style.color = 'var(--accent)';
+      } else {
+        alertEl.classList.add('visible');
+        netNameEl.textContent = `Chain ${network.chainId}`;
+        netTxtEl.textContent = `Unsupported Network (${network.chainId})`;
+        netTxtEl.style.color = 'var(--danger)';
+      }
+      return isSepolia;
+    } catch (err) {
+      console.error('Network check error:', err);
+      return false;
+    }
+  }
 
+  async function switchToSepolia() {
+    if (typeof window.ethereum === 'undefined') return;
+    try {
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: SEPOLIA_CHAIN_HEX }]
+      });
+      await loadOwnerDashboard();
+    } catch (switchError) {
+      if (switchError.code === 4902) {
+        try {
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [{
+              chainId: SEPOLIA_CHAIN_HEX,
+              chainName: 'Sepolia Test Network',
+              nativeCurrency: { name: 'Sepolia ETH', symbol: 'ETH', decimals: 18 },
+              rpcUrls: ['https://rpc.sepolia.org'],
+              blockExplorerUrls: ['https://sepolia.etherscan.io']
+            }]
+          });
+        } catch (addError) {
+          Toast.error('Failed to add Sepolia network to MetaMask.');
+        }
+      } else {
+        Toast.error('Network switch rejected or failed.');
+      }
+    }
+  }
 
-  /*
-   * TEMPORARY:
-   * Access-request API will be connected once
-   * Member 2 provides the Phase 2 endpoint.
-   */
+  /* =========================================================
+     LOCAL REQUEST STORAGE HELPERS
+     (Shared across tabs on the same machine)
+  ========================================================= */
+  function getStoredRequests() {
+    try {
+      return JSON.parse(localStorage.getItem('dc_access_requests') || '[]');
+    } catch {
+      return [];
+    }
+  }
 
-  document.getElementById('access-requests').innerHTML = `
-    <div class="empty-state">
-      <h3>Access request API pending</h3>
-      <p>
-        Incoming requests will appear here once
-        the Phase 2 API is available.
-      </p>
-    </div>
-  `;
+  function addStoredRequest(dataId, requester, purpose) {
+    const list = getStoredRequests();
+    const normalizedRequester = requester.toLowerCase();
+    const exists = list.some(r => String(r.dataId) === String(dataId) && r.requester.toLowerCase() === normalizedRequester);
+    if (!exists) {
+      list.unshift({
+        dataId: String(dataId),
+        requester: requester,
+        purpose: purpose || 'Marketplace access request',
+        timestamp: new Date().toISOString()
+      });
+      localStorage.setItem('dc_access_requests', JSON.stringify(list.slice(0, 100)));
+    }
+  }
 
-}
+  /* =========================================================
+     LOAD OWNER DATASETS FROM SEPOLIA
+  ========================================================= */
+  async function loadOwnerDatasets(walletAddress) {
+    const container = document.getElementById('owner-datasets');
+    const selectEl = document.getElementById('lookup-dataset-select');
+    ownerDatasets = [];
+    selectEl.innerHTML = '<option value="">Select Dataset…</option>';
 
+    try {
+      const provider = getProvider();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
 
-document.addEventListener(
-  'DOMContentLoaded',
-  loadOwnerDashboard
-);
+      const countBN = await contract.dataCount();
+      const count = Number(countBN);
 
+      if (count === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <h3>No datasets found on-chain</h3>
+            <p>Total dataset count on contract is 0.</p>
+          </div>`;
+        return;
+      }
+
+      const normalizedOwner = walletAddress.toLowerCase();
+
+      for (let i = 1; i <= count; i++) {
+        try {
+          const d = await contract.getData(i);
+          const ownerAddr = d[5];
+          if (ownerAddr.toLowerCase() === normalizedOwner) {
+            ownerDatasets.push({
+              id: d[0].toString(),
+              name: d[1],
+              category: d[2],
+              description: d[3],
+              priceWei: d[4],
+              priceEth: ethers.formatEther(d[4]),
+              owner: d[5],
+              ipfsCID: d[6],
+              dataHash: d[7]
+            });
+          }
+        } catch (err) {
+          console.warn(`Could not read dataset #${i}:`, err.message);
+        }
+      }
+
+      if (ownerDatasets.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <h3>No datasets owned by this wallet</h3>
+            <p>Your connected address (${Wallet.short(walletAddress)}) has not created any datasets on Sepolia yet.</p>
+            <a href="addData.html" class="btn btn-secondary mt-12">+ List a Dataset</a>
+          </div>`;
+        return;
+      }
+
+      // Populate lookup select
+      ownerDatasets.forEach(ds => {
+        const opt = document.createElement('option');
+        opt.value = ds.id;
+        opt.textContent = `#${ds.id} — ${ds.name}`;
+        selectEl.appendChild(opt);
+      });
+
+      // Render dataset items
+      container.innerHTML = '';
+      ownerDatasets.forEach(ds => {
+        const bc = badgeClass(ds.category);
+        const item = document.createElement('div');
+        item.className = 'dataset-item anim-up';
+        item.innerHTML = `
+          <div class="dataset-item-header">
+            <div>
+              <span style="font-size:.72rem;font-weight:800;color:var(--text-3);text-transform:uppercase;">Dataset #${ds.id}</span>
+              <div class="dataset-title">${esc(ds.name)}</div>
+            </div>
+            <div style="text-align:right;">
+              <span class="badge ${bc}">${esc(ds.category)}</span>
+              <div class="dataset-price" style="margin-top:4px;">${parseFloat(ds.priceEth).toFixed(4)} ETH</div>
+            </div>
+          </div>
+          <p style="font-size:.82rem;color:var(--text-2);margin-bottom:12px;line-height:1.5;">${esc(ds.description)}</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:.75rem;">
+            ${ds.ipfsCID ? `<span><strong>IPFS CID:</strong> <span class="hash-badge">${esc(ds.ipfsCID)}</span></span>` : ''}
+            ${ds.dataHash ? `<span><strong>Hash:</strong> <span class="hash-badge">${esc(ds.dataHash)}</span></span>` : ''}
+          </div>
+          <div style="margin-top:12px;display:flex;justify-content:flex-end;">
+            <a href="dataset.html?id=${encodeURIComponent(ds.id)}" class="btn btn-secondary btn-sm" target="_blank">
+              View Dataset Page ↗
+            </a>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+
+    } catch (err) {
+      console.error('Error loading owner datasets:', err);
+      container.innerHTML = `
+        <div class="empty-state">
+          <h3>Error reading contract</h3>
+          <p>${esc(err.message || 'Could not fetch datasets from Sepolia.')}</p>
+        </div>`;
+    }
+  }
+
+  /* =========================================================
+     LOAD & RENDER ACCESS REQUESTS
+  ========================================================= */
+  function mergeCandidate(map, item) {
+    if (!item || !item.dataId || !item.requester || !ethers.isAddress(item.requester)) return;
+    if (!ownerDatasets.some(ds => String(ds.id) === String(item.dataId))) return;
+    const key = `${String(item.dataId)}_${item.requester.toLowerCase()}`;
+    const prev = map.get(key);
+    if (!prev) {
+      map.set(key, { ...item, dataId: String(item.dataId) });
+      return;
+    }
+    const newer = (item.blockNumber || 0) >= (prev.blockNumber || 0);
+    map.set(key, {
+      ...prev,
+      ...item,
+      dataId: String(item.dataId),
+      purpose: item.purpose || prev.purpose,
+      timestamp: item.timestamp || prev.timestamp,
+      transactionHash: newer ? (item.transactionHash || prev.transactionHash) : (prev.transactionHash || item.transactionHash),
+      blockNumber: Math.max(prev.blockNumber || 0, item.blockNumber || 0)
+    });
+  }
+
+  async function loadAccessRequests(walletAddress) {
+    const container = document.getElementById('access-requests');
+    if (!walletAddress) return;
+
+    if (ownerDatasets.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <h3>No owned datasets</h3>
+          <p>You can only receive access requests for datasets that you own.</p>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = '<div class="empty-state"><h3>Scanning Sepolia for access requests...</h3></div>';
+
+    try {
+      const provider = getProvider();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
+      const ownedIds = ownerDatasets.map(ds => String(ds.id));
+      const candidates = new Map();
+
+      try {
+        const chainRes = await API.get(`/chain/access-requests?owner=${encodeURIComponent(walletAddress)}`);
+        if (chainRes && chainRes.success && Array.isArray(chainRes.data)) {
+          chainRes.data.forEach(r => mergeCandidate(candidates, {
+            dataId: r.dataId,
+            requester: r.requester,
+            purpose: 'On-chain access request',
+            timestamp: null,
+            transactionHash: r.transactionHash,
+            blockNumber: r.blockNumber
+          }));
+        }
+      } catch (chainApiErr) {
+        console.warn('Backend /chain/access-requests unavailable:', chainApiErr.message);
+      }
+
+      const eventRows = await queryAccessRequestedEvents(contract, ownedIds);
+      eventRows.forEach(r => mergeCandidate(candidates, {
+        dataId: r.dataId,
+        requester: r.requester,
+        purpose: 'On-chain AccessRequested event',
+        transactionHash: r.transactionHash,
+        blockNumber: r.blockNumber
+      }));
+
+      getStoredRequests().forEach(r => mergeCandidate(candidates, {
+        dataId: r.dataId,
+        requester: r.requester,
+        purpose: r.purpose || 'Browser cache (verified against chain)',
+        timestamp: r.timestamp
+      }));
+
+      const verified = [];
+      for (const req of candidates.values()) {
+        let statusNumber = 0;
+        try {
+          statusNumber = Number(await contract.getAccessStatus(req.dataId, req.requester));
+        } catch (stErr) {
+          console.warn(`Could not check status for ${req.requester} on #${req.dataId}:`, stErr.message);
+          continue;
+        }
+        const statusText = ACCESS_STATUS[statusNumber] || 'UNKNOWN';
+        if (statusText === 'NONE') continue;
+        verified.push({ ...req, statusText, statusNumber });
+      }
+
+      const rank = { PENDING: 0, APPROVED: 1, AUTHORIZED: 2, REJECTED: 3 };
+      verified.sort((a, b) => {
+        const ra = rank[a.statusText] ?? 9;
+        const rb = rank[b.statusText] ?? 9;
+        if (ra !== rb) return ra - rb;
+        return (b.blockNumber || 0) - (a.blockNumber || 0);
+      });
+
+      const newestPendingBlock = verified
+        .filter(r => r.statusText === 'PENDING')
+        .reduce((max, r) => Math.max(max, r.blockNumber || 0), 0);
+
+      if (verified.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <h3>No on-chain access requests</h3>
+            <p>When a buyer requests access to your datasets on Sepolia, the live request appears here after the transaction confirms.</p>
+            <p style="font-size:.75rem;color:var(--text-3);margin-top:6px;">
+              Tip: Use the lookup bar to check any buyer address against the contract.
+            </p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = '';
+      verified.forEach(req => {
+        const ds = ownerDatasets.find(d => String(d.id) === String(req.dataId));
+        const dsName = ds ? ds.name : `Dataset #${req.dataId}`;
+        const isNew = req.statusText === 'PENDING' && (req.blockNumber || 0) === newestPendingBlock && newestPendingBlock > 0;
+        const card = createRequestCard(
+          req.dataId,
+          dsName,
+          req.requester,
+          req.purpose,
+          req.timestamp,
+          req.statusText,
+          null,
+          isNew,
+          req.transactionHash
+        );
+        container.appendChild(card);
+      });
+
+    } catch (err) {
+      console.error('Error loading requests:', err);
+      container.innerHTML = `
+        <div class="empty-state">
+          <h3>Error loading requests</h3>
+          <p>${esc(err.message || 'Could not verify access requests.')}</p>
+        </div>`;
+    }
+  }
+
+  /* =========================================================
+     BUILD REQUEST CARD DOM
+  ========================================================= */
+  function createRequestCard(dataId, dsName, requester, purpose, timestamp, statusText, backendId, isNew, txHash) {
+    const card = document.createElement('div');
+    card.className = 'request-card anim-up' + (statusText === 'PENDING' ? ' is-pending' : '') + (isNew ? ' is-new' : '');
+    card.id = `req-${dataId}-${requester.slice(2, 10)}`;
+
+    const isPending = (statusText === 'PENDING');
+    const badgeClass = statusText.toLowerCase();
+
+    card.innerHTML = `
+      <div class="request-card-header">
+        <div>
+          <span style="font-size:.72rem;font-weight:800;color:var(--text-3);text-transform:uppercase;">
+            Dataset #${esc(dataId)} · ${esc(dsName)}
+            ${isNew ? '<span class="new-pill">New request</span>' : ''}
+          </span>
+          <div class="request-requester" title="${esc(requester)}">
+            ${esc(requester)}
+          </div>
+        </div>
+        <span class="access-status ${badgeClass}" id="status-badge-${dataId}-${requester.slice(2, 10)}">
+          ${esc(statusText)}
+        </span>
+      </div>
+
+      <div style="font-size:.82rem;color:var(--text-2);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <span><strong>Source:</strong> ${esc(purpose || 'On-chain access request')}</span>
+        <span style="color:var(--text-3);font-size:.75rem;">${timestamp ? fmtDate(timestamp) : (txHash ? 'On-chain' : 'Live status')}</span>
+      </div>
+      ${txHash ? `<div style="font-size:.72rem;font-family:monospace;word-break:break-all;">Request tx: <a href="https://sepolia.etherscan.io/tx/${esc(txHash)}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;">${esc(txHash)}</a></div>` : ''}
+
+      <div class="tx-feedback" id="tx-box-${dataId}-${requester.slice(2, 10)}"></div>
+
+      ${isPending ? `
+        <div class="request-actions" id="actions-${dataId}-${requester.slice(2, 10)}">
+          <button class="btn btn-sm btn-approve" data-approve="${esc(dataId)}" data-requester="${esc(requester)}" data-backend="${esc(backendId || '')}">
+            ✓ Approve Access
+          </button>
+          <button class="btn btn-sm btn-reject" data-reject="${esc(dataId)}" data-requester="${esc(requester)}" data-backend="${esc(backendId || '')}">
+            ✕ Reject Request
+          </button>
+        </div>
+      ` : `
+        <div style="font-size:.75rem;color:var(--text-3);margin-top:4px;">
+          ${statusText === 'APPROVED' ? '✓ Access request was approved on the blockchain.' : ''}
+          ${statusText === 'REJECTED' ? '✕ Access request was rejected on the blockchain.' : ''}
+          ${statusText === 'AUTHORIZED' ? '★ Buyer has purchased and unlocked full authorization.' : ''}
+        </div>
+      `}
+    `;
+
+    // Bind Approve button
+    const approveBtn = card.querySelector('[data-approve]');
+    if (approveBtn) {
+      approveBtn.addEventListener('click', () => handleApprove(dataId, requester, backendId));
+    }
+
+    // Bind Reject button
+    const rejectBtn = card.querySelector('[data-reject]');
+    if (rejectBtn) {
+      rejectBtn.addEventListener('click', () => handleReject(dataId, requester, backendId));
+    }
+
+    return card;
+  }
+
+  /* =========================================================
+     APPROVE FLOW (MetaMask -> Sepolia -> Blockchain Confirmation)
+  ========================================================= */
+  async function handleApprove(dataId, requester, backendId) {
+    if (!Wallet.isConnected()) {
+      Toast.warning('Connect your owner wallet first.');
+      return;
+    }
+
+    if (!(await ensureSepolia())) {
+      return;
+    }
+
+    const feedbackBox = document.getElementById(`tx-box-${dataId}-${requester.slice(2, 10)}`);
+    const actionsBox = document.getElementById(`actions-${dataId}-${requester.slice(2, 10)}`);
+    const statusBadge = document.getElementById(`status-badge-${dataId}-${requester.slice(2, 10)}`);
+
+    if (feedbackBox) {
+      feedbackBox.classList.add('visible');
+      feedbackBox.textContent = 'Waiting for MetaMask signature to approve access...';
+    }
+
+    if (actionsBox) {
+      actionsBox.querySelectorAll('button').forEach(b => b.disabled = true);
+    }
+
+    try {
+      const provider = getProvider();
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+      Toast.show(`Submitting approval for ${Wallet.short(requester)}...`);
+
+      const tx = await contract.approveAccess(dataId, requester);
+
+      if (feedbackBox) {
+        feedbackBox.innerHTML = `
+          Transaction submitted! Hash:<br>
+          <a href="https://sepolia.etherscan.io/tx/${tx.hash}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;">
+            ${tx.hash}
+          </a><br>
+          <span style="color:var(--warm);">Waiting for block confirmation on Sepolia...</span>
+        `;
+      }
+
+      await tx.wait();
+
+      const liveStatus = Number(await contract.getAccessStatus(dataId, requester));
+      if (ACCESS_STATUS[liveStatus] !== 'APPROVED') {
+        Toast.warning('Transaction mined, but live status is not APPROVED yet. Refreshing…');
+      } else {
+        Toast.success('Access approved on Sepolia blockchain!');
+      }
+
+      if (feedbackBox) {
+        feedbackBox.innerHTML = `
+          <strong>✓ Transaction Confirmed!</strong><br>
+          Hash: <a href="https://sepolia.etherscan.io/tx/${tx.hash}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;">
+            ${tx.hash}
+          </a>
+        `;
+      }
+
+      if (statusBadge) {
+        const label = ACCESS_STATUS[liveStatus] || 'APPROVED';
+        statusBadge.textContent = label;
+        statusBadge.className = 'access-status ' + label.toLowerCase();
+      }
+
+      if (actionsBox) {
+        actionsBox.innerHTML = '<span style="font-size:.78rem;color:var(--info);font-weight:700;">✓ Approved on Sepolia</span>';
+      }
+
+      if (backendId) {
+        try {
+          await API.put(`/access-requests/${backendId}/approve`, {
+            ownerWallet: Wallet.getAddress()
+          });
+        } catch (e) {
+          console.warn('Backend approve sync note:', e.message);
+        }
+      }
+
+      await loadAccessRequests(Wallet.getAddress());
+
+    } catch (err) {
+      console.error('Approve error:', err);
+
+      if (err.code === 4001 || err.code === 'ACTION_REJECTED') {
+        Toast.warning('MetaMask transaction was rejected by user.');
+        if (feedbackBox) feedbackBox.textContent = 'Transaction rejected in MetaMask.';
+      } else {
+        const msg = err.reason || err.shortMessage || err.message || 'Approval transaction failed.';
+        Toast.error(msg);
+        if (feedbackBox) feedbackBox.textContent = `Error: ${msg}`;
+      }
+
+      if (actionsBox) {
+        actionsBox.querySelectorAll('button').forEach(b => b.disabled = false);
+      }
+    }
+  }
+
+  /* =========================================================
+     REJECT FLOW (MetaMask -> Sepolia -> Blockchain Confirmation)
+  ========================================================= */
+  async function handleReject(dataId, requester, backendId) {
+    if (!Wallet.isConnected()) {
+      Toast.warning('Connect your owner wallet first.');
+      return;
+    }
+
+    if (!(await ensureSepolia())) {
+      return;
+    }
+
+    const feedbackBox = document.getElementById(`tx-box-${dataId}-${requester.slice(2, 10)}`);
+    const actionsBox = document.getElementById(`actions-${dataId}-${requester.slice(2, 10)}`);
+    const statusBadge = document.getElementById(`status-badge-${dataId}-${requester.slice(2, 10)}`);
+
+    if (feedbackBox) {
+      feedbackBox.classList.add('visible');
+      feedbackBox.textContent = 'Waiting for MetaMask signature to reject access...';
+    }
+
+    if (actionsBox) {
+      actionsBox.querySelectorAll('button').forEach(b => b.disabled = true);
+    }
+
+    try {
+      const provider = getProvider();
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+      Toast.show(`Submitting rejection for ${Wallet.short(requester)}...`);
+
+      const tx = await contract.rejectAccess(dataId, requester);
+
+      if (feedbackBox) {
+        feedbackBox.innerHTML = `
+          Transaction submitted! Hash:<br>
+          <a href="https://sepolia.etherscan.io/tx/${tx.hash}" target="_blank" rel="noopener" style="color:var(--danger);text-decoration:underline;">
+            ${tx.hash}
+          </a><br>
+          <span style="color:var(--warm);">Waiting for block confirmation on Sepolia...</span>
+        `;
+      }
+
+      await tx.wait();
+
+      const liveStatus = Number(await contract.getAccessStatus(dataId, requester));
+      if (ACCESS_STATUS[liveStatus] !== 'REJECTED') {
+        Toast.warning('Transaction mined, but live status is not REJECTED yet. Refreshing…');
+      } else {
+        Toast.success('Access request rejected on Sepolia blockchain.');
+      }
+
+      if (feedbackBox) {
+        feedbackBox.innerHTML = `
+          <strong>✓ Transaction Confirmed!</strong><br>
+          Hash: <a href="https://sepolia.etherscan.io/tx/${tx.hash}" target="_blank" rel="noopener" style="color:var(--danger);text-decoration:underline;">
+            ${tx.hash}
+          </a>
+        `;
+      }
+
+      if (statusBadge) {
+        const label = ACCESS_STATUS[liveStatus] || 'REJECTED';
+        statusBadge.textContent = label;
+        statusBadge.className = 'access-status ' + label.toLowerCase();
+      }
+
+      if (actionsBox) {
+        actionsBox.innerHTML = '<span style="font-size:.78rem;color:var(--danger);font-weight:700;">✕ Rejected on Sepolia</span>';
+      }
+
+      if (backendId) {
+        try {
+          await API.put(`/access-requests/${backendId}/reject`, {
+            ownerWallet: Wallet.getAddress(),
+            rejectionReason: 'Rejected by owner on blockchain'
+          });
+        } catch (e) {
+          console.warn('Backend reject sync note:', e.message);
+        }
+      }
+
+      await loadAccessRequests(Wallet.getAddress());
+
+    } catch (err) {
+      console.error('Reject error:', err);
+
+      if (err.code === 4001 || err.code === 'ACTION_REJECTED') {
+        Toast.warning('MetaMask transaction was rejected by user.');
+        if (feedbackBox) feedbackBox.textContent = 'Transaction rejected in MetaMask.';
+      } else {
+        const msg = err.reason || err.shortMessage || err.message || 'Rejection transaction failed.';
+        Toast.error(msg);
+        if (feedbackBox) feedbackBox.textContent = `Error: ${msg}`;
+      }
+
+      if (actionsBox) {
+        actionsBox.querySelectorAll('button').forEach(b => b.disabled = false);
+      }
+    }
+  }
+
+  /* =========================================================
+     MANUAL LOOKUP / VERIFY REQUESTER HANDLER
+  ========================================================= */
+  async function handleLookup() {
+    const datasetSelect = document.getElementById('lookup-dataset-select');
+    const inputEl = document.getElementById('lookup-requester-input');
+    const dataId = datasetSelect.value;
+    const requester = inputEl.value.trim();
+
+    if (!dataId) {
+      Toast.warning('Please select one of your datasets first.');
+      return;
+    }
+
+    if (!ethers.isAddress(requester)) {
+      Toast.error('Please enter a valid Ethereum address (0x...).');
+      return;
+    }
+
+    try {
+      const provider = getProvider();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
+
+      Toast.show(`Checking live on-chain status for ${Wallet.short(requester)}...`);
+
+      const statusBN = await contract.getAccessStatus(dataId, requester);
+      const statusNum = Number(statusBN);
+      const statusText = ACCESS_STATUS[statusNum] || 'UNKNOWN';
+
+      Toast.success(`Live blockchain status: ${statusText}`);
+
+      // Add to local list so it stays on dashboard
+      addStoredRequest(dataId, requester, 'Direct requester lookup');
+
+      // Refresh requests list
+      await loadAccessRequests(Wallet.getAddress());
+
+    } catch (err) {
+      console.error('Lookup error:', err);
+      Toast.error('Could not check status: ' + (err.reason || err.message));
+    }
+  }
+
+  /* =========================================================
+     LOAD OWNER DASHBOARD
+  ========================================================= */
+  async function loadOwnerDashboard() {
+    const wallet = Wallet.getAddress();
+
+    if (!wallet) {
+      document.getElementById('wallet-balance-txt').textContent = '—';
+      document.getElementById('wallet-network-txt').textContent = 'Not connected';
+      document.getElementById('owner-datasets').innerHTML = `
+        <div class="empty-state">
+          <h3>Connect your wallet</h3>
+          <p>Connect your MetaMask wallet to view datasets and manage access requests.</p>
+        </div>`;
+      document.getElementById('access-requests').innerHTML = `
+        <div class="empty-state">
+          <h3>Wallet required</h3>
+          <p>Connect your wallet to review and approve access requests.</p>
+        </div>`;
+      return;
+    }
+
+    // Check network
+    await checkNetwork();
+
+    // Check balance
+    try {
+      const provider = getProvider();
+      const bal = await provider.getBalance(wallet);
+      document.getElementById('wallet-balance-txt').textContent = `${parseFloat(ethers.formatEther(bal)).toFixed(4)} ETH`;
+    } catch {
+      document.getElementById('wallet-balance-txt').textContent = '—';
+    }
+
+    // Load datasets and requests
+    await loadOwnerDatasets(wallet);
+    await loadAccessRequests(wallet);
+  }
+
+  /* =========================================================
+     EVENT LISTENERS & INIT
+  ========================================================= */
+  document.getElementById('switch-network-btn').addEventListener('click', switchToSepolia);
+  document.getElementById('refresh-requests-btn').addEventListener('click', () => loadAccessRequests(Wallet.getAddress()));
+  document.getElementById('lookup-btn').addEventListener('click', handleLookup);
+
+  // MetaMask network change listener
+  if (typeof window.ethereum !== 'undefined') {
+    window.ethereum.on('chainChanged', async () => {
+      await loadOwnerDashboard();
+    });
+
+    window.ethereum.on('accountsChanged', async (accounts) => {
+      if (accounts && accounts.length) {
+        Wallet.setAddress(accounts[0]);
+      } else {
+        Wallet.disconnect();
+      }
+      syncWalletUI(Wallet.getAddress());
+      await loadOwnerDashboard();
+    });
+  }
+
+  // Reload after connecting wallet via header button
+  const walletBtn = document.querySelector('[data-wallet-connect]');
+  if (walletBtn) {
+    walletBtn.addEventListener('click', () => {
+      setTimeout(loadOwnerDashboard, 800);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', loadOwnerDashboard);
 </script>
 
 </body>

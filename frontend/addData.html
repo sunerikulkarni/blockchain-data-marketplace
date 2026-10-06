@@ -37,8 +37,7 @@
     .nag-banner a{color:var(--warm);text-decoration:underline}
     .nag-banner.hidden{display:none}
 
-    /* On tablet/desktop the form can sit alongside a preview */
-    @media(min-width:900px){
+    @media(min-width:820px){
       .form-layout{
         display:grid;
         grid-template-columns:1fr 340px;
@@ -47,12 +46,13 @@
       }
       .preview-col{position:sticky;top:calc(var(--hdr-h) + 20px)}
     }
+    .form-layout > * { min-width: 0; }
 
     .form-card{
       background:var(--g-card);border:1px solid var(--border-card);
       border-radius:var(--r-2xl);padding:24px 20px;
       backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-      box-shadow:var(--sh-sm);display:flex;flex-direction:column;gap:20px;
+      box-shadow:var(--sh-sm);display:flex;flex-direction:column;gap:18px;
       transition:background .4s;
     }
     .select-wrap{position:relative}
@@ -90,8 +90,17 @@
     }
     .preview-lbl::after{content:'';flex:1;height:1px;background:var(--border)}
 
-    .submit-row{display:flex;flex-direction:column;gap:10px}
-    .disclaimer{text-align:center;font-size:.7rem;color:var(--text-3);line-height:1.5}
+    .tx-feedback {
+      padding: 14px;
+      border-radius: var(--r-lg);
+      background: var(--bg-tint);
+      border: 1px dashed var(--border);
+      font-family: monospace;
+      font-size: .75rem;
+      word-break: break-all;
+      display: none;
+    }
+    .tx-feedback.visible { display: block; }
   </style>
 </head>
 <body>
@@ -110,9 +119,25 @@
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
       Marketplace
     </a>
+    <a href="listings.html" class="side-nav-link" data-page="listings.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      My Listings
+    </a>
     <a href="addData.html" class="side-nav-link nav-add-side" data-page="addData.html">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Add Dataset
+    </a>
+    <a href="transactions.html" class="side-nav-link" data-page="transactions.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      Transactions
+    </a>
+    <a href="access.html" class="side-nav-link" data-page="access.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Company Access
+    </a>
+    <a href="owner.html" class="side-nav-link" data-page="owner.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-1.5 6.1L12 15l-4-4 4.9-5.5a5.5 5.5 0 1 1 7.1 6.6z"/></svg>
+      Owner Hub
     </a>
     <a href="profile.html" class="side-nav-link" data-page="profile.html">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
@@ -128,6 +153,10 @@
   <!-- Header -->
   <header class="app-header">
     <div class="hdr-title">Add Dataset</div>
+    <div class="hdr-spacer"></div>
+    <button class="btn btn-secondary btn-sm" data-wallet-connect data-wallet-label="Connect Wallet">
+      Connect Wallet
+    </button>
   </header>
 
   <!-- Main -->
@@ -139,14 +168,14 @@
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
         </div>
         <div class="intro-text">
-          <h2>List Your Dataset</h2>
-          <p>Publish on the blockchain and earn ETH every time someone buys your data.</p>
+          <h2>Publish Dataset to Sepolia</h2>
+          <p>Secure your dataset with encryption, store it on IPFS, and register its metadata on the Sepolia blockchain.</p>
         </div>
       </div>
 
       <div class="nag-banner" id="wallet-nag">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <span>Connect your wallet on the <a href="profile.html">Profile page</a> before listing.</span>
+        <span>Connect your MetaMask wallet on Sepolia before publishing.</span>
       </div>
 
       <div class="form-layout">
@@ -155,7 +184,7 @@
 
           <div class="form-group">
             <label class="form-label" for="f-name">Dataset Name *</label>
-            <input class="form-input" id="f-name" type="text" placeholder="e.g. Global Health Metrics 2024" maxlength="80" required autocomplete="off"/>
+            <input class="form-input" id="f-name" type="text" placeholder="e.g. Genomic Sequencing Database 2026" maxlength="80" required autocomplete="off"/>
             <div class="field-row"><span class="form-helper">Clear, descriptive name</span><span class="char-count" id="name-count">0 / 80</span></div>
           </div>
 
@@ -172,33 +201,68 @@
 
           <div class="form-group">
             <label class="form-label" for="f-desc">Description *</label>
-            <textarea class="form-input form-textarea" id="f-desc" placeholder="Describe the dataset — its contents, collection method, size, format, and possible uses…" maxlength="500" required></textarea>
+            <textarea class="form-input form-textarea" id="f-desc" placeholder="Describe the dataset — its contents, format, sampling methodology, and research utility…" maxlength="500" required></textarea>
             <div class="field-row"><span class="form-helper">Detailed descriptions attract more buyers</span><span class="char-count" id="desc-count">0 / 500</span></div>
           </div>
+
+	  <div class="form-group">
+  <label class="form-label" for="f-data">Dataset Data *</label>
+  <textarea
+    class="form-input form-textarea"
+    id="f-data"
+    placeholder="Enter the actual dataset content to be encrypted and stored on IPFS..."
+    rows="8"
+    required
+  ></textarea>
+  <span class="form-helper">
+    This data will be SHA-256 hashed, AES-256-GCM encrypted and uploaded to IPFS.
+  </span>
+</div>
 
           <div class="form-group">
             <label class="form-label" for="f-price">Price *</label>
             <div class="eth-wrap">
-              <input class="form-input" id="f-price" type="number" step="0.0001" min="0.0001" max="100" placeholder="0.0000" required/>
+              <input class="form-input" id="f-price" type="number" step="0.0001" min="0.0001" max="100" placeholder="0.0010" required/>
               <span class="eth-tag">ETH</span>
             </div>
-            <div class="field-row"><span class="usd-est" id="usd-est"></span><span class="form-helper">Min. 0.0001 ETH</span></div>
+            <div class="field-row"><span class="usd-est" id="usd-est"></span><span class="form-helper">Minimum 0.0001 ETH</span></div>
           </div>
 
-          <!-- Preview (inside form on mobile, separate col on desktop) -->
-          <div class="preview-mobile">
-            <div class="preview-lbl">Live preview</div>
-            <div class="preview-box" id="preview-box-mobile">
-              <div class="preview-placeholder">Fill in the form to preview your listing.</div>
-            </div>
+          <div class="form-group">
+            <label class="form-label" for="f-cid">IPFS CID</label>
+            <input
+  class="form-input"
+  id="f-cid"
+  type="text"
+  placeholder="Generated automatically after IPFS upload"
+  readonly
+/>
+            <span class="form-helper">Pinata IPFS Content Identifier</span>
           </div>
+
+          <div class="form-group">
+           <label class="form-label" for="f-hash">Data SHA-256 Hash</label>
+           <input
+  class="form-input"
+  id="f-hash"
+  type="text"
+  placeholder="Generated automatically"
+  readonly
+/>
+            <span class="form-helper">Cryptographic integrity hash</span>
+          </div>
+
+          <!-- Transaction Feedback -->
+          <div class="tx-feedback" id="tx-box"></div>
 
           <div class="submit-row">
             <button type="submit" class="btn btn-primary btn-lg btn-full" id="submit-btn">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-              Publish to Blockchain
+              Secure & Publish Dataset
             </button>
-            <p class="disclaimer">By publishing, you confirm this data does not violate any privacy laws or third-party rights.</p>
+            <p class="disclaimer" style="text-align:center;font-size:.72rem;color:var(--text-3);margin-top:6px;">
+              Requires MetaMask confirmation on Sepolia. Contract: 0x02018B847dA98a987EE59d7F235b2c690085F044
+            </p>
           </div>
 
         </form>
@@ -209,7 +273,7 @@
           <div class="preview-box" id="preview-box-desktop">
             <div class="preview-placeholder">Fill in the form to preview your listing.</div>
           </div>
-          <p class="form-helper mt-12" style="text-align:center">This is how buyers will see your dataset.</p>
+          <p class="form-helper mt-12" style="text-align:center">This is how buyers will see your dataset in the Marketplace.</p>
         </div>
       </div>
 
@@ -227,11 +291,15 @@
       <span class="b-nav-label">Market</span>
     </a>
     <div class="b-nav-add-wrap">
-      <a href="addData.html" class="b-nav-add" aria-label="Add">
+      <a href="addData.html" class="b-nav-add" aria-label="Add Dataset">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       </a>
       <span class="b-nav-add-label">Add</span>
     </div>
+    <a href="owner.html" class="b-nav-item" data-page="owner.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-1.5 6.1L12 15l-4-4 4.9-5.5a5.5 5.5 0 1 1 7.1 6.6z"/></svg>
+      <span class="b-nav-label">Owner</span>
+    </a>
     <a href="profile.html" class="b-nav-item" data-page="profile.html">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
       <span class="b-nav-label">Profile</span>
@@ -241,123 +309,361 @@
 </div>
 
 <script src="app.js"></script>
+<!-- ethers.js -->
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.15.0/dist/ethers.umd.min.js"></script>
+
 <script>
-const ETH_USD=3200;
-const nameEl=document.getElementById('f-name');
-const catEl=document.getElementById('f-cat');
-const descEl=document.getElementById('f-desc');
-const priceEl=document.getElementById('f-price');
-const previewMob=document.getElementById('preview-box-mobile');
-const previewDesk=document.getElementById('preview-box-desktop');
-const previewCol=document.getElementById('preview-col');
+const ETH_USD = 3200;
+const nameEl = document.getElementById('f-name');
+const catEl = document.getElementById('f-cat');
+const descEl = document.getElementById('f-desc');
+const priceEl = document.getElementById('f-price');
+const cidEl = document.getElementById('f-cid');
+const hashEl = document.getElementById('f-hash');
+const previewDesk = document.getElementById('preview-box-desktop');
+const previewCol = document.getElementById('preview-col');
+const txBox = document.getElementById('tx-box');
+const dataEl = document.getElementById('f-data');
 
-if(Wallet.isConnected()) document.getElementById('wallet-nag').classList.add('hidden');
+if (Wallet.isConnected()) document.getElementById('wallet-nag').classList.add('hidden');
 
-// Show desktop preview column when viewport is wide enough
 function checkLayout(){
   const wide = window.innerWidth >= 900;
   previewCol.style.display = wide ? 'block' : 'none';
-  document.querySelector('.preview-mobile').style.display = wide ? 'none' : 'block';
 }
-checkLayout(); window.addEventListener('resize', checkLayout);
+checkLayout();
+window.addEventListener('resize', checkLayout);
 
-function updateCount(id,n,max){
-  const el=document.getElementById(id);
-  el.textContent=`${n} / ${max}`;
-  el.classList.toggle('warn',n>max*.85);
+function updateCount(id, n, max){
+  const el = document.getElementById(id);
+  el.textContent = `${n} / ${max}`;
+  el.classList.toggle('warn', n > max * 0.85);
 }
-function buildPreviewHTML(name,cat,desc,price){
-  const bc=badgeClass(cat);
+
+function buildPreviewHTML(name, cat, desc, price){
+  const bc = badgeClass(cat);
   return `
     <div class="dc-header">
       <div>
-        <div class="dc-name">${name||'<span style="color:var(--text-3)">Dataset name…</span>'}</div>
-        <span class="badge ${bc||'badge-muted'}">${cat||'Category'}</span>
+        <div class="dc-name">${name || '<span style="color:var(--text-3)">Dataset name…</span>'}</div>
+        <span class="badge ${bc || 'badge-muted'}">${cat || 'Category'}</span>
       </div>
       <div class="dc-price">
-        <span class="dc-price-val">${price?parseFloat(price).toFixed(4):'—'}</span>
+        <span class="dc-price-val">${price ? parseFloat(price).toFixed(4) : '—'}</span>
         <span class="dc-price-unit">ETH</span>
       </div>
     </div>
-    <p class="dc-desc" style="margin-bottom:0">${desc||'<span style="color:var(--text-3)">Description…</span>'}</p>`;
+    <p class="dc-desc" style="margin-bottom:0">${desc || '<span style="color:var(--text-3)">Description…</span>'}</p>`;
 }
+
 function updatePreview(){
-  const name=nameEl.value.trim(),cat=catEl.value,desc=descEl.value.trim(),price=priceEl.value;
-  const has=name||cat||desc||price;
-  const html=has?buildPreviewHTML(name,cat,desc,price):'<div class="preview-placeholder">Fill in the form to preview your listing.</div>';
-  [previewMob,previewDesk].forEach(b=>{
-    b.classList.toggle('filled',!!has);
-    b.innerHTML=html;
-  });
+  const name = nameEl.value.trim(), cat = catEl.value, desc = descEl.value.trim(), price = priceEl.value;
+  const has = name || cat || desc || price;
+  const html = has ? buildPreviewHTML(name, cat, desc, price) : '<div class="preview-placeholder">Fill in the form to preview your listing.</div>';
+  previewDesk.classList.toggle('filled', !!has);
+  previewDesk.innerHTML = html;
 }
-nameEl.addEventListener('input',()=>{updateCount('name-count',nameEl.value.length,80);updatePreview();});
-descEl.addEventListener('input',()=>{updateCount('desc-count',descEl.value.length,500);updatePreview();});
-catEl.addEventListener('change',updatePreview);
-priceEl.addEventListener('input',()=>{
-  const v=parseFloat(priceEl.value);
-  document.getElementById('usd-est').textContent=v&&!isNaN(v)?`≈ $${(v*ETH_USD).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})} USD`:'';
+
+nameEl.addEventListener('input', () => { updateCount('name-count', nameEl.value.length, 80); updatePreview(); });
+descEl.addEventListener('input', () => { updateCount('desc-count', descEl.value.length, 500); updatePreview(); });
+catEl.addEventListener('change', updatePreview);
+priceEl.addEventListener('input', () => {
+  const v = parseFloat(priceEl.value);
+  document.getElementById('usd-est').textContent = v && !isNaN(v) ? `≈ $${(v * ETH_USD).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD` : '';
   updatePreview();
 });
 
+/* =========================================================
+   PUBLISH DATASET TO SEPOLIA BLOCKCHAIN
+========================================================= */
 document.getElementById('add-form').addEventListener('submit', async e => {
   e.preventDefault();
-  const name  = nameEl.value.trim();
-  const cat   = catEl.value;
-  const desc  = descEl.value.trim();
+
+  const name = nameEl.value.trim();
+  const cat = catEl.value;
+  const desc = descEl.value.trim();
+  const data = dataEl.value.trim();
   const price = priceEl.value.trim();
 
-  if (!name || !cat || !desc || !price) { Toast.error('Please fill in all fields.'); return; }
-  if (parseFloat(price) <= 0) { Toast.error('Price must be greater than 0.'); return; }
-
-  const btn = document.getElementById('submit-btn');
-  btn.disabled = true;
-  btn.innerHTML = `<svg class="spin" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.22-8.56"/></svg> Publishing…`;
-
-  try {
-    // POST to backend → saves dataset to MongoDB
-    const result = await API.post('/addData', {
-      name,
-      category:    cat,
-      description: desc,
-      price,
-      seller: Wallet.getAddress() || null  // attach wallet if connected
-    });
-
-    if (result.success) {
-      // Cache locally so My Listings page shows it immediately
-      Transactions.addLocal({
-        type: 'sell', name, category: cat, price, status: 'confirmed',
-        dbId: result.data?._id
-      });
-      Toast.success('Dataset saved to MongoDB successfully!');
-    } else {
-      // Show backend validation errors if any
-      const msg = result.errors
-        ? result.errors.map(e => e.msg).join(', ')
-        : (result.message || 'Failed to publish.');
-      Toast.error(msg);
-      btn.disabled = false;
-      btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg> Publish to Blockchain`;
-      return;
-    }
-  } catch (err) {
-    Toast.error('Cannot reach the server. Is the backend running?');
-    btn.disabled = false;
-    btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg> Publish to Blockchain`;
+  if (!name || !cat || !desc || !data || !price) {
+    Toast.error('Please fill in all required fields.');
     return;
   }
 
-  // Reset form after success
-  setTimeout(() => {
-    document.getElementById('add-form').reset();
-    updatePreview();
-    ['name-count','desc-count'].forEach(id =>
-      document.getElementById(id).textContent = id.includes('name') ? '0 / 80' : '0 / 500'
+  if (parseFloat(price) <= 0) {
+    Toast.error('Price must be greater than 0.');
+    return;
+  }
+
+  if (!Wallet.isConnected()) {
+    Toast.warning('Connect your MetaMask wallet on Sepolia first.');
+    return;
+  }
+
+  const isSep = await checkSepoliaNetwork();
+
+  if (!isSep) {
+    const switched = await switchSepoliaNetwork();
+    if (!switched) return;
+  }
+
+  const btn = document.getElementById('submit-btn');
+
+  btn.disabled = true;
+  btn.innerHTML = `
+    <svg class="spin" xmlns="http://www.w3.org/2000/svg"
+      width="18" height="18" viewBox="0 0 24 24"
+      fill="none" stroke="currentColor" stroke-width="2.2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 12a9 9 0 1 1-6.22-8.56"/>
+    </svg>
+    Uploading securely…
+  `;
+
+  txBox.classList.add('visible');
+  txBox.textContent =
+    'Encrypting dataset, generating SHA-256 hash and uploading to IPFS…';
+
+  try {
+
+    // ==========================================
+    // STEP 1: Upload dataset through backend
+    // ==========================================
+
+    const uploadResponse = await fetch('http://localhost:3000/upload', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name,
+        category: cat,
+        description: desc,
+        price,
+        payload: data,
+        registerOnChain: false
+      })
+    });
+
+    const uploadResult = await uploadResponse.json();
+
+    if (!uploadResponse.ok || !uploadResult.success) {
+      throw new Error(
+        uploadResult.message || 'Dataset upload failed.'
+      );
+    }
+
+    const cid = uploadResult.cid;
+    const hash = uploadResult.hash;
+
+    if (!cid || !hash) {
+      throw new Error(
+        'Backend did not return a valid IPFS CID and SHA-256 hash.'
+      );
+    }
+
+    // Show the real generated values
+    cidEl.value = cid;
+    hashEl.value = hash;
+
+    txBox.innerHTML = `
+      <strong>Dataset securely uploaded.</strong><br>
+      IPFS CID: ${cid}<br>
+      SHA-256: ${hash}<br>
+      <span style="color:var(--warm);">
+        Preparing blockchain transaction…
+      </span>
+    `;
+
+    // ==========================================
+    // STEP 2: Register real CID + hash on-chain
+    // ==========================================
+
+    btn.innerHTML = `
+      <svg class="spin" xmlns="http://www.w3.org/2000/svg"
+        width="18" height="18" viewBox="0 0 24 24"
+        fill="none" stroke="currentColor" stroke-width="2.2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12a9 9 0 1 1-6.22-8.56"/>
+      </svg>
+      Waiting for MetaMask…
+    `;
+
+    txBox.innerHTML += `
+      <br><br>
+      Please confirm the blockchain transaction in MetaMask…
+    `;
+
+    const provider =
+      new ethers.BrowserProvider(window.ethereum);
+
+    const signer = await provider.getSigner();
+
+    const contract =
+      new ethers.Contract(
+        CONTRACT_ADDRESS,
+        CONTRACT_ABI,
+        signer
+      );
+
+    const priceWei = ethers.parseEther(String(price));
+
+    const tx = await contract.addData(
+      name,
+      cat,
+      desc,
+      priceWei,
+      cid,
+      hash
     );
-    document.getElementById('usd-est').textContent = '';
+
+    txBox.innerHTML = `
+      <strong>Blockchain transaction submitted.</strong><br>
+      Transaction:
+      <a
+        href="https://sepolia.etherscan.io/tx/${tx.hash}"
+        target="_blank"
+        rel="noopener"
+        style="color:var(--accent);text-decoration:underline;"
+      >
+        ${tx.hash}
+      </a>
+      <br>
+      <span style="color:var(--warm);">
+        Waiting for block confirmation…
+      </span>
+    `;
+
+    btn.innerHTML = `
+      <svg class="spin" xmlns="http://www.w3.org/2000/svg"
+        width="18" height="18" viewBox="0 0 24 24"
+        fill="none" stroke="currentColor" stroke-width="2.2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12a9 9 0 1 1-6.22-8.56"/>
+      </svg>
+      Confirming on-chain…
+    `;
+
+    await tx.wait();
+
+    // ==========================================
+    // STEP 3: Get the newly created dataset ID
+    // ==========================================
+
+    const newCount = await contract.dataCount();
+
+    // ==========================================
+    // STEP 4: Synchronize metadata with backend
+    // ==========================================
+
+    try {
+      await API.post('/addData', {
+        name,
+        category: cat,
+        description: desc,
+        price,
+        seller: Wallet.getAddress(),
+        ipfsCID: cid,
+        dataHash: hash,
+        blockchainId: Number(newCount)
+      });
+    } catch (backendError) {
+      console.warn(
+        'Backend metadata sync failed:',
+        backendError.message
+      );
+    }
+
+    // ==========================================
+    // STEP 5: Success
+    // ==========================================
+
+    txBox.innerHTML = `
+      <strong>✓ Dataset successfully published!</strong><br><br>
+
+      Dataset ID:
+      <strong>#${newCount}</strong><br>
+
+      IPFS CID:
+      <strong>${cid}</strong><br>
+
+      SHA-256:
+      <strong>${hash}</strong><br>
+
+      Transaction:
+      <a
+        href="https://sepolia.etherscan.io/tx/${tx.hash}"
+        target="_blank"
+        rel="noopener"
+        style="color:var(--accent);text-decoration:underline;"
+      >
+        ${tx.hash}
+      </a>
+
+      <div style="margin-top:10px;">
+        <a
+          href="dataset.html?id=${newCount}"
+          class="btn btn-sm btn-primary"
+        >
+          View Dataset Page ↗
+        </a>
+
+        <a
+          href="owner.html"
+          class="btn btn-sm btn-secondary"
+          style="margin-left:8px;"
+        >
+          Manage in Owner Hub
+        </a>
+      </div>
+    `;
+
+    Toast.success(
+      `Dataset #${newCount} published successfully!`
+    );
+
     btn.disabled = false;
-    btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg> Publish to Blockchain`;
-  }, 1400);
+    btn.innerHTML = `✓ Published Successfully`;
+
+  } catch (err) {
+
+    console.error('Add dataset error:', err);
+
+    if (
+      err.code === 4001 ||
+      err.code === 'ACTION_REJECTED'
+    ) {
+      Toast.warning('Transaction rejected in MetaMask.');
+      txBox.textContent =
+        'MetaMask transaction was rejected.';
+    } else {
+      const msg =
+        err.reason ||
+        err.shortMessage ||
+        err.message ||
+        'Publish transaction failed.';
+
+      Toast.error(msg);
+      txBox.textContent = `Error: ${msg}`;
+    }
+
+    btn.disabled = false;
+
+    btn.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg"
+        width="18" height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round">
+        <ellipse cx="12" cy="5" rx="9" ry="3"/>
+        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3V5"/>
+      </svg>
+      Publish to Sepolia Blockchain
+    `;
+  }
 });
 </script>
 </body>

@@ -27,7 +27,10 @@ router.get('/getData', async (req, res) => {
     const { search, category, page = 1, limit = 50 } = req.query;
 
     // Build filter object
-    const filter = { status: 'active' };
+    const filter = {
+      status: 'active',
+      name: { $not: /asthma/i },
+    };
 
     if (category && category !== 'All') {
       filter.category = category;
@@ -68,7 +71,37 @@ router.get('/getData', async (req, res) => {
 // ────────────────────────────────────────────────────────────
 router.get('/getData/:id', async (req, res) => {
   try {
-    const data = await Data.findById(req.params.id);
+    const idParam = req.params.id;
+    let data = null;
+    const isNumeric = !isNaN(Number(idParam));
+    if (isNumeric) {
+      data = await Data.findOne({ blockchainId: Number(idParam) });
+      if (!data) {
+        try {
+          const { getDataset } = require('../services/blockchainService');
+          const chainData = await getDataset(idParam);
+          if (chainData) {
+            data = {
+              _id: chainData.id,
+              onChainId: chainData.id,
+              blockchainId: chainData.id,
+              name: chainData.name,
+              category: chainData.category,
+              description: chainData.description,
+              price: chainData.price,
+              priceWei: chainData.priceWei,
+              seller: chainData.owner,
+              ipfsCID: chainData.ipfsCID,
+              dataHash: chainData.dataHash
+            };
+          }
+        } catch (e) {
+          console.warn(`Chain lookup fallback for dataset #${idParam} note:`, e.message);
+        }
+      }
+    } else {
+      data = await Data.findById(idParam).catch(() => null);
+    }
     if (!data) return res.status(404).json({ success: false, message: 'Dataset not found' });
     res.json({ success: true, data });
   } catch (err) {
@@ -94,8 +127,17 @@ router.post(
   async (req, res) => {
     if (validate(req, res)) return;
     try {
-      const { name, category, description, price, seller } = req.body;
-      const newData = await Data.create({ name, category, description, price, seller: seller || null });
+      const { name, category, description, price, seller, blockchainId, ipfsCID, dataHash } = req.body;
+      const newData = await Data.create({
+        name,
+        category,
+        description,
+        price,
+        seller: seller || null,
+        blockchainId: blockchainId || null,
+        ipfsCID: ipfsCID || null,
+        dataHash: dataHash || null,
+      });
       res.status(201).json({ success: true, data: newData });
     } catch (err) {
       console.error('POST /addData error:', err.message);

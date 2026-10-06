@@ -471,8 +471,22 @@
     dataset =
       result.data;
 
+    // Populate module-level variables so access-status and payment work
+    // even when the blockchain read is skipped or unavailable.
+    datasetOwner = dataset.seller || null;
+    if (dataset.priceWei) {
+      datasetPriceWei = BigInt(dataset.priceWei);
+    } else if (dataset.price) {
+      // Reconstruct from ETH string (e.g. "0.001")
+      try {
+        datasetPriceWei = ethers.parseEther(String(dataset.price));
+      } catch (_) {
+        datasetPriceWei = null;
+      }
+    }
+
     const idTag = document.getElementById('dataset-id-tag');
-    if (idTag) idTag.textContent = `Backend Listing #${dataset.onChainId || dataset._id || datasetId}`;
+    if (idTag) idTag.textContent = `Dataset #${dataset.blockchainId || dataset.onChainId || datasetId}`;
 
 
     document.getElementById(
@@ -545,44 +559,49 @@
     }
 
 
-    try {
+    // Run backend and blockchain in parallel.
+    // Backend (localhost) resolves quickly; blockchain (CDN + public RPC)
+    // can be slow or fail entirely. Show data from whichever resolves first.
+    let backendOk = false;
+    let chainOk = false;
 
-      await loadDatasetFromBlockchain();
+    const backendPromise = loadDatasetFromBackend()
+      .then(() => { backendOk = true; })
+      .catch(err => console.warn('Backend load failed:', err.message));
 
+    const chainPromise = loadDatasetFromBlockchain()
+      .then(() => { chainOk = true; })
+      .catch(err => console.warn('Blockchain load failed:', err.message));
+
+    // Wait for backend (fast path). If it succeeds, show data immediately.
+    await backendPromise;
+
+    if (backendOk) {
+      // Show data now, then let blockchain complete in background to get
+      // authoritative owner/price from the contract.
       await loadAccessStatus();
-
+      chainPromise.then(async () => {
+        if (chainOk) {
+          // Blockchain data available — refresh access status with on-chain owner.
+          await loadAccessStatus();
+        }
+      }).catch(() => {});
       return;
-
-    } catch (blockchainError) {
-
-      console.warn(
-        'Blockchain dataset read failed:',
-        blockchainError
-      );
-
     }
 
+    // Backend failed — wait for blockchain.
+    await chainPromise;
 
-    try {
-
-      await loadDatasetFromBackend();
-
+    if (chainOk) {
       await loadAccessStatus();
-
-    } catch (backendError) {
-
-      console.error(
-        'Dataset loading failed:',
-        backendError
-      );
-
-
-      document.getElementById(
-        'dataset-name'
-      ).textContent =
-        'Unable to load dataset';
-
+      return;
     }
+
+    // Both failed.
+    document.getElementById(
+      'dataset-name'
+    ).textContent =
+      'Unable to load dataset';
 
   }
 

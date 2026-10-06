@@ -209,24 +209,22 @@ const countEl = document.getElementById('results-count');
 const noRes = document.getElementById('no-results');
 const moreRow = document.getElementById('load-more-row');
 
-// The detail link is the single marketplace navigation path. Intercept it
-// explicitly so no parent-card or stale relative route can replace its ID.
+// Dataset card navigation — let the native <a href> handle routing.
+// The href is already set correctly in renderDataCard().
+// This handler only ensures whole-card clicks (outside the button) also navigate.
 listEl.addEventListener('click', e => {
-  const link = e.target.closest('a.buy-btn[data-dataset-id]');
-  if (!link || !listEl.contains(link)) return;
+  // If the click is on or inside the anchor itself, let native <a href> work.
+  if (e.target.closest('a.buy-btn[data-dataset-id]')) return;
 
-  e.preventDefault();
+  // If the click is anywhere else on the card, navigate to the dataset.
+  const card = e.target.closest('.data-card');
+  if (!card) return;
+  const link = card.querySelector('a.buy-btn[data-dataset-id]');
+  if (!link) return;
   const datasetId = link.dataset.datasetId;
-  if (!datasetId) {
-    console.error('[VIEW DATASET CLICK] missing dataset ID; navigation cancelled');
-    return;
-  }
+  if (!datasetId) return;
 
-  const target = `dataset.html?id=${encodeURIComponent(datasetId)}`;
-  const targetUrl = new URL(target, window.location.href).href;
-  console.info('[VIEW DATASET CLICK]', { datasetId, 'target URL': target });
-  console.info('[VIEW DATASET NAVIGATION]', { target: targetUrl });
-  window.location.assign(targetUrl);
+  window.location.href = `dataset.html?id=${encodeURIComponent(datasetId)}`;
 });
 
 if (Wallet.isConnected()) {

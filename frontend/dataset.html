@@ -1139,7 +1139,7 @@
     try {
       const walletAddr = Wallet.getAddress();
       const url = `${API_BASE}/ipfs/${encodeURIComponent(cid)}?wallet=${encodeURIComponent(walletAddr)}&datasetId=${encodeURIComponent(datasetId || '')}`;
-      const res = await fetch(url);
+      const res = await fetch(url, { headers: { Authorization: `Bearer ${Auth.token()}` } });
       const result = await res.json();
 
       if (!res.ok || !result.success) {
@@ -1180,7 +1180,7 @@
     btn.textContent = 'Verifying…';
 
     try {
-      const res = await fetch(`${API_BASE}/verify/${datasetId}`);
+      const res = await fetch(`${API_BASE}/verify/${datasetId}`, { headers: { Authorization: `Bearer ${Auth.token()}` } });
       const data = await res.json();
       if (data.success && data.integrityVerified) {
         Toast.success(`Integrity Verified! SHA-256 matches on-chain hash: ${data.originalHash?.slice(0, 14)}…`);

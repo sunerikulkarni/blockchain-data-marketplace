@@ -235,7 +235,7 @@
     const listEl = document.getElementById('listings-list');
     const emptyEl = document.getElementById('empty-listings');
     const nagEl = document.getElementById('no-wallet-nag');
-    const walletAddr = Wallet.getAddress();
+    const walletAddr = Wallet.getAddress() || Auth.profile()?.walletAddress;
 
     if (!walletAddr) {
       if (nagEl) nagEl.classList.remove('hidden');

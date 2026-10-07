@@ -12,6 +12,7 @@ const mongoose = require('mongoose');
 const AccessRequest = require('../models/AccessRequest');
 const Company = require('../models/Company');
 const Data = require('../models/Data');
+const requireAuth = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
@@ -44,6 +45,7 @@ function validate(req, res) {
 
 router.post(
   '/access-requests',
+  requireAuth('company'),
 
   [
     body('dataId')
@@ -129,6 +131,10 @@ router.post(
 
       const normalizedWallet =
         buyerWallet.toLowerCase();
+
+      if (String(req.company._id) !== String(companyId) || req.company.walletAddress !== normalizedWallet) {
+        return res.status(403).json({ success: false, message: 'Access request must use the authenticated company and wallet' });
+      }
 
       if (company.walletAddress !== normalizedWallet) {
         return res.status(403).json({
@@ -263,10 +269,14 @@ router.post(
 
 router.get(
   '/access-requests/company/:wallet',
+  requireAuth('company'),
   async (req, res) => {
     try {
       const wallet =
         req.params.wallet.toLowerCase();
+      if (wallet !== req.company.walletAddress) {
+        return res.status(403).json({ success: false, message: 'Company access denied' });
+      }
 
       const requests =
         await AccessRequest.find({
@@ -311,10 +321,14 @@ router.get(
 
 router.get(
   '/access-requests/owner/:wallet',
+  requireAuth('user'),
   async (req, res) => {
     try {
       const wallet =
         req.params.wallet.toLowerCase();
+      if (!req.user.walletAddress || wallet !== req.user.walletAddress) {
+        return res.status(403).json({ success: false, message: 'Owner access denied' });
+      }
 
       const requests =
         await AccessRequest.find({
@@ -359,6 +373,7 @@ router.get(
 
 router.put(
   '/access-requests/:id/approve',
+  requireAuth('user'),
 
   [
     body('ownerWallet')
@@ -379,6 +394,9 @@ router.put(
 
       const normalizedWallet =
         ownerWallet.toLowerCase();
+      if (!req.user.walletAddress || req.user.walletAddress !== normalizedWallet) {
+        return res.status(403).json({ success: false, message: 'Owner wallet does not match the authenticated user' });
+      }
 
       const request =
         await AccessRequest.findById(
@@ -456,6 +474,7 @@ router.put(
 
 router.put(
   '/access-requests/:id/reject',
+  requireAuth('user'),
 
   [
     body('ownerWallet')
@@ -485,6 +504,9 @@ router.put(
 
       const normalizedWallet =
         ownerWallet.toLowerCase();
+      if (!req.user.walletAddress || req.user.walletAddress !== normalizedWallet) {
+        return res.status(403).json({ success: false, message: 'Owner wallet does not match the authenticated user' });
+      }
 
       const request =
         await AccessRequest.findById(
@@ -566,6 +588,7 @@ router.put(
 
 router.get(
   '/access-requests/:id',
+  requireAuth('user', 'company'),
   async (req, res) => {
     try {
       const request =
@@ -587,6 +610,11 @@ router.get(
           message: 'Access request not found',
         });
       }
+
+      const allowed = req.auth.role === 'user'
+        ? req.user.walletAddress && request.ownerWallet === req.user.walletAddress
+        : String(request.companyId?._id || request.companyId) === String(req.company._id);
+      if (!allowed) return res.status(403).json({ success: false, message: 'Access request is not available to this account' });
 
       res.json({
         success: true,

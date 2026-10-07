@@ -292,6 +292,9 @@
                 <div class="s-lbl">Clear Local UI Data</div>
               </div>
             </div>
+            <div class="s-row">
+              <button class="btn btn-secondary" type="button" data-auth-logout>Sign out of DataChain</button>
+            </div>
           </div>
 
         </div><!-- /right col -->
@@ -333,7 +336,8 @@
 <script>
 /* ── Profile name & avatar ── */
 function loadProfileUI() {
-  const name = Profile.getName();
+  const account = Auth.profile();
+  const name = account?.fullName || account?.companyName || Profile.getName();
   document.getElementById('p-name').value = name;
   document.getElementById('p-handle').textContent =
     name.toLowerCase().replace(/\s+/g,'').slice(0,20) + '.eth';
@@ -402,7 +406,7 @@ async function detectNetwork() {
 async function loadOnChainStats() {
   const listedEl = document.getElementById('stat-listed');
   const boughtEl = document.getElementById('stat-bought');
-  const wallet = Wallet.getAddress();
+  const wallet = Wallet.getAddress() || Auth.profile()?.walletAddress;
 
   if (!wallet) {
     listedEl.textContent = '—';

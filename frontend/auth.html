@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DataChain — Sign In</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="auth-page.css">
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <main class="auth-main">
+    <section class="auth-card">
+      <div class="auth-brand">Data<em>Chain</em></div>
+
+      <h1>Sign in to DataChain</h1>
+      <p>Choose the account type you use to access the marketplace.</p>
+
+      <div class="role-grid">
+        <a class="card role-card rc-user" href="user-login.html">
+          <div class="role-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          </div>
+          <h3>User</h3>
+          <span>Sign in or create a personal account</span>
+        </a>
+
+        <a class="card role-card rc-company" href="company-login.html">
+          <div class="role-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+          </div>
+          <h3>Company</h3>
+          <span>Sign in or submit company registration</span>
+        </a>
+
+        <a class="card role-card rc-admin" href="admin-login.html">
+          <div class="role-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3>Admin</h3>
+          <span>Company verification portal</span>
+        </a>
+      </div>
+
+      <div class="auth-links">
+        <a href="landing.html">← Back to home</a>
+        <a href="user-register.html">Create user account</a>
+        <a href="company-register.html">Register company</a>
+        <a href="marketplace.html">Browse marketplace</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

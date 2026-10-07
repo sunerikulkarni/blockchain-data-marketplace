@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DataChain — Blockchain Data Marketplace</title>
+  <meta name="description" content="DataChain is a blockchain-based data marketplace that enables secure data sharing with transparent ownership and permission management on Ethereum Sepolia.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="landing.css">
+</head>
+<body class="lp-body">
+  <!-- Ambient background orbs (matches rest of application) -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       TOPBAR
+  ════════════════════════════════════════════════════════════════ -->
+  <header class="lp-topbar">
+    <a href="landing.html" class="lp-logo">Data<em>Chain</em></a>
+
+    <nav class="lp-nav-links" id="lp-nav" aria-label="Landing page navigation">
+      <a href="#about"    class="lp-nav-link">About</a>
+      <a href="#features" class="lp-nav-link">Features</a>
+      <a href="#how"      class="lp-nav-link">How it works</a>
+      <a href="#roles"    class="lp-nav-link">Roles</a>
+    </nav>
+
+    <div class="lp-topbar-actions">
+      
+      <a href="auth.html"        class="btn btn-primary  btn-sm">Get Started</a>
+      <button class="lp-hamburger" id="lp-hamburger" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="lp-mobile-drawer">
+        <span class="lp-hamburger-line"></span>
+        <span class="lp-hamburger-line"></span>
+        <span class="lp-hamburger-line"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile navigation drawer -->
+  <div class="lp-mobile-overlay" id="lp-mobile-overlay"></div>
+  <nav class="lp-mobile-drawer" id="lp-mobile-drawer" aria-label="Mobile navigation">
+    <div class="lp-mobile-drawer-header">
+      <span class="lp-logo">Data<em>Chain</em></span>
+      <button class="lp-drawer-close" id="lp-drawer-close" type="button" aria-label="Close navigation menu">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <a href="#about"    class="lp-mobile-link">About</a>
+    <a href="#features" class="lp-mobile-link">Features</a>
+    <a href="#how"      class="lp-mobile-link">How it works</a>
+    <a href="#roles"    class="lp-mobile-link">Roles</a>
+    <div class="lp-mobile-drawer-actions">
+      
+      <a href="auth.html"        class="btn btn-primary  btn-sm" style="width:100%;justify-content:center">Get Started</a>
+    </div>
+  </nav>
+
+  <div class="lp-page">
+
+    <!-- ═══════════════════════════════════════════════════════════
+         HERO
+    ════════════════════════════════════════════════════════════════ -->
+    <section class="lp-hero">
+      <div class="lp-hero-inner">
+        <div class="lp-hero-copy">
+        <div class="lp-hero-eyebrow">
+          <span class="lp-hero-dot"></span>
+          Ethereum Sepolia &middot; IPFS &middot; AES-256-GCM
+        </div>
+
+        <h1>Secure Data Sharing,<br><em>Powered by Blockchain</em></h1>
+
+        <p class="lp-hero-sub">
+          DataChain is a blockchain-based data marketplace that enables secure data sharing
+          with transparent ownership and permission management.
+        </p>
+
+        <div class="lp-hero-actions">
+          <a href="auth.html" class="btn btn-primary btn-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+              <polyline points="10 17 15 12 10 7"/>
+              <line x1="15" y1="12" x2="3" y2="12"/>
+            </svg>
+            Get Started
+          </a>
+          
+        </div>
+        </div>
+
+        <div class="lp-hero-art" role="group" aria-label="Interactive DataChain data-sharing network">
+          <svg class="lp-network-lines" viewBox="0 0 560 440" fill="none" aria-hidden="true">
+            <g class="lp-routes-desktop">
+            <path class="lp-route lp-route-personal" d="M280 178 C268 135 262 108 280 88"/>
+            <path class="lp-route lp-route-encrypted" d="M205 215 C159 206 124 211 92 220"/>
+            <path class="lp-route lp-route-record" d="M355 215 C401 206 436 211 468 220"/>
+            <path class="lp-route lp-route-permission" d="M280 257 C292 300 298 328 280 352"/>
+            <circle class="lp-route-end lp-end-personal" cx="280" cy="88" r="4"/>
+            <circle class="lp-route-end lp-end-encrypted" cx="92" cy="220" r="4"/>
+            <circle class="lp-route-end lp-end-record" cx="468" cy="220" r="4"/>
+            <circle class="lp-route-end lp-end-permission" cx="280" cy="352" r="4"/>
+            </g>
+            <g class="lp-routes-compact">
+              <path class="lp-route lp-route-personal" d="M258 177 C227 132 191 93 140 52"/>
+              <path class="lp-route lp-route-encrypted" d="M302 177 C333 132 369 93 420 52"/>
+              <path class="lp-route lp-route-record" d="M220 255 C183 300 155 345 140 389"/>
+              <path class="lp-route lp-route-permission" d="M340 255 C377 300 405 345 420 389"/>
+              <circle class="lp-route-end lp-end-personal" cx="140" cy="52" r="4"/>
+              <circle class="lp-route-end lp-end-encrypted" cx="420" cy="52" r="4"/>
+              <circle class="lp-route-end lp-end-record" cx="140" cy="389" r="4"/>
+              <circle class="lp-route-end lp-end-permission" cx="420" cy="389" r="4"/>
+            </g>
+            <circle class="lp-route-node" cx="280" cy="216" r="7"/>
+          </svg>
+          <div class="lp-art-halo" aria-hidden="true"></div>
+
+          <button class="lp-ecosystem-core" type="button" aria-expanded="false" aria-controls="lp-ecosystem-cards" aria-label="Reveal DataChain network concepts">
+            <div class="lp-core-emblem"><span>D</span><i></i></div>
+            <div class="lp-core-wordmark">Data<em>Chain</em></div>
+            <div class="lp-core-caption">TRUSTED DATA EXCHANGE</div>
+            <div class="lp-core-network"><span></span><span></span><span></span><span></span><b>VERIFIED NETWORK</b></div>
+          </button>
+
+          <div class="lp-ecosystem-cards" id="lp-ecosystem-cards" aria-hidden="true">
+          <div class="lp-ecosystem-card lp-card-personal" style="--reveal-delay: 0ms; --line-delay: 0ms;">
+            <span class="lp-ecosystem-icon lp-icon-data"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5zM4 5.5v15M8 7h8M8 10.5h8M8 14h5"/></svg></span>
+            <span class="lp-ecosystem-copy"><strong>Personal Data</strong><small>Owner controlled</small></span>
+          </div>
+
+          <div class="lp-ecosystem-card lp-card-encrypted" style="--reveal-delay: 150ms; --line-delay: 150ms;">
+            <span class="lp-ecosystem-icon lp-icon-lock"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3M12 14v3"/></svg></span>
+            <span class="lp-ecosystem-copy"><strong>Encrypted</strong><small>AES-256-GCM</small></span>
+          </div>
+
+          <div class="lp-ecosystem-card lp-card-record" style="--reveal-delay: 300ms; --line-delay: 300ms;">
+            <span class="lp-ecosystem-icon lp-icon-chain"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 7 4v10l-7 4-7-4V7zM5 7l7 4 7-4M12 11v10M8.5 5l7 4"/></svg></span>
+            <span class="lp-ecosystem-copy"><strong>Ownership Recorded</strong><small>Ethereum Sepolia</small></span>
+            <span class="lp-record-check">✓</span>
+          </div>
+
+          <div class="lp-ecosystem-card lp-card-permission" style="--reveal-delay: 450ms; --line-delay: 450ms;">
+            <span class="lp-ecosystem-icon lp-icon-access"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 2.8 8 7 10 4.2-2 7-5.5 7-10V6z"/><path d="m9 12 2 2 4-4"/></svg></span>
+            <span class="lp-ecosystem-copy"><strong>Permission Granted</strong><small>Approved by owner</small></span>
+          </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         ABOUT / WHAT IS DATACHAIN
+    ════════════════════════════════════════════════════════════════ -->
+    <section class="lp-about lp-section" id="about">
+      <div class="lp-section-inner">
+        <div class="lp-section-label">About DataChain</div>
+        <h2 class="lp-section-title">What is DataChain?</h2>
+        <p class="lp-section-desc">
+          DataChain is a data marketplace where dataset owners can publish their data and
+          users or companies can discover, request access to, and purchase datasets.
+          Ownership and transactions are recorded through the blockchain for transparency and verifiability.
+        </p>
+
+        <div class="lp-about-grid" style="margin-top: 28px;">
+
+          <div class="lp-about-item">
+            <div class="lp-about-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            </div>
+            <div class="lp-about-text">
+              <h3>Centralized Marketplace Interface</h3>
+              <p>Browse datasets through a unified marketplace. Owners publish datasets, and users or companies can discover and request access through the same interface.</p>
+            </div>
+          </div>
+
+          <div class="lp-about-item">
+            <div class="lp-about-icon icon-warm">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div class="lp-about-text">
+              <h3>Permission-Controlled Access</h3>
+              <p>Dataset owners retain control. Access requests are reviewed and approved or rejected by the owner before data becomes accessible.</p>
+            </div>
+          </div>
+
+          <div class="lp-about-item">
+            <div class="lp-about-icon icon-info">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            </div>
+            <div class="lp-about-text">
+              <h3>Blockchain Ownership Records</h3>
+              <p>Dataset ownership and important marketplace actions are recorded through the Ethereum Sepolia blockchain, providing transparent and tamper-resistant records.</p>
+            </div>
+          </div>
+
+          <div class="lp-about-item">
+            <div class="lp-about-icon icon-purple">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+            </div>
+            <div class="lp-about-text">
+              <h3>Encrypted Storage on IPFS</h3>
+              <p>Protected dataset files are encrypted with AES-256-GCM and stored on IPFS. Only authorized users can retrieve and decrypt the actual data.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         KEY FEATURES
+    ════════════════════════════════════════════════════════════════ -->
+    <section class="lp-features lp-section" id="features">
+      <div class="lp-section-inner">
+        <div class="lp-section-label">Features</div>
+        <h2 class="lp-section-title">Key Features</h2>
+        <p class="lp-section-desc">
+          DataChain brings together blockchain verification, encrypted storage, and permission-controlled access into a single marketplace platform.
+        </p>
+
+        <div class="lp-features-grid">
+
+          <div class="lp-feature-card">
+            <div class="lp-feature-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            </div>
+            <h3>Secure Data Marketplace</h3>
+            <p>Discover and manage datasets through a centralized marketplace interface. Browse by category, view ownership details, and initiate access requests.</p>
+          </div>
+
+          <div class="lp-feature-card">
+            <div class="lp-feature-icon fi-warm">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            </div>
+            <h3>Blockchain-based Ownership</h3>
+            <p>Dataset ownership and important marketplace actions are recorded through the blockchain, providing a transparent and verifiable ownership trail.</p>
+          </div>
+
+          <div class="lp-feature-card">
+            <div class="lp-feature-icon fi-info">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <h3>Permission-controlled Access</h3>
+            <p>Dataset owners can approve or reject access requests. Access is explicitly granted before any data is made available to a requester.</p>
+          </div>
+
+          <div class="lp-feature-card">
+            <div class="lp-feature-icon fi-purple">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <h3>Encrypted Data</h3>
+            <p>Protected data is encrypted using AES-256-GCM before storage. Only authorized users with valid session tokens can decrypt and access the actual content.</p>
+          </div>
+
+          <div class="lp-feature-card">
+            <div class="lp-feature-icon fi-danger">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </div>
+            <h3>Data Integrity</h3>
+            <p>SHA-256 hashing is used to verify that retrieved data has not been modified. The hash stored on-chain is compared against the retrieved file on every access.</p>
+          </div>
+
+          <div class="lp-feature-card">
+            <div class="lp-feature-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            </div>
+            <h3>Transparent Transactions</h3>
+            <p>Marketplace transactions are recorded on-chain and can be tracked through the existing transaction system and verified on Sepolia Etherscan.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         HOW IT WORKS
+    ════════════════════════════════════════════════════════════════ -->
+    <section class="lp-steps lp-section" id="how">
+      <div class="lp-section-inner">
+        <div class="lp-section-label">How it works</div>
+        <h2 class="lp-section-title">The DataChain Workflow</h2>
+        <p class="lp-section-desc">
+          From account creation to authorized data access, each step is tracked and verifiable.
+        </p>
+
+        <div class="lp-journey" aria-label="Data is encrypted, stored on IPFS, recorded on blockchain, then shared with permission">
+          <div class="lp-journey-step"><span class="lp-journey-icon journey-data">▤</span><strong>Data</strong><small>Your dataset</small></div>
+          <span class="lp-journey-link" aria-hidden="true"></span>
+          <div class="lp-journey-step"><span class="lp-journey-icon journey-lock">⌑</span><strong>Encrypt</strong><small>AES-256-GCM</small></div>
+          <span class="lp-journey-link" aria-hidden="true"></span>
+          <div class="lp-journey-step"><span class="lp-journey-icon journey-storage">◉</span><strong>IPFS</strong><small>Protected storage</small></div>
+          <span class="lp-journey-link" aria-hidden="true"></span>
+          <div class="lp-journey-step"><span class="lp-journey-icon journey-chain">◇</span><strong>Blockchain</strong><small>Trusted record</small></div>
+          <span class="lp-journey-link" aria-hidden="true"></span>
+          <div class="lp-journey-step"><span class="lp-journey-icon journey-access">✓</span><strong>Access</strong><small>By permission</small></div>
+        </div>
+
+        <div class="lp-steps-list">
+
+          <div class="lp-step">
+            <div class="lp-step-num">01</div>
+            <div class="lp-step-body">
+              <h3>Register</h3>
+              <p>Create the appropriate account — user, company, or admin — through the role selection page.</p>
+            </div>
+          </div>
+
+          <div class="lp-step">
+            <div class="lp-step-num">02</div>
+            <div class="lp-step-body">
+              <h3>Discover or Publish</h3>
+              <p>Browse the marketplace to discover available datasets, or publish your own dataset with pricing and access settings.</p>
+            </div>
+          </div>
+
+          <div class="lp-step">
+            <div class="lp-step-num">03</div>
+            <div class="lp-step-body">
+              <h3>Request Access</h3>
+              <p>Submit an access request for a protected dataset. The request is recorded through the blockchain.</p>
+            </div>
+          </div>
+
+          <div class="lp-step">
+            <div class="lp-step-num">04</div>
+            <div class="lp-step-body">
+              <h3>Owner Decision</h3>
+              <p>The dataset owner reviews the request and approves or rejects it through the Owner Hub using MetaMask.</p>
+            </div>
+          </div>
+
+          <div class="lp-step">
+            <div class="lp-step-num">05</div>
+            <div class="lp-step-body">
+              <h3>Authorized Access</h3>
+              <p>Once approved, the authorized user or company can access and decrypt the permitted dataset through the marketplace.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         TECHNOLOGY / SECURITY
+    ════════════════════════════════════════════════════════════════ -->
+    <section class="lp-tech lp-section" id="tech">
+      <div class="lp-section-inner">
+        <div class="lp-section-label">Technology</div>
+        <h2 class="lp-section-title">Built on Proven Technologies</h2>
+        <p class="lp-section-desc">
+          DataChain uses established technologies for blockchain interaction, decentralized storage, encryption, and wallet management.
+        </p>
+
+        <div class="lp-tech-grid">
+
+          <div class="lp-tech-card">
+            <div class="lp-tech-icon ti-warm">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            </div>
+            <div>
+              <div class="lp-tech-name">Blockchain</div>
+              <div class="lp-tech-desc">Ethereum Sepolia</div>
+            </div>
+          </div>
+
+          <div class="lp-tech-card">
+            <div class="lp-tech-icon ti-info">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+            </div>
+            <div>
+              <div class="lp-tech-name">Storage</div>
+              <div class="lp-tech-desc">IPFS</div>
+            </div>
+          </div>
+
+          <div class="lp-tech-card">
+            <div class="lp-tech-icon ti-purple">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <div>
+              <div class="lp-tech-name">Encryption</div>
+              <div class="lp-tech-desc">AES-256-GCM</div>
+            </div>
+          </div>
+
+          <div class="lp-tech-card">
+            <div class="lp-tech-icon ti-danger">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </div>
+            <div>
+              <div class="lp-tech-name">Integrity</div>
+              <div class="lp-tech-desc">SHA-256</div>
+            </div>
+          </div>
+
+          <div class="lp-tech-card">
+            <div class="lp-tech-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+            </div>
+            <div>
+              <div class="lp-tech-name">Wallet</div>
+              <div class="lp-tech-desc">MetaMask</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         THREE ROLES
+    ════════════════════════════════════════════════════════════════ -->
+    <section class="lp-roles lp-section" id="roles">
+      <div class="lp-section-inner">
+        <div class="lp-section-label">Roles</div>
+        <h2 class="lp-section-title">Three Account Roles</h2>
+        <p class="lp-section-desc">
+          DataChain supports three distinct account types, each with dedicated capabilities and access to the marketplace.
+        </p>
+
+        <div class="lp-roles-grid">
+
+          <!-- USER -->
+          <div class="lp-role-card rc-user">
+            <div class="lp-role-header">
+              <div class="lp-role-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              </div>
+              <div>
+                <div class="lp-role-title">User</div>
+                <span class="lp-role-tag">Personal Account</span>
+              </div>
+            </div>
+            <ul class="lp-role-features">
+              <li>Publish and manage owned datasets</li>
+              <li>Browse and request access to datasets</li>
+              <li>Approve or reject incoming access requests</li>
+              <li>View transactions and activity history</li>
+              <li>Connect a MetaMask wallet for blockchain actions</li>
+            </ul>
+            <a href="user-login.html" class="btn btn-secondary btn-sm">Continue as User</a>
+          </div>
+
+          <!-- COMPANY -->
+          <div class="lp-role-card rc-company">
+            <div class="lp-role-header">
+              <div class="lp-role-icon ri-company">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+              </div>
+              <div>
+                <div class="lp-role-title">Company</div>
+                <span class="lp-role-tag tag-company">Verified Entity</span>
+              </div>
+            </div>
+            <ul class="lp-role-features">
+              <li>Discover and browse datasets on the marketplace</li>
+              <li>Request and purchase access to datasets</li>
+              <li>Manage authorized datasets in My List</li>
+              <li>View company transactions and purchases</li>
+              <li>Requires admin verification before login</li>
+            </ul>
+            <a href="company-login.html" class="btn btn-secondary btn-sm">Continue as Company</a>
+          </div>
+
+          <!-- ADMIN -->
+          <div class="lp-role-card rc-admin">
+            <div class="lp-role-header">
+              <div class="lp-role-icon ri-admin">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <div>
+                <div class="lp-role-title">Admin</div>
+                <span class="lp-role-tag tag-admin">System Administrator</span>
+              </div>
+            </div>
+            <ul class="lp-role-features">
+              <li>Review company registration submissions</li>
+              <li>Approve or reject company verifications</li>
+              <li>Manage verified and rejected company records</li>
+              <li>Access requires backend-configured credentials</li>
+            </ul>
+            <a href="admin-login.html" class="btn btn-secondary btn-sm">Admin Login</a>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         CALL TO ACTION
+    ════════════════════════════════════════════════════════════════ -->
+    <section class="lp-cta lp-section">
+      <div class="lp-cta-inner">
+        <div class="lp-section-label" style="justify-content: center;">Get Started</div>
+        <h2>Start using DataChain</h2>
+        <p>
+          Select your account type to sign in or register. Company accounts require admin verification before access is granted.
+        </p>
+        <div class="lp-cta-buttons">
+          <a href="user-login.html"    class="btn btn-primary">User Login</a>
+          <a href="company-login.html" class="btn btn-secondary">Company Login</a>
+          <a href="admin-login.html"   class="btn btn-outline">Admin Login</a>
+        </div>
+        <p style="margin-top: 16px; font-size: .8rem; color: var(--text-3);">
+          New user? <a href="user-register.html" style="color: var(--accent); font-weight: 700;">Create a user account</a>
+          &nbsp;·&nbsp;
+          New company? <a href="company-register.html" style="color: var(--accent); font-weight: 700;">Register your company</a>
+        </p>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         FOOTER
+    ════════════════════════════════════════════════════════════════ -->
+    <footer class="lp-footer">
+      <div class="lp-footer-inner">
+
+        <div class="lp-footer-brand">
+          <div class="lp-footer-logo">Data<em>Chain</em></div>
+          <p class="lp-footer-tagline">
+            A blockchain-based data marketplace enabling secure data sharing with transparent ownership and permission management on Ethereum Sepolia.
+          </p>
+          <div class="lp-footer-tech-tags" style="margin-top: 10px;">
+            <span class="lp-tech-tag">Sepolia</span>
+            <span class="lp-tech-tag">IPFS</span>
+            <span class="lp-tech-tag">AES-256-GCM</span>
+            <span class="lp-tech-tag">SHA-256</span>
+          </div>
+        </div>
+
+        <div class="lp-footer-links-group">
+          <h4>Account</h4>
+          <div class="lp-footer-links">
+            
+            <a href="user-register.html">Create User Account</a>
+            <a href="company-register.html">Register Company</a>
+            <a href="auth.html">Role Selection</a>
+          </div>
+        </div>
+
+        <div class="lp-footer-links-group">
+          <h4>Application</h4>
+          <div class="lp-footer-links">
+            <a href="user-login.html">User Login</a>
+            <a href="company-login.html">Company Login</a>
+            <a href="admin-login.html">Admin Login</a>
+            
+          </div>
+        </div>
+
+      </div>
+
+      <div class="lp-footer-bottom" style="margin-top: 28px;">
+        <p class="lp-footer-copy">
+          DataChain &mdash; Blockchain Data Marketplace &mdash; Ethereum Sepolia Testnet
+        </p>
+        <div class="lp-footer-tech-tags">
+          <span class="lp-tech-tag">ethers.js</span>
+          <span class="lp-tech-tag">MetaMask</span>
+          <span class="lp-tech-tag">MongoDB</span>
+          <span class="lp-tech-tag">Express</span>
+        </div>
+      </div>
+    </footer>
+
+  </div><!-- /lp-page -->
+
+  <!-- app.js only for shared utilities (Theme, Toast); no auth guard runs on landing page
+       because landing.html is not in pageRoles map in app.js -->
+  <script src="app.js"></script>
+  <script>
+    /* ── Mobile drawer toggle ──────────────────────────── */
+    (function() {
+      const hamburger = document.getElementById('lp-hamburger');
+      const drawer    = document.getElementById('lp-mobile-drawer');
+      const overlay   = document.getElementById('lp-mobile-overlay');
+      const closeBtn  = document.getElementById('lp-drawer-close');
+
+      function openDrawer() {
+        drawer.classList.add('open');
+        overlay.classList.add('open');
+        hamburger.setAttribute('aria-expanded', 'true');
+        document.body.style.overflow = 'hidden';
+      }
+      function closeDrawer() {
+        drawer.classList.remove('open');
+        overlay.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+      }
+
+      hamburger.addEventListener('click', openDrawer);
+      closeBtn.addEventListener('click', closeDrawer);
+      overlay.addEventListener('click', closeDrawer);
+
+      // Close drawer on Escape
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && drawer.classList.contains('open')) closeDrawer();
+      });
+
+      // Close drawer when a mobile link is clicked
+      drawer.querySelectorAll('.lp-mobile-link').forEach(link => {
+        link.addEventListener('click', () => closeDrawer());
+      });
+    })();
+
+    // Reveal the DataChain network sequentially on hover, keyboard focus, or touch.
+    (function() {
+      const art = document.querySelector('.lp-hero-art');
+      const trigger = art && art.querySelector('.lp-ecosystem-core');
+      const cards = art && art.querySelector('.lp-ecosystem-cards');
+      if (!art || !trigger || !cards) return;
+
+      let mouseInside = false;
+      let touchRevealed = false;
+
+      function reveal() {
+        art.classList.add('is-revealed');
+        trigger.setAttribute('aria-expanded', 'true');
+        cards.setAttribute('aria-hidden', 'false');
+      }
+      function collapse() {
+        art.classList.remove('is-revealed');
+        trigger.setAttribute('aria-expanded', 'false');
+        cards.setAttribute('aria-hidden', 'true');
+      }
+      function reset() {
+        if (mouseInside || touchRevealed || trigger.matches(':focus-visible')) return;
+        collapse();
+      }
+
+      trigger.addEventListener('pointerenter', event => {
+        if (event.pointerType !== 'mouse' && event.pointerType !== 'pen') return;
+        mouseInside = true;
+        reveal();
+      });
+      art.addEventListener('pointerleave', event => {
+        if (event.pointerType !== 'mouse' && event.pointerType !== 'pen') return;
+        mouseInside = false;
+        reset();
+      });
+      trigger.addEventListener('focus', () => {
+        if (trigger.matches(':focus-visible')) reveal();
+      });
+      trigger.addEventListener('blur', () => {
+        window.setTimeout(reset, 0);
+      });
+      trigger.addEventListener('click', event => {
+        const touchInput = event.pointerType === 'touch'
+          || window.matchMedia('(hover: none), (pointer: coarse)').matches
+          || window.innerWidth <= 650;
+        if (!touchInput) {
+          reveal();
+          return;
+        }
+        touchRevealed = !touchRevealed;
+        if (touchRevealed) reveal();
+        else collapse();
+      });
+      document.addEventListener('pointerdown', event => {
+        if (art.contains(event.target)) return;
+        touchRevealed = false;
+        mouseInside = false;
+        collapse();
+      });
+      document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') {
+          touchRevealed = false;
+          mouseInside = false;
+          collapse();
+          trigger.blur();
+        }
+      });
+    })();
+
+    // Smooth scroll for anchor links in the topbar & drawer
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    // If user is already authenticated, show a "Go to Dashboard" button in topbar
+    document.addEventListener('DOMContentLoaded', () => {
+      const role = Auth.role();
+      if (role && Auth.token()) {
+        const landing = Auth.landing(role);
+        const existingBtn = document.querySelector('.lp-topbar-actions .btn-primary');
+        if (existingBtn) {
+          existingBtn.href = landing;
+          existingBtn.textContent = role === 'admin' ? 'Admin Dashboard'
+            : role === 'company' ? 'Company Dashboard' : 'My Dashboard';
+        }
+      }
+    });
+  </script>
+</body>
+</html>

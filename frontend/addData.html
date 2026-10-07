@@ -433,7 +433,8 @@ document.getElementById('add-form').addEventListener('submit', async e => {
     const uploadResponse = await fetch('http://localhost:3000/upload', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Auth.token()}`
       },
       body: JSON.stringify({
         name,

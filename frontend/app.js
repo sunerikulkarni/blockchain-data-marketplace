@@ -57,7 +57,11 @@ function navSvg(page) {
     'transactions.html': '<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>',
     'access.html': '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
     'owner.html': '<path d="M21 2l-2 2m-1.5 6.1L12 15l-4-4 4.9-5.5a5.5 5.5 0 1 1 7.1 6.6z"/>',
-    'profile.html': '<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>'
+    'profile.html': '<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>',
+    'company-dashboard.html': '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+    'company-my-list.html': '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>',
+    'admin-dashboard.html': '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>',
+    'admin-profile.html': '<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>'
   };
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${icons[page] || ''}</svg>`;
 }
@@ -289,8 +293,12 @@ function setActiveNav() {
 }
 
 const API = {
+  _headers(headers = {}) {
+    const token = Auth.token();
+    return { ...(token ? { Authorization: `Bearer ${token}` } : {}), ...headers };
+  },
   async get(path) {
-    const res = await fetch(API_BASE + path);
+    const res = await fetch(API_BASE + path, { headers: this._headers() });
     const json = await res.json().catch(() => ({}));
     if (!res.ok) {
       const err = new Error(json.message || `HTTP ${res.status}`);
@@ -304,23 +312,37 @@ const API = {
   async post(path, body) {
     const res = await fetch(API_BASE + path, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this._headers({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(body)
     });
-    return res.json();
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const err = new Error(json.message || `HTTP ${res.status}`);
+      err.status = res.status;
+      err.body = json;
+      throw err;
+    }
+    return json;
   },
 
   async put(path, body, headers = {}) {
     const res = await fetch(API_BASE + path, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json', ...headers },
+      headers: this._headers({ 'Content-Type': 'application/json', ...headers }),
       body: JSON.stringify(body)
     });
-    return res.json();
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const err = new Error(json.message || `HTTP ${res.status}`);
+      err.status = res.status;
+      err.body = json;
+      throw err;
+    }
+    return json;
   },
 
   async getWithHeaders(path, headers = {}) {
-    const res = await fetch(API_BASE + path, { headers });
+    const res = await fetch(API_BASE + path, { headers: this._headers(headers) });
     const json = await res.json().catch(() => ({}));
     if (!res.ok) {
       const err = new Error(json.message || `HTTP ${res.status}`);
@@ -331,6 +353,132 @@ const API = {
     return json;
   }
 };
+
+const Auth = {
+  tokenKey: 'dc_auth_token',
+  roleKey: 'dc_auth_role',
+  profileKey: 'dc_auth_profile',
+  token() { return sessionStorage.getItem(this.tokenKey); },
+  role() { return sessionStorage.getItem(this.roleKey); },
+  profile() {
+    try { return JSON.parse(sessionStorage.getItem(this.profileKey) || 'null'); } catch { return null; }
+  },
+  setSession(result) {
+    sessionStorage.setItem(this.tokenKey, result.token);
+    sessionStorage.setItem(this.roleKey, result.role);
+    sessionStorage.setItem(this.profileKey, JSON.stringify(result.data || null));
+  },
+  clear() {
+    sessionStorage.removeItem(this.tokenKey);
+    sessionStorage.removeItem(this.roleKey);
+    sessionStorage.removeItem(this.profileKey);
+  },
+  async me() {
+    const result = await API.get('/auth/me');
+    sessionStorage.setItem(this.roleKey, result.role);
+    sessionStorage.setItem(this.profileKey, JSON.stringify(result.data || null));
+    return result;
+  },
+  landing(role) {
+    return role === 'admin' ? 'admin-dashboard.html'
+      : role === 'company' ? 'company-dashboard.html' : 'index.html';
+  },
+  async linkWallet(address) {
+    const challenge = await API.post('/auth/wallet/challenge', {});
+    const signature = await window.ethereum.request({
+      method: 'personal_sign',
+      params: [challenge.message, address]
+    });
+    const result = await API.post('/auth/wallet/verify', { walletAddress: address, signature });
+    sessionStorage.setItem(this.profileKey, JSON.stringify(result.data));
+    return result.data;
+  },
+  async logout() {
+    try { if (this.token()) await API.post('/auth/logout', {}); } catch { /* session is cleared locally either way */ }
+    this.clear();
+    Wallet.disconnect();
+    location.replace('landing.html');
+  },
+  async guardPage() {
+    const page = location.pathname.split('/').pop() || 'index.html';
+    const pageRoles = {
+      'index.html': ['user'],
+      'listings.html': ['user'],
+      'addData.html': ['user'],
+      'owner.html': ['user'],
+      'access.html': ['company'],
+      'company-dashboard.html': ['company'],
+      'company-my-list.html': ['company'],
+      'marketplace.html': ['user', 'company'],
+      'dataset.html': ['user', 'company'],
+      'transactions.html': ['user', 'company'],
+      'profile.html': ['user', 'company'],
+      'admin-dashboard.html': ['admin'],
+      'admin-profile.html': ['admin']
+    };
+    const requiredRoles = pageRoles[page];
+    if (!requiredRoles) return;
+    if (!this.token()) {
+      location.replace(`landing.html?next=${encodeURIComponent(page + location.search)}`);
+      return;
+    }
+    try {
+      const session = await this.me();
+      if (!requiredRoles.includes(session.role)) {
+        location.replace(this.landing(session.role));
+        return;
+      }
+      applyRoleNavigation(session.role);
+    } catch (error) {
+      this.clear();
+      const destination = page.startsWith('company-') || page === 'access.html' ? 'company-login.html' :
+        page.startsWith('admin-') ? 'admin-login.html' : 'auth.html';
+      location.replace(`${destination}?message=${encodeURIComponent(error.message)}`);
+    }
+  }
+};
+
+function applyRoleNavigation(role) {
+  const entries = role === 'company'
+    ? [['company-dashboard.html', 'Home'], ['company-my-list.html', 'My List'], ['marketplace.html', 'Marketplace'], ['transactions.html', 'Transactions'], ['profile.html', 'Profile']]
+    : role === 'admin'
+      ? [['admin-dashboard.html', 'Dashboard'], ['admin-dashboard.html#companies', 'Companies'], ['admin-dashboard.html#pending', 'Pending Verification'], ['admin-dashboard.html#approved', 'Approved Companies'], ['admin-profile.html', 'Profile / Admin Account']]
+      : [['index.html', 'Home'], ['listings.html', 'My List'], ['marketplace.html', 'Marketplace'], ['addData.html', 'Add Data'], ['transactions.html', 'Transactions'], ['owner.html', 'Owner'], ['profile.html', 'Profile']];
+
+  const sidebar = document.querySelector('.side-nav');
+  if (sidebar) {
+    sidebar.querySelectorAll('.side-nav-link').forEach(link => link.remove());
+    const spacer = sidebar.querySelector('.side-nav-spacer');
+    for (const [href, label] of entries) {
+      const path = href.split('#')[0];
+      const link = document.createElement('a');
+      link.href = href;
+      link.className = `side-nav-link${role === 'user' && path === 'addData.html' ? ' nav-add-side' : ''}`;
+      link.dataset.page = path;
+      link.innerHTML = `${navSvg(path)}${label}`;
+      sidebar.insertBefore(link, spacer || null);
+    }
+    let logout = sidebar.querySelector('[data-auth-logout]');
+    if (!logout) {
+      logout = document.createElement('button');
+      logout.type = 'button';
+      logout.dataset.authLogout = '';
+      logout.className = 'side-nav-link';
+      logout.textContent = 'Logout';
+      sidebar.appendChild(logout);
+      logout.addEventListener('click', () => Auth.logout());
+    }
+  }
+
+  const bottom = document.querySelector('.bottom-nav');
+  if (bottom && role !== 'user') {
+    bottom.innerHTML = entries.slice(0, 5).map(([href, label]) => {
+      const path = href.split('#')[0];
+      return `<a href="${href}" class="b-nav-item" data-page="${path}">${navSvg(path)}<span class="b-nav-label">${label}</span></a>`;
+    }).join('');
+  }
+  setActiveNav();
+}
 
 const Transactions = {
   getAll() {
@@ -422,14 +570,23 @@ const Wallet = {
     }
     try {
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      this.setAddress(accounts[0]);
+      const account = accounts[0];
+      const accountProfile = Auth.profile();
+      if (Auth.role() === 'company' && accountProfile?.walletAddress?.toLowerCase() !== account.toLowerCase()) {
+        Toast.error('Connect the wallet registered to this company.');
+        return null;
+      }
+      this.setAddress(account);
+      if (Auth.role() === 'user' && accountProfile?.walletAddress?.toLowerCase() !== account.toLowerCase()) {
+        await Auth.linkWallet(account);
+      }
       const onSepolia = await checkSepoliaNetwork();
       if (!onSepolia) {
         const switched = await switchSepoliaNetwork();
         if (!switched) Toast.warning('Connected, but Sepolia is required for marketplace actions.');
       }
       Toast.success('Wallet connected.');
-      return accounts[0];
+      return account;
     } catch {
       Toast.error('Connection rejected.');
       return null;
@@ -578,4 +735,9 @@ document.addEventListener('DOMContentLoaded', () => {
       syncWalletUI(Wallet.getAddress());
     });
   }
+
+  document.querySelectorAll('[data-auth-logout]').forEach(button =>
+    button.addEventListener('click', () => Auth.logout())
+  );
+  Auth.guardPage();
 });

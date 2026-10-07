@@ -131,6 +131,8 @@ async function uploadDataset(req, res) {
 async function verifyDataset(req, res) {
     try {
         const { datasetId } = req.params;
+        const wallet = req.auth.role === 'user' ? req.user.walletAddress : req.company.walletAddress;
+        if (!wallet) return res.status(403).json({ success: false, message: 'A verified wallet is required' });
 
         if (!datasetId) {
             return res.status(400).json({
@@ -140,6 +142,11 @@ async function verifyDataset(req, res) {
         }
 
         const blockchainData = await getDataset(datasetId);
+
+        if (blockchainData.owner.toLowerCase() !== wallet.toLowerCase()) {
+            const access = await getAccessStatus(datasetId, wallet);
+            if (access.status !== 4) return res.status(403).json({ success: false, message: 'Dataset access is not authorized on Sepolia' });
+        }
 
         if (!blockchainData.ipfsCID) {
             return res.status(400).json({
@@ -199,19 +206,19 @@ async function getIPFSData(req, res) {
         }
 
         // 1. Wallet ALWAYS required — no anonymous access to encrypted data.
-        const userWallet =
-            req.query.wallet ||
-            req.query.user ||
-            req.headers["x-wallet-address"] ||
-            (req.headers.authorization && req.headers.authorization.startsWith("Bearer 0x")
-                ? req.headers.authorization.slice(7)
-                : null);
+        const userWallet = req.auth.role === 'user' ? req.user.walletAddress : req.company.walletAddress;
 
         if (!userWallet) {
             return res.status(401).json({
                 success: false,
                 message: "Wallet address required. Provide ?wallet=0x... or x-wallet-address header."
             });
+        }
+
+        if ((req.query.wallet && req.query.wallet.toLowerCase() !== userWallet.toLowerCase()) ||
+            (req.query.user && req.query.user.toLowerCase() !== userWallet.toLowerCase()) ||
+            (req.headers['x-wallet-address'] && req.headers['x-wallet-address'].toLowerCase() !== userWallet.toLowerCase())) {
+            return res.status(403).json({ success: false, message: 'Wallet does not match the authenticated account' });
         }
 
         // 2. Find dataset record for this CID (on-chain first, then MongoDB).

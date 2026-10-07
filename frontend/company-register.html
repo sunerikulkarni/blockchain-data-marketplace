@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DataChain — Company Registration</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="auth-page.css">
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <main class="auth-main">
+    <section class="auth-card">
+      <div class="auth-brand">
+        Data<em>Chain</em>
+        <span class="auth-role-badge role-company">Company</span>
+      </div>
+
+      <h1>Company registration</h1>
+      <p>Submit your company details for admin verification. Login is available after approval.</p>
+
+      <div class="auth-notice">
+        MetaMask will be used to connect your company wallet address during registration.
+      </div>
+
+      <div id="auth-message" class="auth-message" role="status" hidden></div>
+
+      <form class="auth-form" data-auth-form="company-register" novalidate>
+        <div>
+          <label class="form-label" for="companyName">Company name</label>
+          <input
+            class="form-input"
+            id="companyName"
+            name="companyName"
+            type="text"
+            required
+            maxlength="150"
+            placeholder="Acme Corporation"
+          >
+        </div>
+
+        <div>
+          <label class="form-label" for="email">Company email</label>
+          <input
+            class="form-input"
+            id="email"
+            name="email"
+            type="email"
+            required
+            maxlength="254"
+            autocomplete="email"
+            placeholder="admin@company.com"
+          >
+        </div>
+
+        <div>
+          <label class="form-label" for="registrationNumber">Registration number</label>
+          <input
+            class="form-input"
+            id="registrationNumber"
+            name="registrationNumber"
+            type="text"
+            required
+            maxlength="100"
+            placeholder="Official company registration ID"
+          >
+        </div>
+
+        <div>
+          <label class="form-label" for="description">Verification information / intended use</label>
+          <textarea
+            class="form-input form-textarea"
+            id="description"
+            name="description"
+            maxlength="500"
+            placeholder="Describe your company and intended use of the data marketplace…"
+          ></textarea>
+        </div>
+
+        <div>
+          <label class="form-label" for="password">Password</label>
+          <div class="pw-wrap">
+            <input
+              class="form-input"
+              id="password"
+              name="password"
+              type="password"
+              required
+              minlength="10"
+              maxlength="128"
+              autocomplete="new-password"
+              placeholder="At least 10 characters"
+            >
+            <button
+              type="button"
+              class="pw-toggle"
+              aria-pressed="false"
+              aria-label="Show password"
+              title="Show password"
+              data-pw-toggle="password"
+            >
+              <svg class="icon-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+              <svg class="icon-eye-off" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" type="submit">Submit for verification</button>
+      </form>
+
+      <div class="auth-links">
+        <a href="company-login.html">Company login</a>
+        <a href="user-register.html">User registration</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+  <script src="auth-pages.js"></script>
+</body>
+</html>

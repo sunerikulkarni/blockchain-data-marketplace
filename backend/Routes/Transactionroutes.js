@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const { body, validationResult } = require('express-validator');
 const Transaction = require('../models/Transaction');
 const Data        = require('../models/Data');
+const requireAuth = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
@@ -23,13 +24,22 @@ function validate(req, res) {
 // ────────────────────────────────────────────────────────────
 router.post(
   '/buyData',
+  requireAuth('user', 'company'),
   [
     body('dataId').notEmpty().withMessage('dataId is required'),
   ],
   async (req, res) => {
     if (validate(req, res)) return;
     try {
-      const { dataId, buyer, txHash, seller, amount, name, category, blockchainId } = req.body;
+      const { dataId, txHash, seller, amount, name, category, blockchainId } = req.body;
+      const authenticatedWallet = req.auth.role === 'user'
+        ? req.user.walletAddress
+        : req.company.walletAddress;
+      if (!authenticatedWallet) return res.status(403).json({ success: false, message: 'Link a wallet to your account before recording a purchase' });
+      const buyer = req.body.buyer || authenticatedWallet;
+      if (buyer.toLowerCase() !== authenticatedWallet.toLowerCase()) {
+        return res.status(403).json({ success: false, message: 'Buyer wallet does not match the authenticated account' });
+      }
 
       if (txHash) {
         const existing = await Transaction.findOne({ txHash });
@@ -93,9 +103,11 @@ router.post(
 // Returns transaction history, optionally filtered by wallet.
 // Query: ?wallet=0xABC&type=buy|sell&page=1&limit=20
 // ────────────────────────────────────────────────────────────
-router.get('/transactions', async (req, res) => {
+router.get('/transactions', requireAuth('user', 'company'), async (req, res) => {
   try {
-    const { wallet, type, page = 1, limit = 30 } = req.query;
+    const { type, page = 1, limit = 30 } = req.query;
+    const wallet = req.auth.role === 'user' ? req.user.walletAddress : req.company.walletAddress;
+    if (!wallet) return res.status(403).json({ success: false, message: 'Link a wallet to view account transactions' });
     const filter = {};
 
     if (wallet) {
@@ -124,10 +136,10 @@ router.get('/transactions', async (req, res) => {
 // Returns summary stats (total spent, earned, count) for a wallet.
 // Query: ?wallet=0xABC
 // ────────────────────────────────────────────────────────────
-router.get('/transactions/stats', async (req, res) => {
+router.get('/transactions/stats', requireAuth('user', 'company'), async (req, res) => {
   try {
-    const { wallet } = req.query;
-    if (!wallet) return res.status(400).json({ success: false, message: 'wallet param required' });
+    const wallet = req.auth.role === 'user' ? req.user.walletAddress : req.company.walletAddress;
+    if (!wallet) return res.status(403).json({ success: false, message: 'Link a wallet to view account transactions' });
 
     const addr = wallet.toLowerCase();
 

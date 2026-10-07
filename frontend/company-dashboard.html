@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DataChain — Company Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="auth-page.css">
+</head>
+<body>
+  <div class="site-wrap">
+    <main class="main-content">
+      <div class="content-inner">
+
+        <div class="section-hdr">
+          <h1 class="section-ttl">Company Dashboard</h1>
+          <span class="badge badge-green" id="company-status">Verified</span>
+        </div>
+
+        <!-- Company info card -->
+        <section class="card dashboard-card" style="margin-bottom: 14px;">
+          <h2 id="company-name" class="section-ttl">Loading company…</h2>
+          <p id="company-email" style="margin-top: 6px; color: var(--text-2); font-size: .875rem;"></p>
+          <p id="company-wallet" style="margin-top: 4px; color: var(--text-3); font-size: .78rem; font-family: monospace; overflow-wrap: anywhere;"></p>
+        </section>
+
+        <!-- Stats grid -->
+        <div class="dashboard-grid" style="margin-bottom: 14px;">
+          <section class="card dashboard-card">
+            <h3>Purchased datasets</h3>
+            <div class="dashboard-value" id="company-purchased-count">—</div>
+          </section>
+          <section class="card dashboard-card">
+            <h3>Pending access requests</h3>
+            <div class="dashboard-value" id="company-pending-count">—</div>
+          </section>
+        </div>
+
+        <!-- Recent purchases -->
+        <section class="card dashboard-card" style="margin-bottom: 20px;">
+          <h3>Recent purchases</h3>
+          <div id="company-recent" class="dashboard-list">Loading…</div>
+        </section>
+
+        <!-- Navigation actions -->
+        <div class="dashboard-actions">
+          <a class="btn btn-secondary" href="company-my-list.html">My List</a>
+          <a class="btn btn-primary" href="marketplace.html">Marketplace</a>
+          <a class="btn btn-secondary" href="transactions.html">Transactions</a>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const { data } = await API.get('/dashboard/company');
+
+        document.getElementById('company-name').textContent    = data.company.companyName;
+        document.getElementById('company-email').textContent   = data.company.email;
+        document.getElementById('company-wallet').textContent  = data.company.walletAddress;
+        document.getElementById('company-status').textContent  = data.company.verificationStatus;
+        document.getElementById('company-purchased-count').textContent = data.purchasedCount;
+        document.getElementById('company-pending-count').textContent   = data.pendingAccessRequests.length;
+
+        const el = document.getElementById('company-recent');
+        el.innerHTML = data.recentPurchases.length
+          ? data.recentPurchases.slice(0, 5).map(item =>
+              `<div class="dashboard-row">
+                <span>${esc(item.name || `Dataset #${item.dataId}`)}</span>
+                <span>${esc(item.amount || '')} ETH</span>
+              </div>`
+            ).join('')
+          : '<p style="color:var(--text-3);font-size:.875rem;">No purchases recorded yet.</p>';
+
+      } catch (error) {
+        document.getElementById('company-name').textContent  = 'Unable to load company dashboard';
+        document.getElementById('company-email').textContent = error.message;
+      }
+    });
+  </script>
+</body>
+</html>

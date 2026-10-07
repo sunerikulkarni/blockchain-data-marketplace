@@ -26,6 +26,13 @@ const CompanySchema = new mongoose.Schema(
   ],
 },
 
+    // Scrypt password hash for the company portal; never returned by API queries.
+    passwordHash: {
+      type: String,
+      select: false,
+      default: null,
+    },
+
     // Company registration / identification number
     registrationNumber: {
       type: String,

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DataChain — Admin Account</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="auth-page.css">
+</head>
+<body>
+  <div class="site-wrap">
+    <main class="main-content">
+      <div class="content-inner">
+
+        <div class="section-hdr">
+          <h1 class="section-ttl">Admin Account</h1>
+        </div>
+
+        <section class="card dashboard-card" style="max-width: 420px;">
+          <h3>Signed-in administrator</h3>
+          <p id="admin-username" style="font-size: .95rem; color: var(--text-1); margin-top: 6px;">Loading…</p>
+          <button
+            class="btn btn-secondary"
+            data-auth-logout
+            style="margin-top: 20px;"
+            type="button"
+          >Logout</button>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const { data } = await Auth.me();
+        document.getElementById('admin-username').textContent = data.username;
+      } catch (error) {
+        document.getElementById('admin-username').textContent = error.message;
+      }
+    });
+  </script>
+</body>
+</html>

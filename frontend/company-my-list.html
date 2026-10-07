@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DataChain — Company My List</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="auth-page.css">
+</head>
+<body>
+  <div class="site-wrap">
+    <main class="main-content">
+      <div class="content-inner">
+
+        <div class="section-hdr">
+          <h1 class="section-ttl">My List</h1>
+          <a class="section-lnk" href="marketplace.html">Marketplace →</a>
+        </div>
+
+        <p style="margin-bottom: 18px; color: var(--text-2); font-size: .875rem;">
+          Datasets purchased by your verified company wallet.
+        </p>
+
+        <div id="company-list" class="dashboard-grid">
+          <div class="card dashboard-card">Loading…</div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const el = document.getElementById('company-list');
+      try {
+        const { data } = await API.get('/dashboard/company');
+
+        if (!data.authorizedDatasets.length) {
+          el.innerHTML = `
+            <div class="empty-state card" style="grid-column: 1 / -1; padding: 32px;">
+              <h3>No purchased datasets</h3>
+              <p>Company purchases will appear here.</p>
+            </div>`;
+          return;
+        }
+
+        el.innerHTML = data.authorizedDatasets.map(item => `
+          <article class="card dashboard-card">
+            <h3>${esc(item.name || `Dataset #${item.dataId}`)}</h3>
+            <p style="font-size:.82rem;color:var(--text-2);margin-top:6px;">Owner: ${esc(item.owner || '—')}</p>
+            <p style="font-size:.82rem;color:var(--text-2);">Access: ${esc(item.accessStatus || 'Unknown')}</p>
+            <p style="font-size:.78rem;color:var(--text-3);overflow-wrap:anywhere;margin-top:4px;">
+              Transaction:
+              <a href="https://sepolia.etherscan.io/tx/${encodeURIComponent(item.txHash || '')}"
+                 target="_blank" rel="noopener"
+                 style="color:var(--accent);word-break:break-all;">${esc(item.txHash || 'Unavailable')}</a>
+            </p>
+            <div class="dashboard-actions" style="margin-top:12px;">
+              <a class="btn btn-secondary btn-sm" href="dataset.html?id=${encodeURIComponent(item.dataId)}">Dataset details</a>
+            </div>
+          </article>`).join('');
+
+      } catch (error) {
+        el.innerHTML = `<div class="error-banner">${esc(error.message)}</div>`;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -9,6 +9,7 @@ const {
 
 const Company = require('../models/Company');
 const adminMiddleware = require('../middleware/adminMiddleware');
+const { hashPassword } = require('../services/authService');
 
 const router = express.Router();
 
@@ -64,6 +65,10 @@ router.post(
       .trim()
       .isLength({ max: 500 })
       .withMessage('Description cannot exceed 500 characters'),
+
+    body('password')
+      .isLength({ min: 10, max: 128 })
+      .withMessage('Password must be between 10 and 128 characters'),
   ],
 
   async (req, res) => {
@@ -76,6 +81,7 @@ router.post(
         registrationNumber,
         walletAddress,
         description,
+        password,
       } = req.body;
 
       const normalizedWallet =
@@ -91,6 +97,11 @@ router.post(
           success: false,
           message: 'This wallet is already registered',
         });
+      }
+
+      const existingEmail = await Company.findOne({ email: email.toLowerCase() });
+      if (existingEmail) {
+        return res.status(409).json({ success: false, message: 'This company email is already registered' });
       }
 
       // Check registration number
@@ -114,6 +125,7 @@ router.post(
         registrationNumber,
         walletAddress: normalizedWallet,
         description: description || '',
+        passwordHash: await hashPassword(password),
         verificationStatus: 'pending',
       });
 
@@ -121,7 +133,15 @@ router.post(
         success: true,
         message:
           'Company registered successfully. Waiting for verification.',
-        data: company,
+        data: {
+          _id: company._id,
+          companyName: company.companyName,
+          email: company.email,
+          registrationNumber: company.registrationNumber,
+          walletAddress: company.walletAddress,
+          verificationStatus: company.verificationStatus,
+          createdAt: company.createdAt,
+        },
       });
 
     } catch (err) {
@@ -137,6 +157,17 @@ router.post(
     }
   }
 );
+
+// Admin: list registered companies across all verification states.
+router.get('/companies', adminMiddleware, async (req, res) => {
+  try {
+    const companies = await Company.find().select('-passwordHash -__v').sort({ createdAt: -1 });
+    res.json({ success: true, count: companies.length, data: companies });
+  } catch (err) {
+    console.error('GET /companies error:', err.message);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
 
 
 // ============================================================

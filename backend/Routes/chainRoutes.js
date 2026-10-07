@@ -7,6 +7,12 @@ const {
 } = require("../services/blockchainService");
 
 const router = express.Router();
+const requireAuth = require('../middleware/authMiddleware');
+
+function walletScopedAuth(req, res, next) {
+    const roles = req.query.owner ? ['user'] : ['user', 'company'];
+    return requireAuth(...roles)(req, res, next);
+}
 
 router.get("/chain/health", (req, res) => {
     res.json({
@@ -35,12 +41,16 @@ router.get("/chain/datasets", async (req, res) => {
     }
 });
 
-router.get("/chain/access-requests", async (req, res) => {
+router.get("/chain/access-requests", walletScopedAuth, async (req, res) => {
     try {
         const owner = req.query.owner;
         const requester = req.query.requester;
 
         if (requester) {
+            const wallet = req.auth.role === 'user' ? req.user.walletAddress : req.company.walletAddress;
+            if (!wallet || wallet !== requester.toLowerCase()) {
+                return res.status(403).json({ success: false, message: 'Wallet does not match the authenticated account' });
+            }
             const data = await getAccessRequestsForRequester(requester);
             return res.json({
                 success: true,
@@ -54,6 +64,10 @@ router.get("/chain/access-requests", async (req, res) => {
                 success: false,
                 message: "owner query parameter is required"
             });
+        }
+
+        if (!req.user.walletAddress || req.user.walletAddress !== owner.toLowerCase()) {
+            return res.status(403).json({ success: false, message: 'Owner wallet does not match the authenticated user' });
         }
 
         const result = await getAccessRequestsForOwner(owner);
@@ -72,9 +86,17 @@ router.get("/chain/access-requests", async (req, res) => {
     }
 });
 
-router.get("/chain/purchases", async (req, res) => {
+router.get("/chain/purchases", (req, res, next) => req.query.wallet
+    ? requireAuth('user', 'company')(req, res, next)
+    : next(), async (req, res) => {
     try {
         const wallet = req.query.wallet || null;
+        if (wallet) {
+            const authenticatedWallet = req.auth.role === 'user' ? req.user.walletAddress : req.company.walletAddress;
+            if (!authenticatedWallet || authenticatedWallet !== wallet.toLowerCase()) {
+                return res.status(403).json({ success: false, message: 'Wallet does not match the authenticated account' });
+            }
+        }
         const data = await getPurchaseEvents(wallet);
         res.json({
             success: true,

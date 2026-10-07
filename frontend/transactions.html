@@ -228,7 +228,7 @@
 <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.umd.min.js"></script>
 <script src="app.js"></script>
 <script>
-  if (Wallet.isConnected()) document.getElementById('no-wallet-nag').classList.add('hidden');
+  if (Wallet.isConnected() || Auth.profile()?.walletAddress) document.getElementById('no-wallet-nag').classList.add('hidden');
 
   let allTxns = [];
   let activeType = 'all';
@@ -238,15 +238,16 @@
   async function loadTxns() {
   allTxns = [];
   activityLoadFailed = false;
-  if (!Wallet.isConnected()) {
+  const accountWallet = Wallet.getAddress() || Auth.profile()?.walletAddress;
+  if (!accountWallet) {
     updateSummary();
-    document.getElementById('txn-count').textContent = 'Wallet not connected';
+    document.getElementById('txn-count').textContent = 'Link a wallet to view activity';
     document.getElementById('txn-list').innerHTML = '';
     document.getElementById('empty-txns').classList.add('hidden');
     return;
   }
   try {
-    allTxns = await loadWalletActivity(Wallet.getAddress());
+    allTxns = await loadWalletActivity(accountWallet);
   } catch (err) {
     activityLoadFailed = true;
     console.error('Blockchain activity API query failed:', err);

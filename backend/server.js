@@ -13,6 +13,8 @@ const companyRoutes = require('./Routes/companyRoutes');
 const accessRequestRoutes = require('./Routes/accessRequestRoutes');
 const member3Routes = require('./Routes/member3Routes');
 const chainRoutes = require('./Routes/chainRoutes');
+const authRoutes = require('./Routes/authRoutes');
+const dashboardRoutes = require('./Routes/dashboardRoutes');
 // ── Connect to MongoDB ───────────────────────────────────────
 connectDB();
 
@@ -55,6 +57,8 @@ app.use('/', companyRoutes);
 app.use('/', accessRequestRoutes);
 app.use('/', member3Routes);
 app.use('/', chainRoutes);
+app.use('/', authRoutes);
+app.use('/', dashboardRoutes);
 // ── 404 handler ──────────────────────────────────────────────
 app.use((req, res) => {
   res.status(404).json({ success: false, message: `Route ${req.method} ${req.path} not found` });

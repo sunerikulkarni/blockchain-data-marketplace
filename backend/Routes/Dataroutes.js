@@ -4,6 +4,7 @@
 const express  = require('express');
 const { body, query, validationResult } = require('express-validator');
 const Data     = require('../models/Data');
+const requireAuth = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
@@ -116,6 +117,7 @@ router.get('/getData/:id', async (req, res) => {
 // ────────────────────────────────────────────────────────────
 router.post(
   '/addData',
+  requireAuth('user'),
   [
     body('name').trim().notEmpty().withMessage('Name is required').isLength({ max: 80 }),
     body('category').isIn(['Health','Finance','Technology','Environment','Education','Research','Other'])
@@ -128,12 +130,14 @@ router.post(
     if (validate(req, res)) return;
     try {
       const { name, category, description, price, seller, blockchainId, ipfsCID, dataHash } = req.body;
+      if (!req.user.walletAddress) return res.status(403).json({ success: false, message: 'Link and verify your MetaMask wallet before adding a dataset' });
+      if (seller && seller.toLowerCase() !== req.user.walletAddress) return res.status(403).json({ success: false, message: 'Dataset owner wallet does not match the authenticated user' });
       const newData = await Data.create({
         name,
         category,
         description,
         price,
-        seller: seller || null,
+        seller: req.user.walletAddress,
         blockchainId: blockchainId || null,
         ipfsCID: ipfsCID || null,
         dataHash: dataHash || null,
@@ -152,6 +156,7 @@ router.post(
 // ────────────────────────────────────────────────────────────
 router.put(
   '/updateData/:id',
+  requireAuth('user'),
   [
     body('price').optional().custom(v => parseFloat(v) > 0).withMessage('Price must be > 0'),
     body('status').optional().isIn(['active','inactive']),
@@ -159,6 +164,10 @@ router.put(
   async (req, res) => {
     if (validate(req, res)) return;
     try {
+      if (!req.user.walletAddress) return res.status(403).json({ success: false, message: 'Link and verify your MetaMask wallet first' });
+      const current = await Data.findById(req.params.id);
+      if (!current) return res.status(404).json({ success: false, message: 'Dataset not found' });
+      if (!current.seller || current.seller.toLowerCase() !== req.user.walletAddress) return res.status(403).json({ success: false, message: 'Only the dataset owner can update it' });
       const allowed = ['name', 'description', 'price', 'status'];
       const updates = {};
       allowed.forEach(key => { if (req.body[key] !== undefined) updates[key] = req.body[key]; });
@@ -176,10 +185,13 @@ router.put(
 // DELETE /deleteData/:id
 // Removes a listing permanently.
 // ────────────────────────────────────────────────────────────
-router.delete('/deleteData/:id', async (req, res) => {
+router.delete('/deleteData/:id', requireAuth('user'), async (req, res) => {
   try {
-    const data = await Data.findByIdAndDelete(req.params.id);
+    if (!req.user.walletAddress) return res.status(403).json({ success: false, message: 'Link and verify your MetaMask wallet first' });
+    const data = await Data.findById(req.params.id);
     if (!data) return res.status(404).json({ success: false, message: 'Dataset not found' });
+    if (!data.seller || data.seller.toLowerCase() !== req.user.walletAddress) return res.status(403).json({ success: false, message: 'Only the dataset owner can delete it' });
+    await Data.findByIdAndDelete(req.params.id);
     res.json({ success: true, message: 'Dataset deleted' });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Server error' });

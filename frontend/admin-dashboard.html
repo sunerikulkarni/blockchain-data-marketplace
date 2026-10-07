@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DataChain — Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="auth-page.css">
+</head>
+<body>
+  <div class="site-wrap">
+    <main class="main-content">
+      <div class="content-inner">
+
+        <div class="section-hdr">
+          <h1 class="section-ttl">Company Verification</h1>
+          <button class="btn btn-secondary btn-sm" id="refresh-companies" type="button">Refresh</button>
+        </div>
+
+        <!-- Count stats -->
+        <div class="dashboard-grid" id="company-counts"></div>
+
+        <!-- Company sections -->
+        <section id="companies" style="margin-top: 24px;">
+
+          <div class="section-hdr" id="pending">
+            <h2 class="section-ttl">Pending Verification</h2>
+          </div>
+          <div id="pending-companies">Loading…</div>
+
+          <div class="section-hdr" id="approved" style="margin-top: 28px;">
+            <h2 class="section-ttl">Approved Companies</h2>
+          </div>
+          <div id="approved-companies"></div>
+
+          <div class="section-hdr" style="margin-top: 28px;">
+            <h2 class="section-ttl">Rejected Companies</h2>
+          </div>
+          <div id="rejected-companies"></div>
+
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    async function loadCompanies() {
+      const pending  = document.getElementById('pending-companies');
+      const approved = document.getElementById('approved-companies');
+      const rejected = document.getElementById('rejected-companies');
+      pending.textContent = 'Loading…';
+
+      try {
+        const result = await API.get('/companies');
+        const groups = { pending: [], verified: [], rejected: [] };
+        result.data.forEach(c => groups[c.verificationStatus]?.push(c));
+
+        document.getElementById('company-counts').innerHTML = Object.entries(groups)
+          .map(([name, list]) => `
+            <section class="card dashboard-card">
+              <h3>${name === 'verified' ? 'Approved' : name[0].toUpperCase() + name.slice(1)} companies</h3>
+              <div class="dashboard-value">${list.length}</div>
+            </section>
+          `).join('');
+
+        pending.innerHTML  = groups.pending.length  ? groups.pending.map(companyCard).join('')  : '<p class="empty-state">No companies waiting for verification.</p>';
+        approved.innerHTML = groups.verified.length ? groups.verified.map(companyCard).join('') : '<p class="empty-state">No approved companies.</p>';
+        rejected.innerHTML = groups.rejected.length ? groups.rejected.map(companyCard).join('') : '<p class="empty-state">No rejected companies.</p>';
+
+      } catch (error) {
+        pending.innerHTML = `<div class="error-banner">${esc(error.message)}</div>`;
+      }
+    }
+
+    function companyCard(c) {
+      const statusClass = c.verificationStatus === 'verified' ? 'badge-green'
+        : c.verificationStatus === 'rejected' ? 'badge-warm' : 'badge-blue';
+
+      return `
+        <article class="card admin-company">
+          <header>
+            <h3>${esc(c.companyName)}</h3>
+            <span class="badge ${statusClass}">${esc(c.verificationStatus)}</span>
+          </header>
+          <p>${esc(c.email)} · Registration ${esc(c.registrationNumber)}</p>
+          <p>Wallet: ${esc(c.walletAddress)}</p>
+          <p>${esc(c.description || 'No additional verification information provided.')}</p>
+          ${c.rejectionReason ? `<p>Reason: ${esc(c.rejectionReason)}</p>` : ''}
+          ${c.verificationStatus === 'pending' ? `
+            <div class="dashboard-actions">
+              <button class="btn btn-primary btn-sm" data-company-action="verified" data-id="${esc(c._id)}">Approve</button>
+              <button class="btn btn-secondary btn-sm" data-company-action="rejected" data-id="${esc(c._id)}">Reject</button>
+            </div>` : ''}
+        </article>`;
+    }
+
+    document.addEventListener('click', async e => {
+      const button = e.target.closest('[data-company-action]');
+      if (!button) return;
+      const status = button.dataset.companyAction;
+      let rejectionReason = '';
+      if (status === 'rejected') {
+        rejectionReason = prompt('Reason for rejection:') || '';
+      }
+      button.disabled = true;
+      try {
+        await API.put(`/companies/${encodeURIComponent(button.dataset.id)}/verify`, { status, rejectionReason });
+        await loadCompanies();
+      } catch (error) {
+        Toast.error(error.message);
+        button.disabled = false;
+      }
+    });
+
+    document.getElementById('refresh-companies').addEventListener('click', loadCompanies);
+    document.addEventListener('DOMContentLoaded', loadCompanies);
+  </script>
+</body>
+</html>

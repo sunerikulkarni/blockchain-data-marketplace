@@ -220,6 +220,20 @@
         </div>
       </section>
 
+      <section class="card dashboard-card" aria-label="User dashboard">
+        <div class="section-hdr"><h2 class="section-ttl">Your DataChain Overview</h2><a href="profile.html" class="section-lnk">Profile →</a></div>
+        <p id="user-dashboard-greeting">Loading account…</p>
+        <div class="dashboard-grid" style="margin-top:14px">
+          <div class="dashboard-card"><h3>Your datasets</h3><div class="dashboard-value" id="user-owned-count">—</div></div>
+          <div class="dashboard-card"><h3>Purchases</h3><div class="dashboard-value" id="user-purchase-count">—</div></div>
+          <div class="dashboard-card"><h3>Access requests</h3><div class="dashboard-value" id="user-request-count">—</div></div>
+        </div>
+        <div class="dashboard-grid" style="margin-top:14px">
+          <div><h3>Recently added</h3><div id="user-recent-datasets" class="dashboard-list">Loading…</div></div>
+          <div><h3>Access request status</h3><div id="user-access-requests" class="dashboard-list">Loading…</div></div>
+        </div>
+      </section>
+
       <!-- Stats -->
       <div class="stats-grid">
         <div class="stat-chip"><div class="stat-val" id="stat-total">2+</div><div class="stat-lbl">On-Chain Datasets</div></div>
@@ -240,10 +254,10 @@
           <div class="quick-title">Owner Dashboard</div>
           <div class="quick-desc">Review &amp; approve incoming access requests.</div>
         </a>
-        <a href="access.html" class="quick-card">
+        <a href="company-register.html" class="quick-card">
           <div class="quick-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-          <div class="quick-title">Company Access</div>
-          <div class="quick-desc">Register your company for verified data access.</div>
+          <div class="quick-title">Company Registration</div>
+          <div class="quick-desc">Submit company details for admin verification.</div>
         </a>
         <a href="listings.html" class="quick-card">
           <div class="quick-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
@@ -359,6 +373,26 @@
   const el = document.getElementById('activity-list');
   if (!el) return;
 
+  if (Auth.role() === 'user') {
+    try {
+      const response = await API.get('/dashboard/user');
+      const entries = response.data.activity || [];
+      if (!entries.length) {
+        el.innerHTML = '<div class="empty-state" style="padding:28px 16px"><h3>No transactions recorded yet</h3><p>Confirmed blockchain purchases and access requests will appear here.</p></div>';
+        return;
+      }
+      el.innerHTML = entries.slice(0, 5).map(item => {
+        const kind = item.type === 'purchase' ? 'PURCHASE' : item.type === 'sale' ? 'SALE' : item.type === 'request_received' ? 'REQUEST RECEIVED' : 'ACCESS REQUEST';
+        const value = item.amount ? `${parseFloat(item.amount).toFixed(4)} ETH` : (item.status || 'Access request');
+        return `<div class="activity-row"><div class="act-left"><div class="act-dot">${kind.slice(0,1)}</div><div><div class="act-name">${esc(item.name || `Dataset #${item.dataId}`)}</div><div class="act-date">${kind} · Block ${esc(item.blockNumber || '—')}</div></div></div><div class="act-price">${esc(value)}</div></div>`;
+      }).join('');
+      return;
+    } catch (error) {
+      el.innerHTML = `<div class="empty-state" style="padding:28px 16px"><h3>Unable to load recent activity</h3><p>${esc(error.message)}</p></div>`;
+      return;
+    }
+  }
+
   if (!Wallet.getAddress()) {
     el.innerHTML = `
       <div class="empty-state" style="padding:28px 16px">
@@ -454,6 +488,18 @@
 
   loadStats();
   renderActivity();
+  API.get('/dashboard/user').then(({data}) => {
+    document.getElementById('user-dashboard-greeting').textContent = `Welcome, ${data.user.fullName}. ${data.user.walletAddress ? `Linked wallet ${Wallet.short(data.user.walletAddress)}.` : 'Connect MetaMask to link a wallet and use blockchain features.'}`;
+    document.getElementById('user-owned-count').textContent = data.ownedCount;
+    document.getElementById('user-purchase-count').textContent = data.purchases.length;
+    document.getElementById('user-request-count').textContent = data.accessRequestsMade.length;
+    const datasets = document.getElementById('user-recent-datasets');
+    datasets.innerHTML = data.recentDatasets.length ? data.recentDatasets.map(item => `<div class="dashboard-row"><a href="dataset.html?id=${encodeURIComponent(item.id)}">${esc(item.name)}</a><span>#${esc(item.id)}</span></div>`).join('') : '<p>No datasets added yet.</p>';
+    const requests = document.getElementById('user-access-requests');
+    requests.innerHTML = data.accessRequestsMade.length ? data.accessRequestsMade.slice(0,5).map(item => `<div class="dashboard-row"><span>Dataset #${esc(item.dataId)}</span><span>${esc(item.status || 'Requested')}</span></div>`).join('') : '<p>No access requests yet.</p>';
+  }).catch(error => {
+    document.getElementById('user-dashboard-greeting').textContent = `Dashboard unavailable: ${error.message}`;
+  });
 </script>
 </body>
 </html>

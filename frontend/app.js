@@ -348,6 +348,66 @@ const Transactions = {
   }
 };
 
+async function loadWalletActivity(wallet) {
+  if (!wallet) return [];
+
+  const address = wallet.toLowerCase();
+  const walletQuery = encodeURIComponent(wallet);
+  const [purchaseResponse, requestResponse] = await Promise.all([
+    API.get(`/chain/purchases?wallet=${walletQuery}`),
+    API.get(`/chain/access-requests?requester=${walletQuery}`)
+  ]);
+
+  if (!purchaseResponse.success || !Array.isArray(purchaseResponse.data)) {
+    throw new Error('Could not read purchase events from the blockchain API.');
+  }
+  if (!requestResponse.success || !Array.isArray(requestResponse.data)) {
+    throw new Error('Could not read access request events from the blockchain API.');
+  }
+
+  const activity = [];
+  for (const event of purchaseResponse.data) {
+    const buyer = event.buyer?.toLowerCase();
+    const owner = event.owner?.toLowerCase();
+    const base = {
+      name: event.name || `Dataset #${event.dataId}`,
+      category: event.category || '',
+      price: event.amount || '0',
+      status: event.status || 'confirmed',
+      timestamp: event.timestamp || null,
+      blockNumber: event.blockNumber,
+      txHash: event.txHash
+    };
+    if (buyer === address) activity.push({ ...base, type: 'buy' });
+    if (owner === address) activity.push({ ...base, type: 'sell' });
+  }
+
+  for (const event of requestResponse.data) {
+    if (event.requester?.toLowerCase() !== address) continue;
+    activity.push({
+      type: 'request',
+      name: event.datasetName || `Dataset #${event.dataId}`,
+      category: '',
+      price: '0',
+      status: 'confirmed',
+      accessStatus: event.status || 'PENDING',
+      timestamp: event.timestamp || null,
+      blockNumber: event.blockNumber,
+      txHash: event.transactionHash
+    });
+  }
+
+  const unique = new Map();
+  for (const event of activity) {
+    if (!event.txHash) continue;
+    unique.set(`${event.txHash}-${event.type}`, event);
+  }
+  return [...unique.values()].sort((a, b) => {
+    const byDate = new Date(b.timestamp || 0) - new Date(a.timestamp || 0);
+    return byDate || Number(b.blockNumber || 0) - Number(a.blockNumber || 0);
+  });
+}
+
 const Wallet = {
   getAddress() { return localStorage.getItem('dc_wallet') || null; },
   setAddress(a) { localStorage.setItem('dc_wallet', a); },
@@ -421,6 +481,7 @@ function renderDataCard(item) {
       </div>
     </div>
     <p class="dc-desc">${esc(item.description)}</p>
+    <div class="dc-owner"><span>Owner</span><span title="${esc(item.owner || item.seller || 'Not available')}">${esc(item.owner || item.seller || 'Not available')}</span></div>
     <div class="dc-footer">
       <div class="dc-meta">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">

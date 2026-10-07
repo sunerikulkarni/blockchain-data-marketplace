@@ -33,6 +33,12 @@
     }
     .owner-grid > * { min-width: 0; }
 
+    @media(min-width:1200px){
+      .owner-grid{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+      .owner-grid>.network-alert,.owner-grid>.section-hdr,.owner-grid>section.card:last-of-type{grid-column:1/-1}
+      .wallet-card-body{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 20px}
+    }
+
     .wallet-card-body {
       display: flex;
       flex-direction: column;
@@ -434,14 +440,14 @@
             </p>
           </div>
           <button class="btn btn-secondary btn-sm" id="refresh-requests-btn">
-            ↻ Refresh
+            Refresh
           </button>
         </div>
 
         <!-- Requester Lookup / Direct Access Manager -->
         <div class="lookup-box">
           <div style="font-size:.8rem;font-weight:700;color:var(--text-2);">
-            🔍 Look up or process request by buyer address:
+            Look up or process request by buyer address:
           </div>
           <div class="lookup-row">
             <select id="lookup-dataset-select" class="form-input form-select" style="max-width:220px;">
@@ -893,17 +899,17 @@
       ${isPending ? `
         <div class="request-actions" id="actions-${dataId}-${requester.slice(2, 10)}">
           <button class="btn btn-sm btn-approve" data-approve="${esc(dataId)}" data-requester="${esc(requester)}" data-backend="${esc(backendId || '')}">
-            ✓ Approve Access
+            Approve Access
           </button>
           <button class="btn btn-sm btn-reject" data-reject="${esc(dataId)}" data-requester="${esc(requester)}" data-backend="${esc(backendId || '')}">
-            ✕ Reject Request
+            Reject Request
           </button>
         </div>
       ` : `
         <div style="font-size:.75rem;color:var(--text-3);margin-top:4px;">
-          ${statusText === 'APPROVED' ? '✓ Access request was approved on the blockchain.' : ''}
-          ${statusText === 'REJECTED' ? '✕ Access request was rejected on the blockchain.' : ''}
-          ${statusText === 'AUTHORIZED' ? '★ Buyer has purchased and unlocked full authorization.' : ''}
+          ${statusText === 'APPROVED' ? 'Access request was approved on the blockchain.' : ''}
+          ${statusText === 'REJECTED' ? 'Access request was rejected on the blockchain.' : ''}
+          ${statusText === 'AUTHORIZED' ? 'Buyer has purchased and unlocked full authorization.' : ''}
         </div>
       `}
     `;
@@ -979,7 +985,7 @@
 
       if (feedbackBox) {
         feedbackBox.innerHTML = `
-          <strong>✓ Transaction Confirmed!</strong><br>
+          <strong>Transaction confirmed</strong><br>
           Hash: <a href="https://sepolia.etherscan.io/tx/${tx.hash}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;">
             ${tx.hash}
           </a>
@@ -993,7 +999,7 @@
       }
 
       if (actionsBox) {
-        actionsBox.innerHTML = '<span style="font-size:.78rem;color:var(--info);font-weight:700;">✓ Approved on Sepolia</span>';
+        actionsBox.innerHTML = '<span style="font-size:.78rem;color:var(--info);font-weight:700;">Approved on Sepolia</span>';
       }
 
       if (backendId) {
@@ -1082,7 +1088,7 @@
 
       if (feedbackBox) {
         feedbackBox.innerHTML = `
-          <strong>✓ Transaction Confirmed!</strong><br>
+          <strong>Transaction confirmed</strong><br>
           Hash: <a href="https://sepolia.etherscan.io/tx/${tx.hash}" target="_blank" rel="noopener" style="color:var(--danger);text-decoration:underline;">
             ${tx.hash}
           </a>
@@ -1096,7 +1102,7 @@
       }
 
       if (actionsBox) {
-        actionsBox.innerHTML = '<span style="font-size:.78rem;color:var(--danger);font-weight:700;">✕ Rejected on Sepolia</span>';
+        actionsBox.innerHTML = '<span style="font-size:.78rem;color:var(--danger);font-weight:700;">Rejected on Sepolia</span>';
       }
 
       if (backendId) {

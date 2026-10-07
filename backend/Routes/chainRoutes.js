@@ -2,6 +2,7 @@ const express = require("express");
 const {
     listDatasets,
     getAccessRequestsForOwner,
+    getAccessRequestsForRequester,
     getPurchaseEvents
 } = require("../services/blockchainService");
 
@@ -37,6 +38,17 @@ router.get("/chain/datasets", async (req, res) => {
 router.get("/chain/access-requests", async (req, res) => {
     try {
         const owner = req.query.owner;
+        const requester = req.query.requester;
+
+        if (requester) {
+            const data = await getAccessRequestsForRequester(requester);
+            return res.json({
+                success: true,
+                count: data.length,
+                data
+            });
+        }
+
         if (!owner) {
             return res.status(400).json({
                 success: false,

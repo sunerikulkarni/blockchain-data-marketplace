@@ -291,8 +291,8 @@
       <div class="card" id="activity-list">
         <div class="empty-state" style="padding:28px 16px">
           <div class="empty-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
-          <h3>No transactions recorded yet</h3>
-          <p>When you request access or buy datasets on Sepolia, your activity will appear here.</p>
+          <h3>Connect wallet to view activity</h3>
+          <p>Your confirmed Sepolia purchases and access requests will appear here.</p>
         </div>
       </div>
 
@@ -334,11 +334,9 @@
 <script>
   async function loadStats() {
     try {
-      if (typeof window.ethereum !== 'undefined') {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
-        const count = await contract.dataCount();
-        document.getElementById('stat-total').textContent = count.toString();
+      const chainData = await API.get('/chain/datasets');
+      if (chainData.success && Number.isFinite(Number(chainData.count))) {
+        document.getElementById('stat-total').textContent = chainData.count;
         return;
       }
     } catch {
@@ -361,60 +359,21 @@
   const el = document.getElementById('activity-list');
   if (!el) return;
 
+  if (!Wallet.getAddress()) {
+    el.innerHTML = `
+      <div class="empty-state" style="padding:28px 16px">
+        <div class="empty-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
+        <h3>Connect wallet to view activity</h3>
+        <p>Your confirmed Sepolia purchases and access requests will appear here.</p>
+      </div>
+    `;
+    return;
+  }
+
   try {
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const contract = getReadContract(provider);
+    const activity = await loadWalletActivity(Wallet.getAddress());
 
-    const latestBlock = await provider.getBlockNumber();
-    const fromBlock = Math.max(0, latestBlock - 9999);
-
-    const logs = await contract.queryFilter(
-      contract.filters.DataPurchased(),
-      fromBlock,
-      latestBlock
-    );
-
-    const wallet = await Wallet.getAddress();
-
-    const purchases = [];
-
-    for (const log of logs) {
-      const buyer = log.args.buyer;
-
-      if (!buyer || buyer.toLowerCase() !== wallet.toLowerCase()) {
-        continue;
-      }
-
-      const dataId = Number(log.args.dataId);
-      const amount = log.args.amount;
-
-      let datasetName = `Dataset #${dataId}`;
-
-      try {
-        const data = await contract.getData(dataId);
-        datasetName = data[1];
-      } catch (e) {
-        console.warn(`Could not read dataset #${dataId}:`, e.message);
-      }
-
-      let timestamp = null;
-
-      try {
-        const block = await provider.getBlock(log.blockNumber);
-        timestamp = block ? new Date(block.timestamp * 1000) : null;
-      } catch (e) {
-        console.warn('Could not read block timestamp:', e.message);
-      }
-
-      purchases.push({
-        name: datasetName,
-        date: timestamp || new Date(),
-        price: ethers.formatEther(amount),
-        txHash: log.transactionHash
-      });
-    }
-
-    if (!purchases.length) {
+    if (!activity.length) {
       el.innerHTML = `
         <div class="empty-state" style="padding:28px 16px">
           <div class="empty-icon">
@@ -437,9 +396,7 @@
       return;
     }
 
-    purchases.sort((a, b) => b.date - a.date);
-
-    el.innerHTML = purchases.slice(0, 5).map(tx => `
+    el.innerHTML = activity.slice(0, 5).map(tx => `
       <div class="activity-row">
         <div class="act-left">
           <div class="act-icon">
@@ -458,13 +415,14 @@
           <div>
             <div class="act-name">${esc(tx.name)}</div>
             <div class="act-date">
-              PURCHASE · ${fmtDate(tx.date)}
+              ${tx.type === 'request' ? `ACCESS REQUEST · ${esc(tx.accessStatus)}` : tx.type.toUpperCase()}
+              · ${tx.timestamp ? fmtDate(tx.timestamp) : `Block ${esc(tx.blockNumber || '—')}`}
             </div>
           </div>
         </div>
 
         <div class="act-price">
-          ${parseFloat(tx.price).toFixed(4)} ETH
+          ${tx.type === 'request' ? 'Access requested' : `${parseFloat(tx.price || 0).toFixed(4)} ETH`}
         </div>
       </div>
     `).join('');
@@ -488,7 +446,7 @@
         </div>
 
         <h3>Unable to load recent activity</h3>
-        <p>Please check your MetaMask connection and Sepolia network.</p>
+        <p>Please check the DataChain API connection and Sepolia event service.</p>
       </div>
     `;
   }

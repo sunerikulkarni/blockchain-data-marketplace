@@ -37,7 +37,7 @@
     .nag-banner a{color:var(--warm);text-decoration:underline}
     .nag-banner.hidden{display:none}
 
-    @media(min-width:820px){
+    @media(min-width:1024px){
       .form-layout{
         display:grid;
         grid-template-columns:1fr 340px;
@@ -579,7 +579,7 @@ document.getElementById('add-form').addEventListener('submit', async e => {
     // ==========================================
 
     txBox.innerHTML = `
-      <strong>✓ Dataset successfully published!</strong><br><br>
+      <strong>Dataset successfully published</strong><br><br>
 
       Dataset ID:
       <strong>#${newCount}</strong><br>
@@ -623,7 +623,7 @@ document.getElementById('add-form').addEventListener('submit', async e => {
     );
 
     btn.disabled = false;
-    btn.innerHTML = `✓ Published Successfully`;
+    btn.textContent = 'Published Successfully';
 
   } catch (err) {
 

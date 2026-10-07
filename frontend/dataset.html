@@ -14,9 +14,9 @@
       gap: 20px;
     }
 
-    @media(min-width: 820px) {
+    @media(min-width: 1024px) {
       .detail-layout {
-        grid-template-columns: 1fr 340px;
+        grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
         gap: 24px;
         align-items: start;
       }
@@ -140,6 +140,14 @@
       word-break: break-all;
       display: none;
     }
+
+    .detail-layout .section-hdr { align-items: flex-start; }
+    .detail-layout .section-hdr > div { min-width: 0; }
+    #dataset-name { overflow-wrap: anywhere; }
+    #dataset-price { white-space: nowrap; }
+    .detail-category{display:inline-flex;max-width:100%;margin-top:8px;padding:3px 10px;border:1px solid var(--border-card);border-radius:var(--r-f);background:var(--accent-sub);color:var(--accent);font-size:.72rem;font-weight:800;overflow-wrap:anywhere}
+    .dataset-price-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0}
+    .detail-side-col .card > * { min-width: 0; }
   </style>
 </head>
 
@@ -181,10 +189,11 @@
               <h1 class="section-ttl" id="dataset-name" style="margin-top:4px;">
                 Loading dataset...
               </h1>
-              <p id="dataset-category" style="color:var(--text-2);margin-top:6px;font-weight:600;">
+              <p id="dataset-category" class="detail-category">
               </p>
             </div>
-            <div style="text-align:right;">
+            <div class="dataset-price-wrap" style="text-align:right;">
+              <span class="detail-label">Price</span>
               <strong id="dataset-price" style="font-family:var(--font-d);font-size:1.3rem;color:var(--accent);">
                 —
               </strong>
@@ -203,8 +212,8 @@
           </div>
 
           <div class="detail-row">
-            <span class="detail-label">Network / Settlement</span>
-            <span class="detail-value" id="dataset-sales">Sepolia Blockchain</span>
+            <span class="detail-label">Sales</span>
+            <span class="detail-value" id="dataset-sales">0</span>
           </div>
         </section>
 
@@ -235,13 +244,13 @@
                   Pay with MetaMask
                 </button>
                 <button class="btn btn-primary" id="access-data-btn" style="display:none;">
-                  🔓 Access Dataset Payload
+                  Access Dataset Payload
                 </button>
                 <button class="btn btn-secondary btn-sm" id="verify-integrity-btn" style="display:none;">
-                  🔍 Verify Integrity
+                  Verify Integrity
                 </button>
                 <button class="btn btn-secondary btn-sm" id="refresh-status-btn">
-                  ↻ Refresh
+                  Refresh
                 </button>
               </div>
 
@@ -254,7 +263,7 @@
               <div id="payload-box" style="display:none;margin-top:16px;padding:16px;background:var(--bg-tint);border-radius:var(--r-xl);border:1px solid var(--border-card);">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
                   <span class="detail-label" style="font-size:.78rem;font-weight:800;color:var(--text-1);">Decrypted Dataset Payload</span>
-                  <button class="btn btn-secondary btn-sm" id="download-payload-btn" style="font-size:.72rem;padding:4px 10px;">💾 Download JSON</button>
+                  <button class="btn btn-secondary btn-sm" id="download-payload-btn" style="font-size:.72rem;padding:4px 10px;">Download JSON</button>
                 </div>
                 <pre id="payload-content" style="background:var(--g-card);padding:12px;border-radius:var(--r-lg);border:1px solid var(--border);font-family:monospace;font-size:.75rem;max-height:220px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;color:var(--text-1);"></pre>
                 <div id="integrity-feedback" style="margin-top:8px;font-size:.72rem;font-weight:700;"></div>
@@ -1149,9 +1158,10 @@
       lastRetrievedPayload = formatted;
 
       if (result.integrityVerified) {
-        integrityFeedback.innerHTML = `<span style="color:var(--accent);">✓ SHA-256 Verified: ${result.currentHash || result.originalHash}</span>`;
+        integrityFeedback.textContent = `SHA-256 verified: ${result.currentHash || result.originalHash}`;
       } else {
-        integrityFeedback.innerHTML = `<span style="color:var(--warm);">⚠ Hash: ${result.currentHash || 'N/A'} (Original: ${result.originalHash || 'N/A'})</span>`;
+        integrityFeedback.textContent = `Hash not verified. Current: ${result.currentHash || 'N/A'}; original: ${result.originalHash || 'N/A'}`;
+        integrityFeedback.style.color = 'var(--warm)';
       }
 
     } catch (err) {
@@ -1159,7 +1169,7 @@
       Toast.error(err.message || 'Error accessing IPFS payload');
     } finally {
       btn.disabled = false;
-      btn.textContent = '🔓 Access Dataset Payload';
+      btn.textContent = 'Access Dataset Payload';
     }
   }
 
@@ -1183,7 +1193,7 @@
       Toast.error('Integrity verification failed: ' + err.message);
     } finally {
       btn.disabled = false;
-      btn.textContent = '🔍 Verify Integrity';
+      btn.textContent = 'Verify Integrity';
     }
   }
 

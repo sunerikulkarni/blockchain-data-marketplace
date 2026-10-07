@@ -49,6 +49,7 @@
     }
     .txn-icon.buy  { background: var(--info-sub); color: var(--info); border: 1px solid rgba(78,128,168,.2); }
     .txn-icon.sell { background: var(--accent-sub); color: var(--accent); border: 1px solid var(--accent-pale); }
+    .txn-icon.request { background: var(--bg-tint); color: var(--text-2); border: 1px solid var(--border-card); }
     .txn-icon svg  { width: 18px; height: 18px; }
 
     .txn-body { flex: 1; min-width: 0; }
@@ -58,11 +59,13 @@
     .txn-type-label { font-size: .65rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
     .txn-type-label.buy  { color: var(--info); }
     .txn-type-label.sell { color: var(--accent); }
+    .txn-type-label.request { color: var(--text-2); }
 
     .txn-right { text-align: right; flex-shrink: 0; }
     .txn-amount { font-family: var(--font-d); font-size: 1rem; font-weight: 700; line-height: 1; }
     .txn-amount.buy  { color: var(--danger); }
     .txn-amount.sell { color: var(--accent); }
+    .txn-amount.request { color: var(--text-2); font-family: var(--font-b); font-size: .76rem; }
     .txn-amount.buy::before  { content: '−'; }
     .txn-amount.sell::before { content: '+'; }
     .txn-status { font-size: .68rem; font-weight: 700; color: var(--text-3); margin-top: 3px; }
@@ -169,13 +172,14 @@
           <button class="chip active" data-type="all">All</button>
           <button class="chip" data-type="buy">Purchases</button>
           <button class="chip" data-type="sell">Sales</button>
+          <button class="chip" data-type="request">Access requests</button>
         </div>
         <span class="text-xs text-muted" id="txn-count"></span>
       </div>
 
       <!-- Info note -->
       <div class="info-note" id="txn-info-note" style="display:none">
-        Showing transactions confirmed on the Sepolia blockchain and cached locally during this session.
+        Showing confirmed purchases, sales, and access-request events read from Sepolia.
         <a href="https://sepolia.etherscan.io" target="_blank" rel="noopener" style="color:var(--accent)">View all on Etherscan ↗</a>
       </div>
 
@@ -188,7 +192,7 @@
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
         </div>
         <h3>No transactions yet</h3>
-        <p>Your confirmed purchases and sales on Sepolia will appear here.</p>
+        <p>Your confirmed purchases, sales, and access requests on Sepolia will appear here.</p>
         <a href="marketplace.html" class="btn btn-primary mt-12">Browse Market</a>
       </div>
 
@@ -228,100 +232,24 @@
 
   let allTxns = [];
   let activeType = 'all';
+  let activityLoadFailed = false;
 
-  /* ──────────────────────────────────────────────────────────
-     Load transactions: backend first, then localStorage cache.
-     localStorage is used ONLY as a session-cache of real txns
-     (e.g. purchases made via dataset.html in this browser).
-     Old demo "asthma / 100 ETH" data is NOT loaded.
-  ────────────────────────────────────────────────────────── */
+  /* Read the same confirmed Sepolia events shown in Recent Activity. */
   async function loadTxns() {
-  const wallet = Wallet.getAddress();
   allTxns = [];
-
-  if (!wallet) {
+  activityLoadFailed = false;
+  if (!Wallet.isConnected()) {
     updateSummary();
-    renderTxns();
+    document.getElementById('txn-count').textContent = 'Wallet not connected';
+    document.getElementById('txn-list').innerHTML = '';
+    document.getElementById('empty-txns').classList.add('hidden');
     return;
   }
-
   try {
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const contract = getReadContract(provider);
-
-    const latestBlock = await provider.getBlockNumber();
-const startBlock = Math.max(0, latestBlock - 50000);
-
-const logs = [];
-const CHUNK_SIZE = 9000;
-
-for (
-    let fromBlock = startBlock;
-    fromBlock <= latestBlock;
-    fromBlock += CHUNK_SIZE + 1
-) {
-    const toBlock = Math.min(
-        fromBlock + CHUNK_SIZE,
-        latestBlock
-    );
-
-    const chunkLogs = await contract.queryFilter(
-        contract.filters.DataPurchased(),
-        fromBlock,
-        toBlock
-    );
-
-    logs.push(...chunkLogs);
-}
-
-    for (const log of logs) {
-      const buyer = log.args.buyer;
-      const owner = log.args.owner;
-      const dataId = Number(log.args.dataId);
-      const amount = log.args.amount;
-
-      let datasetName = `Dataset #${dataId}`;
-      let category = '';
-
-      try {
-        const data = await contract.getData(dataId);
-        datasetName = data[1];
-        category = data[2];
-      } catch (e) {
-        console.warn(`Could not read dataset #${dataId}:`, e.message);
-      }
-
-      if (buyer && buyer.toLowerCase() === wallet.toLowerCase()) {
-        allTxns.push({
-          type: 'buy',
-          name: datasetName,
-          category,
-          price: ethers.formatEther(amount),
-          status: 'confirmed',
-          txHash: log.transactionHash,
-          timestamp: new Date().toISOString(),
-          id: `${log.transactionHash}-buy`
-        });
-      }
-
-      if (owner && owner.toLowerCase() === wallet.toLowerCase()) {
-        allTxns.push({
-          type: 'sell',
-          name: datasetName,
-          category,
-          price: ethers.formatEther(amount),
-          status: 'confirmed',
-          txHash: log.transactionHash,
-          timestamp: new Date().toISOString(),
-          id: `${log.transactionHash}-sell`
-        });
-      }
-    }
-
-    allTxns.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
+    allTxns = await loadWalletActivity(Wallet.getAddress());
   } catch (err) {
-    console.error('Blockchain transaction query failed:', err);
+    activityLoadFailed = true;
+    console.error('Blockchain activity API query failed:', err);
     Toast.error('Unable to load blockchain transactions.');
   }
 
@@ -352,6 +280,12 @@ for (
     const emptyEl = document.getElementById('empty-txns');
     listEl.innerHTML = '';
 
+    if (activityLoadFailed) {
+      emptyEl.classList.add('hidden');
+      listEl.innerHTML = '<div class="empty-state"><h3>Unable to load transactions</h3><p>The Sepolia activity service returned an error. Please try again.</p></div>';
+      return;
+    }
+
     const filtered = activeType === 'all'
       ? allTxns
       : allTxns.filter(t => t.type === activeType);
@@ -364,8 +298,10 @@ for (
     // Group by month
     const groups = {};
     filtered.forEach(tx => {
-      const d = new Date(tx.timestamp);
-      const key = d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+      const d = tx.timestamp ? new Date(tx.timestamp) : null;
+      const key = d && !Number.isNaN(d.getTime())
+        ? d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })
+        : `Block ${tx.blockNumber || '—'}`;
       if (!groups[key]) groups[key] = [];
       groups[key].push(tx);
     });
@@ -378,6 +314,7 @@ for (
 
       txns.forEach(tx => {
         const isBuy = tx.type === 'buy';
+        const isRequest = tx.type === 'request';
         const item = document.createElement('div');
         item.className = 'txn-item anim-up';
 
@@ -392,20 +329,22 @@ for (
           <div class="txn-icon ${tx.type}">
             ${isBuy
               ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`
-              : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>`
+              : isRequest
+                ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12v20H6z"/><path d="M9 6h6M9 10h6M9 14h4"/></svg>`
+                : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>`
             }
           </div>
           <div class="txn-body">
             <div class="txn-name">${esc(tx.name)}</div>
             <div class="txn-sub">
-              <span class="txn-type-label ${tx.type}">${isBuy ? 'Purchase' : 'Sale'}</span>
-              <span class="txn-date">${fmtDate(tx.timestamp)}</span>
+              <span class="txn-type-label ${tx.type}">${isBuy ? 'Purchase' : isRequest ? `Access request · ${esc(tx.accessStatus || 'PENDING')}` : 'Sale'}</span>
+              <span class="txn-date">${tx.timestamp ? fmtDate(tx.timestamp) : `Block ${esc(tx.blockNumber || '—')}`}</span>
             </div>
             ${hashHtml}
           </div>
           <div class="txn-right">
-            <div class="txn-amount ${tx.type}">${parseFloat(tx.price || 0).toFixed(4)} ETH</div>
-            <div class="txn-status confirmed">Confirmed</div>
+            <div class="txn-amount ${tx.type}">${isRequest ? 'Request recorded' : `${parseFloat(tx.price || 0).toFixed(4)} ETH`}</div>
+            <div class="txn-status confirmed">Confirmed on Sepolia</div>
           </div>`;
         listEl.appendChild(item);
       });
@@ -425,7 +364,7 @@ for (
     if (!allTxns.length) { Toast.warning('No transactions to export.'); return; }
     const rows = [['Date','Name','Category','Type','Price (ETH)','Status','Tx Hash']];
     allTxns.forEach(t => rows.push([
-      new Date(t.timestamp).toISOString().split('T')[0],
+      t.timestamp ? new Date(t.timestamp).toISOString().split('T')[0] : `Block ${t.blockNumber || ''}`,
       t.name, t.category || '', t.type, t.price || '0', t.status || 'confirmed', t.txHash || ''
     ]));
     const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');

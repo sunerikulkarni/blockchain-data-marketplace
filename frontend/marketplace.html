@@ -35,9 +35,14 @@
       }
     }
     .s-row{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+    .s-row .input-wrap{min-width:0}
+    .s-row .form-input{min-width:0;width:100%}
+    .market-intro{margin:2px 0 18px}
+    .market-intro h1{font-family:var(--font-d);font-size:1.35rem;font-weight:600;line-height:1.25;color:var(--text-1)}
+    .market-intro p{margin-top:5px;color:var(--text-2);font-size:.84rem;line-height:1.55;max-width:62ch}
     .results-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 0 4px}
     .results-count{font-size:.77rem;font-weight:600;color:var(--text-3)}
-    .cards-list{display:flex;flex-direction:column;gap:14px}
+    .cards-list{display:grid;gap:14px}
     .load-more-row{text-align:center;padding:20px 0 0}
     .wallet-nag{
       display:flex;align-items:flex-start;gap:10px;
@@ -117,6 +122,11 @@
   <!-- Main -->
   <main class="main-content">
     <div class="content-inner">
+
+      <div class="market-intro">
+        <h1>Explore datasets</h1>
+        <p>Browse datasets registered on Sepolia and review their details before requesting access.</p>
+      </div>
 
       <!-- Sticky search -->
       <div class="search-sticky">

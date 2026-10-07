@@ -22,6 +22,9 @@ const ACCESS_STATUS = {
     4: "AUTHORIZED"
 };
 
+const BLOCKSCOUT_API = "https://eth-sepolia.blockscout.com/api/v2";
+const MAX_EVENT_LOG_PAGES = 20;
+
 function requireRpc() {
     if (!process.env.BLOCKCHAIN_RPC_URL) {
         throw new Error("BLOCKCHAIN_RPC_URL is missing in .env");
@@ -146,21 +149,60 @@ async function getAccessStatus(datasetId, user) {
 
 async function queryEventLogs(eventName) {
     const contract = getReadContract();
-    const filter = contract.filters[eventName]();
-    const provider = contract.runner.provider;
-    const latestBlock = await provider.getBlockNumber();
-    const startBlock = Math.max(0, latestBlock - 120000);
-    const chunkSize = 9000;
+    const eventTopic = contract.interface.getEvent(eventName).topicHash.toLowerCase();
+    const address = process.env.CONTRACT_ADDRESS.toLowerCase();
     const logs = [];
+    let nextPage = null;
+    let pagesRead = 0;
 
-    for (let fromBlock = startBlock; fromBlock <= latestBlock; fromBlock += chunkSize + 1) {
-        const toBlock = Math.min(fromBlock + chunkSize, latestBlock);
-        try {
-            logs.push(...await contract.queryFilter(filter, fromBlock, toBlock));
-        } catch (error) {
-            console.warn(`Event query ${fromBlock}-${toBlock} failed:`, error.message);
+    // Blockscout indexes the contract's logs and paginates them newest first.
+    // This avoids asking pruned/free-tier JSON-RPC nodes for broad eth_getLogs ranges.
+    do {
+        const url = new URL(`${BLOCKSCOUT_API}/addresses/${address}/logs`);
+        if (nextPage) {
+            for (const [key, value] of Object.entries(nextPage)) {
+                if (value !== null && value !== undefined) url.searchParams.set(key, String(value));
+            }
         }
-    }
+
+        let response;
+        try {
+            response = await fetch(url, { signal: AbortSignal.timeout(15000) });
+        } catch (error) {
+            throw new Error(`Sepolia event index request failed: ${error.message}`, { cause: error });
+        }
+        if (!response.ok) {
+            throw new Error(`Sepolia event index returned HTTP ${response.status}`);
+        }
+
+        const page = await response.json();
+        if (!Array.isArray(page.items)) {
+            throw new Error("Sepolia event index returned an invalid log page");
+        }
+
+        for (const item of page.items) {
+            if (item.topics?.[0]?.toLowerCase() !== eventTopic) continue;
+            try {
+                // Blockscout may include trailing null topic slots; ethers expects only hex topics.
+                const topics = item.topics.filter((topic) => typeof topic === "string");
+                const parsed = contract.interface.parseLog({ topics, data: item.data });
+                logs.push({
+                    args: parsed.args,
+                    blockNumber: Number(item.block_number),
+                    transactionHash: item.transaction_hash,
+                    timestamp: item.block_timestamp || item.timestamp || null
+                });
+            } catch (error) {
+                console.warn(`Could not decode indexed ${eventName} log:`, error.message);
+            }
+        }
+
+        nextPage = page.next_page_params;
+        pagesRead += 1;
+        if (nextPage && pagesRead >= MAX_EVENT_LOG_PAGES) {
+            throw new Error(`${eventName} event history exceeds the bounded ${MAX_EVENT_LOG_PAGES}-page read limit`);
+        }
+    } while (nextPage);
 
     return logs;
 }
@@ -208,20 +250,53 @@ async function getAccessRequestsForOwner(ownerWallet) {
     return { owned, requests };
 }
 
+async function getAccessRequestsForRequester(requesterWallet) {
+    if (!requesterWallet || !ethers.isAddress(requesterWallet)) {
+        throw new Error("A valid requester wallet is required");
+    }
+
+    const contract = getReadContract();
+    const requester = requesterWallet.toLowerCase();
+    const { datasets } = await listDatasets();
+    const byId = Object.fromEntries(datasets.map((dataset) => [dataset.id, dataset]));
+    const logs = await queryEventLogs("AccessRequested");
+    const requests = [];
+
+    for (const log of logs) {
+        const dataId = (log.args.dataId ?? log.args[0]).toString();
+        const wallet = log.args.requester ?? log.args[1];
+        if (!wallet || wallet.toLowerCase() !== requester) continue;
+
+        const dataset = byId[dataId];
+        const access = await getAccessStatus(dataId, wallet);
+        requests.push({
+            dataId,
+            datasetName: dataset ? dataset.name : `Dataset #${dataId}`,
+            requester: wallet,
+            owner: dataset ? dataset.owner : null,
+            status: access.label,
+            statusCode: access.status,
+            blockNumber: log.blockNumber,
+            timestamp: log.timestamp,
+            transactionHash: log.transactionHash
+        });
+    }
+
+    return requests.sort((a, b) => (b.blockNumber || 0) - (a.blockNumber || 0));
+}
+
 async function getPurchaseEvents(wallet) {
     const logs = await queryEventLogs("DataPurchased");
     const normalized = wallet ? wallet.toLowerCase() : null;
     const { datasets } = await listDatasets();
     const byId = Object.fromEntries(datasets.map((d) => [d.id, d]));
 
-    return logs
-        .map((log) => {
+    return Promise.all(logs.map(async (log) => {
             const dataId = (log.args.dataId ?? log.args[0]).toString();
             const buyer = log.args.buyer ?? log.args[1];
             const owner = log.args.owner ?? log.args[2];
             const amount = log.args.amount ?? log.args[3];
             const dataset = byId[dataId];
-
             return {
                 dataId,
                 name: dataset ? dataset.name : `Dataset #${dataId}`,
@@ -231,16 +306,17 @@ async function getPurchaseEvents(wallet) {
                 amount: ethers.formatEther(amount),
                 txHash: log.transactionHash,
                 blockNumber: log.blockNumber,
+                timestamp: log.timestamp,
                 status: "confirmed"
             };
-        })
-        .filter((tx) => {
+        }))
+        .then((events) => events.filter((tx) => {
             if (!normalized) return true;
             return (
                 tx.buyer.toLowerCase() === normalized ||
                 tx.owner.toLowerCase() === normalized
             );
-        });
+        }));
 }
 
 module.exports = {
@@ -249,6 +325,7 @@ module.exports = {
     listDatasets,
     getAccessStatus,
     getAccessRequestsForOwner,
+    getAccessRequestsForRequester,
     getPurchaseEvents,
     ACCESS_STATUS
 };

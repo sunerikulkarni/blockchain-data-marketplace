@@ -223,7 +223,7 @@
               Register Company
             </button>
             <button class="btn btn-secondary" id="check-status-btn">
-              ↻ Check Status
+              Check Status
             </button>
           </div>
         </div>
@@ -238,7 +238,7 @@
               Dataset access requests associated with your company wallet.
             </p>
           </div>
-          <button class="btn btn-secondary btn-sm" id="refresh-requests-btn">↻ Refresh</button>
+          <button class="btn btn-secondary btn-sm" id="refresh-requests-btn">Refresh</button>
         </div>
 
         <div id="requests-list" style="margin-top:8px;">
@@ -317,7 +317,7 @@ async function checkCompanyStatus(wallet) {
         badgeEl.textContent = 'Pending Verification';
         badgeEl.className = 'status-badge pending';
       } else if (s === 'verified') {
-        badgeEl.textContent = 'Verified ✓';
+        badgeEl.textContent = 'Verified';
         badgeEl.className = 'status-badge verified';
       } else if (s === 'rejected') {
         badgeEl.textContent = 'Rejected';

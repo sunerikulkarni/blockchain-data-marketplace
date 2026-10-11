@@ -57,7 +57,7 @@
 
     .wallet-chip{
       display:inline-flex;align-items:center;gap:8px;
-      background:rgba(255,255,255,.55);border:1px solid var(--border-card);
+      background:var(--bg-card);border:1px solid var(--border-card);
       border-radius:var(--r-f);padding:7px 14px;
       font-size:.79rem;font-weight:600;color:var(--text-2);
       margin:14px 0;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
@@ -112,6 +112,40 @@
       text-transform:uppercase;letter-spacing:.04em;
     }
     .network-badge.wrong{background:var(--danger-sub);border-color:rgba(180,64,56,.25);color:var(--danger)}
+    .user-account-center{--uc-border:rgba(112,145,105,.24);display:grid;gap:18px;max-width:1080px;margin:0 auto}
+    .user-account-center[hidden]{display:none}
+    .company-account-center [hidden]{display:none!important}
+    .profile-layout[hidden]{display:none}
+    .uc-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding:2px 2px 4px}
+    .uc-kicker{margin-bottom:6px;color:var(--accent);font-size:.67rem;font-weight:800;letter-spacing:.11em}
+    .uc-heading h1{margin:0;color:var(--text-1);font-family:var(--font-d);font-size:clamp(1.55rem,3vw,2.1rem);letter-spacing:-.025em}
+    .uc-heading p{margin:6px 0 0;color:var(--text-2);font-size:.87rem}
+    .uc-person{display:flex;align-items:center;gap:14px;padding:18px 20px;border:1px solid var(--uc-border);border-radius:18px;background:var(--g-hero);box-shadow:var(--sh-sm)}
+    .uc-avatar{display:grid;place-items:center;width:54px;height:54px;flex:0 0 54px;border:1px solid var(--accent-pale);border-radius:17px;background:var(--accent-sub);color:var(--accent);font-family:var(--font-d);font-size:1.2rem;font-weight:800}
+    .uc-person-copy{min-width:0;flex:1}.uc-person-copy strong{display:block;color:var(--text-1);font-family:var(--font-d);font-size:1rem;overflow-wrap:anywhere}.uc-person-copy span{display:block;margin-top:3px;color:var(--text-3);font-size:.78rem;overflow-wrap:anywhere}
+    .uc-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--accent-pale);border-radius:999px;background:var(--accent-sub);color:var(--accent);font-size:.69rem;font-weight:800;white-space:nowrap}.uc-pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+    .uc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .uc-card{min-width:0;padding:19px;border:1px solid var(--uc-border);border-radius:18px;background:var(--g-card);box-shadow:var(--sh-xs)}
+    .uc-card-wide{grid-column:1/-1}.uc-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:15px}.uc-card-head h2{margin:0;color:var(--text-1);font-family:var(--font-d);font-size:1rem}.uc-card-head p{margin:4px 0 0;color:var(--text-3);font-size:.75rem;line-height:1.5}
+    .uc-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.uc-field{min-width:0}.uc-field label,.uc-label{display:block;margin-bottom:6px;color:var(--text-3);font-size:.7rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase}.uc-field input{width:100%;min-width:0;height:41px;padding:0 11px;border:1px solid var(--border-card);border-radius:10px;background:var(--bg);color:var(--text-1);font:500 .83rem var(--font-b)}.uc-field input:disabled{opacity:.83}.uc-readonly{min-height:41px;display:flex;align-items:center;padding:8px 11px;border:1px solid var(--border);border-radius:10px;background:var(--bg-tint);color:var(--text-1);font-size:.81rem;overflow-wrap:anywhere}
+    .uc-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:13px}.uc-statuses{display:grid;gap:0}.uc-status-row,.uc-data-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--border)}.uc-status-row:first-child,.uc-data-row:first-child{border-top:0;padding-top:0}.uc-status-row span:first-child,.uc-data-row span:first-child{color:var(--text-2);font-size:.78rem}.uc-status-row strong{color:var(--text-1);font-size:.78rem;text-align:right}.uc-status-row strong[data-state="good"]{color:var(--accent)}.uc-status-row strong[data-state="warn"]{color:var(--warm)}
+    .uc-wallet-address{max-width:100%;font:600 .75rem ui-monospace,SFMono-Regular,Consolas,monospace;overflow-wrap:anywhere;text-align:right}.uc-mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}.uc-toggle-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-top:1px solid var(--border)}.uc-toggle-row:first-of-type{border-top:0;padding-top:0}.uc-toggle-row strong{display:block;color:var(--text-1);font-size:.82rem}.uc-toggle-row small{display:block;margin-top:3px;color:var(--text-3);font-size:.72rem;line-height:1.4}.uc-danger{border-color:rgba(180,64,56,.26)}.uc-danger .uc-card-head h2{color:var(--danger)}.uc-help{margin:10px 0 0;color:var(--text-3);font-size:.72rem;line-height:1.5}.uc-address-copy{display:flex;align-items:center;gap:8px;min-width:0;justify-content:flex-end}.uc-address-copy code{max-width:290px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-1);font-size:.72rem}
+    .uc-password-wrap{position:relative}.uc-password-wrap input{padding-right:54px}.uc-show-password{position:absolute;right:7px;top:7px;border:0;background:transparent;color:var(--accent);font-size:.68rem;font-weight:800;cursor:pointer}
+    .uc-dialog{width:min(520px,calc(100vw - 28px));max-height:min(680px,calc(100dvh - 32px));margin:auto;padding:0;border:1px solid var(--border-card);border-radius:18px;background:var(--bg-card-solid);color:var(--text-1);box-shadow:var(--sh-lg);overflow-y:auto}
+    .uc-dialog::backdrop{background:rgba(8,20,8,.66)}
+    .uc-dialog-content{padding:22px}
+    .uc-dialog-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:17px}
+    .uc-dialog-header h2{margin:0;font-family:var(--font-d);font-size:1.22rem}
+    .uc-dialog-header p{margin:4px 0 0;color:var(--text-2);font-size:.77rem}
+    .uc-dialog-close{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border:1px solid var(--border-card);border-radius:9px;background:var(--surface-soft);color:var(--text-1);font-size:1.2rem}
+    .uc-dialog .uc-fields{grid-template-columns:1fr}
+    .uc-dialog .uc-actions{justify-content:flex-end;margin-top:20px}
+    .uc-dialog-error{margin:10px 0 0;color:var(--danger);font-size:.78rem;font-weight:700}
+    .uc-dialog-error[hidden]{display:none}
+    .uc-dialog :focus-visible{outline:2px solid var(--border-focus);outline-offset:2px}
+    body:has(.uc-dialog[open]){overflow:hidden}
+    @media(max-width:740px){.uc-grid{gap:12px}.uc-card{padding:16px}.uc-person{padding:15px}.uc-address-copy code{max-width:190px}}
+    @media(max-width:560px){.uc-grid{grid-template-columns:1fr}.uc-card-wide{grid-column:auto}.uc-fields{grid-template-columns:1fr}.uc-heading{align-items:flex-start;flex-direction:column}.uc-person{align-items:flex-start;flex-wrap:wrap}.uc-person-copy{flex-basis:calc(100% - 72px)}.uc-pill{margin-left:68px}.uc-data-row{align-items:flex-start;flex-direction:column;gap:5px}.uc-address-copy{justify-content:flex-start;width:100%}.uc-address-copy code{max-width:calc(100vw - 130px)}.uc-status-row{align-items:flex-start}.uc-status-row strong{text-align:right}}
   </style>
 </head>
 <body>
@@ -173,7 +207,64 @@
   <!-- Main -->
   <main class="main-content">
     <div class="content-inner">
-      <div class="profile-layout">
+      <section class="user-account-center" id="user-account-center" hidden aria-labelledby="uc-page-title">
+        <div class="uc-heading"><div><div class="uc-kicker">ACCOUNT &amp; SECURITY CENTER</div><h1 id="uc-page-title">Your account, protected</h1><p>Manage your account details, security, wallet, and preferences.</p></div></div>
+        <div class="uc-person"><div class="uc-avatar" id="uc-avatar" aria-hidden="true">U</div><div class="uc-person-copy"><strong id="uc-hero-name">Loading account…</strong><span id="uc-hero-email"></span></div><span class="uc-pill">User account</span></div>
+        <div class="uc-grid">
+          <section class="uc-card uc-card-wide" aria-labelledby="uc-account-title">
+            <div class="uc-card-head"><div><h2 id="uc-account-title">Account information</h2><p>Your profile identity and account status.</p></div></div>
+            <div class="uc-fields">
+              <div class="uc-field"><span class="uc-label">Full name</span><div class="uc-readonly" id="uc-display-name">—</div></div>
+              <div class="uc-field"><label>Email</label><div class="uc-readonly" id="uc-email" aria-readonly="true">—</div></div>
+              <div class="uc-field"><label>Account role</label><div class="uc-readonly">User</div></div>
+              <div class="uc-field"><label>Account status</label><div class="uc-readonly"><span class="uc-pill">Active session</span></div></div>
+            </div><div class="uc-actions"><button class="btn btn-primary btn-sm" type="button" id="uc-edit-name">Edit Account Information</button></div>
+          </section>
+          <section class="uc-card" aria-labelledby="uc-security-title">
+            <div class="uc-card-head"><div><h2 id="uc-security-title">Security</h2><p>Password and live session status.</p></div></div>
+            <div class="uc-statuses"><div class="uc-status-row"><span>Password</span><strong data-state="good">Protected</strong></div><div class="uc-status-row"><span>Authentication</span><strong data-state="good">Active session</strong></div><div class="uc-status-row"><span>Network</span><strong id="uc-security-network">Checking…</strong></div></div>
+            <div class="uc-actions"><button class="btn btn-primary btn-sm" type="button" id="uc-open-password">Change Password</button></div><p class="uc-help">Use at least 10 characters. Changing your password signs out all active sessions.</p>
+          </section>
+          <section class="uc-card" aria-labelledby="uc-wallet-title">
+            <div class="uc-card-head"><div><h2 id="uc-wallet-title">Wallet</h2><p>Your account wallet is separate from the currently connected MetaMask account.</p></div></div>
+            <div class="uc-data-row"><span>Account wallet</span><div class="uc-address-copy"><code id="uc-account-wallet">Not linked</code><button class="btn btn-outline btn-sm" type="button" data-copy-wallet="account" hidden>Copy</button></div></div>
+            <div class="uc-data-row"><span>Connected wallet</span><div class="uc-address-copy"><code id="uc-connected-wallet">Not connected</code><button class="btn btn-outline btn-sm" type="button" data-copy-wallet="connected" hidden>Copy</button></div></div>
+            <div class="uc-statuses" style="margin-top:8px"><div class="uc-status-row"><span>Wallet status</span><strong id="uc-wallet-status">Not connected</strong></div><div class="uc-status-row"><span>Wallet match</span><strong id="uc-wallet-match">Not linked</strong></div><div class="uc-status-row"><span>Network</span><strong id="uc-wallet-network">Unknown</strong></div></div>
+            <div class="uc-actions"><button class="btn btn-primary btn-sm" type="button" id="uc-connect-wallet" data-wallet-connect data-wallet-label="Connect from Home">Connect from Home</button></div>
+            <p class="uc-help" id="uc-wallet-help">Switching MetaMask accounts does not change your registered wallet. Choose the registered account in MetaMask to match it.</p>
+          </section>
+          <section class="uc-card" aria-labelledby="uc-preferences-title">
+            <div class="uc-card-head"><div><h2 id="uc-preferences-title">Preferences</h2><p>Saved on this device.</p></div></div>
+            <div class="uc-toggle-row"><div><strong>Dark mode</strong><small>Apply the DataChain dark theme across pages.</small></div><label class="toggle"><input type="checkbox" class="theme-toggle-input" id="uc-theme-toggle"><span class="toggle-track"></span></label></div>
+            <div class="uc-toggle-row"><div><strong>In-app notifications</strong><small>Receive account and marketplace activity in DataChain.</small></div><label class="toggle"><input type="checkbox" id="uc-notifications-toggle"><span class="toggle-track"></span></label></div>
+          </section>
+          <section class="uc-card uc-card-wide" aria-labelledby="uc-network-title">
+            <div class="uc-card-head"><div><h2 id="uc-network-title">Network &amp; about</h2><p>DataChain deployment details.</p></div></div>
+            <div class="uc-fields"><div class="uc-data-row"><span>DataChain version</span><strong>1.0.0</strong></div><div class="uc-data-row"><span>Network</span><strong>Ethereum Sepolia</strong></div><div class="uc-data-row"><span>Chain ID</span><strong>11155111</strong></div><div class="uc-data-row"><span>Smart contract</span><div class="uc-address-copy"><code id="uc-contract-address" class="uc-mono"></code><button class="btn btn-outline btn-sm" type="button" id="uc-copy-contract">Copy</button></div></div></div>
+            <div class="uc-actions"><a class="btn btn-outline btn-sm" id="uc-explorer-link" target="_blank" rel="noopener noreferrer">View on Sepolia Etherscan ↗</a></div>
+          </section>
+          <section class="uc-card uc-card-wide uc-danger" aria-labelledby="uc-danger-title">
+            <div class="uc-card-head"><div><h2 id="uc-danger-title">Danger zone</h2><p>Local actions affect this browser only.</p></div></div>
+            <div class="uc-actions"><button class="btn btn-outline btn-sm" type="button" id="uc-disconnect-wallet">Disconnect wallet</button><button class="btn btn-outline btn-sm" type="button" id="uc-clear-local">Clear local UI data</button></div>
+            <p class="uc-help">Disconnect clears DataChain’s cached wallet; MetaMask’s site permission remains. Clear local UI data removes the cached wallet, theme, avatar, and display-name overrides. Your account, notification preference, and on-chain data are not deleted.</p>
+          </section>
+        </div>
+      </section>
+      <dialog class="uc-dialog" id="uc-account-dialog" aria-labelledby="uc-account-dialog-title">
+        <form id="uc-profile-form" class="uc-dialog-content"><div class="uc-dialog-header"><div><h2 id="uc-account-dialog-title">Edit Account Information</h2><p>Update your full name.</p></div><button class="uc-dialog-close" type="button" data-close-dialog aria-label="Close">×</button></div>
+          <div class="uc-fields"><div class="uc-field"><label for="uc-name">Full name</label><input id="uc-name" name="fullName" maxlength="120" autocomplete="name" required></div><div class="uc-field"><span class="uc-label">Email</span><div class="uc-readonly" id="uc-dialog-email">—</div></div></div>
+          <p class="uc-dialog-error" id="uc-profile-error" role="alert" hidden></p><div class="uc-actions"><button class="btn btn-outline btn-sm" type="button" data-close-dialog>Cancel</button><button class="btn btn-primary btn-sm" type="submit" id="uc-save-name">Save Changes</button></div>
+        </form>
+      </dialog>
+      <dialog class="uc-dialog" id="uc-password-dialog" aria-labelledby="uc-password-dialog-title">
+        <form id="uc-password-form" class="uc-dialog-content"><div class="uc-dialog-header"><div><h2 id="uc-password-dialog-title">Change Password</h2><p>Changing your password signs out all active sessions.</p></div><button class="uc-dialog-close" type="button" data-close-dialog aria-label="Close">×</button></div>
+          <div class="uc-fields"><div class="uc-field"><label for="uc-current-password">Current password</label><div class="uc-password-wrap"><input id="uc-current-password" name="currentPassword" type="password" autocomplete="current-password" required><button type="button" class="uc-show-password" data-password-target="uc-current-password">Show</button></div></div>
+          <div class="uc-field"><label for="uc-new-password">New password</label><div class="uc-password-wrap"><input id="uc-new-password" name="newPassword" type="password" minlength="10" maxlength="128" autocomplete="new-password" required><button type="button" class="uc-show-password" data-password-target="uc-new-password">Show</button></div></div>
+          <div class="uc-field"><label for="uc-confirm-password">Confirm new password</label><div class="uc-password-wrap"><input id="uc-confirm-password" name="confirmPassword" type="password" minlength="10" maxlength="128" autocomplete="new-password" required><button type="button" class="uc-show-password" data-password-target="uc-confirm-password">Show</button></div></div></div>
+          <p class="uc-help">Use at least 10 characters.</p><p class="uc-dialog-error" id="uc-password-error" role="alert" hidden></p><div class="uc-actions"><button class="btn btn-outline btn-sm" type="button" data-close-dialog>Cancel</button><button class="btn btn-primary btn-sm" type="submit" id="uc-change-password">Change Password</button></div>
+        </form>
+      </dialog>
+      <div class="profile-layout" hidden>
 
         <!-- Left col: hero + stats -->
         <div class="profile-col-left">
@@ -379,38 +470,41 @@ nameEl.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefa
 async function detectNetwork() {
   const badgeEl = document.getElementById('network-badge');
   const displayEl = document.getElementById('network-display');
-  if (typeof window.ethereum === 'undefined') {
-    displayEl.textContent = 'MetaMask not installed';
-    badgeEl.textContent = '—';
+  const wallet = WalletStatus.snapshot();
+  if (!wallet.initialized) {
+    displayEl.textContent = 'Checking wallet…';
+    badgeEl.textContent = 'Checking';
+    badgeEl.className = 'network-badge';
     return;
   }
-  try {
-    const chainHex = await window.ethereum.request({ method: 'eth_chainId' });
-    const chainId = parseInt(chainHex, 16);
-    if (chainId === 11155111) {
-      displayEl.textContent = 'Ethereum Sepolia (11155111)';
-      badgeEl.textContent = 'Sepolia';
-      badgeEl.className = 'network-badge';
-    } else {
-      displayEl.textContent = `Chain ID: ${chainId}`;
-      badgeEl.textContent = 'Wrong Network';
-      badgeEl.className = 'network-badge wrong';
-    }
-  } catch {
-    displayEl.textContent = 'Unknown';
+  if (!wallet.connected) {
+    displayEl.textContent = 'Not connected';
     badgeEl.textContent = '—';
+    badgeEl.className = 'network-badge';
+    return;
   }
+  const chainId = wallet.chainId ? Number(BigInt(wallet.chainId)) : null;
+  displayEl.textContent = chainId === 11155111 ? 'Ethereum Sepolia (11155111)' : chainId ? `Chain ID: ${chainId}` : 'Unknown';
+  badgeEl.textContent = chainId === 11155111 ? 'Sepolia' : chainId ? 'Wrong Network' : '—';
+  badgeEl.className = chainId && chainId !== 11155111 ? 'network-badge wrong' : 'network-badge';
 }
 
 /* ── On-chain owned dataset count ── */
+let profileStatsRequestId = 0;
 async function loadOnChainStats() {
+  const requestId = ++profileStatsRequestId;
   const listedEl = document.getElementById('stat-listed');
   const boughtEl = document.getElementById('stat-bought');
-  const wallet = Wallet.getAddress() || Auth.profile()?.walletAddress;
+  if (!WalletStatus.snapshot().initialized) {
+    listedEl.textContent = '…';
+    boughtEl.textContent = '…';
+    return;
+  }
+  const wallet = Wallet.isAuthorized() ? Wallet.getAddress() : null;
 
   if (!wallet) {
     listedEl.textContent = '—';
-    boughtEl.textContent = '0';
+    boughtEl.textContent = '—';
     return;
   }
 
@@ -425,15 +519,15 @@ async function loadOnChainStats() {
     }
     const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
     const countBN = await contract.dataCount();
+    if (requestId !== profileStatsRequestId || !Wallet.isAuthorized() || !walletAddressMatches(Wallet.getAddress(), wallet)) return;
     const count = Number(countBN);
-    const normalizedWallet = wallet.toLowerCase();
     let owned = 0;
     let authorized = 0;
 
     for (let i = 1; i <= count; i++) {
       try {
         const d = await contract.getData(i);
-        if (d[5].toLowerCase() === normalizedWallet) {
+        if (walletAddressMatches(d[5], wallet)) {
           owned++;
         } else {
           // Check if buyer has authorized access
@@ -448,6 +542,7 @@ async function loadOnChainStats() {
     listedEl.textContent = owned;
     boughtEl.textContent = authorized;
   } catch (err) {
+    if (requestId !== profileStatsRequestId) return;
     console.warn('Profile stats error:', err.message);
     listedEl.textContent = '?';
     boughtEl.textContent = '0';
@@ -457,8 +552,8 @@ async function loadOnChainStats() {
 /* ── Account actions ── */
 document.getElementById('disconnect-row').addEventListener('click', () => {
   if (!Wallet.isConnected()) { Toast.warning('No wallet connected.'); return; }
-  Wallet.disconnect(); Toast.show('Wallet disconnected.');
-  setTimeout(() => location.reload(), 700);
+  WalletStatus.disconnectLocally();
+  Toast.show('Wallet disconnected. Your DataChain session is still active.');
 });
 document.getElementById('clear-row').addEventListener('click', () => {
   if (!confirm('Clear all local UI data? This cannot be undone.')) return;
@@ -471,35 +566,287 @@ document.getElementById('clear-row').addEventListener('click', () => {
   setTimeout(() => location.reload(), 700);
 });
 
-/* ── MetaMask event listeners ── */
-if (typeof window.ethereum !== 'undefined') {
-  window.ethereum.on('chainChanged', () => detectNetwork());
-  window.ethereum.on('accountsChanged', (accounts) => {
-    if (accounts && accounts.length) {
-      Wallet.setAddress(accounts[0]);
-    } else {
-      Wallet.disconnect();
-    }
-    syncWalletUI(Wallet.getAddress());
-    loadOnChainStats();
-    detectNetwork();
-  });
-}
-
-/* ── After wallet connect button ── */
-document.querySelectorAll('[data-wallet-connect]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    setTimeout(() => {
-      loadOnChainStats();
-      detectNetwork();
-    }, 800);
-  });
+/* WalletStatus owns provider listeners; page sections consume its snapshots. */
+window.addEventListener('dc:wallet-state', () => {
+  detectNetwork();
+  loadOnChainStats();
 });
 
 /* ── Init ── */
 loadProfileUI();
 detectNetwork();
 loadOnChainStats();
+</script>
+<script>
+/* Account & Security Center shared by User and Company. */
+(async function initUserAccountCenter() {
+  const center = document.getElementById('user-account-center');
+  const legacyProfile = document.querySelector('.profile-layout');
+  try {
+    const session = await Auth.me();
+    if (session.role === 'company' && session.data) {
+      const company = session.data;
+      legacyProfile.hidden = true;
+      center.hidden = false;
+      center.classList.add('company-account-center');
+      document.getElementById('uc-page-title').textContent = 'Your company account';
+      center.querySelector('.uc-person > .uc-pill').textContent = 'Company account';
+      const registeredName = company.companyName || 'Company';
+      const displayName = () => localStorage.getItem('dc_company_display_name') || registeredName;
+      document.getElementById('uc-hero-name').textContent = displayName();
+      document.getElementById('uc-hero-email').textContent = company.email || '';
+      document.getElementById('uc-avatar').textContent = registeredName.charAt(0).toUpperCase();
+      document.getElementById('uc-display-name').textContent = registeredName;
+      document.getElementById('uc-email').textContent = company.email || 'Unavailable';
+      document.getElementById('uc-dialog-email').textContent = company.email || 'Unavailable';
+      document.getElementById('uc-account-wallet').textContent = company.walletAddress || 'Unavailable';
+      center.querySelector('.uc-fields .uc-field .uc-label').textContent = 'Registered company name';
+      center.querySelectorAll('.uc-fields .uc-field')[2].querySelector('.uc-readonly').textContent = 'Company';
+      const accountFields = center.querySelector('.uc-card-wide .uc-fields');
+      const companyField = (label, value) => {
+        const field = document.createElement('div'); field.className = 'uc-field';
+        const caption = document.createElement('span'); caption.className = 'uc-label'; caption.textContent = label;
+        const content = document.createElement('div'); content.className = 'uc-readonly'; content.textContent = value || 'Unavailable';
+        field.append(caption, content); accountFields.appendChild(field);
+      };
+      companyField('Registration number', company.registrationNumber);
+      companyField('Verification status', company.verificationStatus);
+      document.getElementById('uc-edit-name').textContent = 'Edit display name';
+      document.getElementById('uc-open-password').hidden = true;
+      center.querySelector('#uc-security-title + p').textContent = 'Your verified session is active.';
+      center.querySelector('#uc-security-title').closest('.uc-card').querySelector('.uc-help').textContent = 'Your company registration details are managed through verification.';
+      center.querySelector('#uc-wallet-title').closest('.uc-card').querySelector('.uc-help').textContent = 'Connect the wallet registered to your company.';
+      const notifications = document.getElementById('uc-notifications-toggle');
+      notifications.disabled = true;
+      notifications.closest('.uc-toggle-row').querySelector('small').textContent = 'Company notifications are not available for this account.';
+      document.getElementById('uc-account-dialog-title').textContent = 'Edit display name';
+      document.querySelector('#uc-profile-form .uc-dialog-header p').textContent = 'Saved on this device.';
+      document.querySelector('label[for="uc-name"]').textContent = 'Display name';
+      const nameInput = document.getElementById('uc-name');
+      const dialog = document.getElementById('uc-account-dialog');
+      document.getElementById('uc-edit-name').addEventListener('click', () => { nameInput.value = displayName(); dialog.showModal(); nameInput.focus(); });
+      dialog.querySelectorAll('[data-close-dialog]').forEach(button => button.addEventListener('click', () => dialog.close()));
+      document.getElementById('uc-profile-form').addEventListener('submit', event => {
+        event.preventDefault();
+        const name = nameInput.value.trim();
+        if (!name || name.length > 120) return;
+        localStorage.setItem('dc_company_display_name', name);
+        document.getElementById('uc-hero-name').textContent = name;
+        dialog.close();
+      });
+      document.querySelector('[data-copy-wallet="account"]').hidden = !company.walletAddress;
+      document.querySelector('[data-copy-wallet="account"]').addEventListener('click', () => navigator.clipboard.writeText(company.walletAddress));
+      const connectedCopy = document.querySelector('[data-copy-wallet="connected"]');
+      connectedCopy.addEventListener('click', () => {
+        if (Wallet.getAddress()) navigator.clipboard.writeText(Wallet.getAddress());
+      });
+      const updateWallet = async () => {
+        const connected = Wallet.getAddress();
+        const matchesCompanyWallet = Boolean(connected && company.walletAddress && walletAddressMatches(connected, company.walletAddress));
+        const walletState = WalletStatus.snapshot();
+        const onSepolia = walletState.onSepolia;
+        document.getElementById('uc-connected-wallet').textContent = connected || 'Not connected';
+        connectedCopy.hidden = !connected;
+        document.getElementById('uc-wallet-status').textContent = !connected ? 'Not connected' : !matchesCompanyWallet ? 'Wrong account' : onSepolia ? 'Verified on Sepolia' : 'Wrong network';
+        document.getElementById('uc-wallet-match').textContent = connected ? (matchesCompanyWallet ? 'Matches company wallet' : 'Different wallet') : 'Not connected';
+        const companyConnectButton = document.getElementById('uc-connect-wallet');
+        companyConnectButton.textContent = connected
+          ? matchesCompanyWallet ? walletState.onSepolia ? `Connected · ${Wallet.short(connected)}` : 'Switch to Sepolia on Home' : 'Select linked wallet on Home'
+          : 'Connect from Home';
+        companyConnectButton.disabled = false;
+        document.getElementById('uc-wallet-network').textContent = onSepolia ? 'Sepolia' : 'Not on Sepolia';
+        document.getElementById('uc-security-network').textContent = onSepolia ? 'Sepolia' : 'Not on Sepolia';
+      };
+      document.getElementById('uc-disconnect-wallet').addEventListener('click', () => WalletStatus.disconnectLocally());
+      document.getElementById('uc-clear-local').addEventListener('click', () => {
+        if (!confirm('Clear cached wallet and display preferences from this browser?')) return;
+        ['dc_wallet', 'dc_theme', 'dc_avatar', 'dc_company_display_name'].forEach(key => localStorage.removeItem(key));
+        location.reload();
+      });
+      document.getElementById('uc-contract-address').textContent = CONTRACT_ADDRESS;
+      document.getElementById('uc-explorer-link').href = `https://sepolia.etherscan.io/address/${CONTRACT_ADDRESS}`;
+      document.getElementById('uc-copy-contract').addEventListener('click', () => navigator.clipboard.writeText(CONTRACT_ADDRESS));
+      await WalletStatus.start();
+      updateWallet();
+      window.addEventListener('dc:wallet-state', updateWallet);
+      return;
+    }
+    if (session.role !== 'user' || !session.data) { legacyProfile.hidden = false; return; }
+    legacyProfile.hidden = true;
+    center.hidden = false;
+
+    let account = session.data;
+    const setIdentity = () => {
+      const name = account.fullName || 'User';
+      document.getElementById('uc-hero-name').textContent = name;
+      document.getElementById('uc-hero-email').textContent = account.email || '';
+      document.getElementById('uc-email').textContent = account.email || 'Unavailable';
+      document.getElementById('uc-dialog-email').textContent = account.email || 'Unavailable';
+      document.getElementById('uc-display-name').textContent = name;
+      document.getElementById('uc-name').value = name;
+      document.getElementById('uc-avatar').textContent = name.trim().charAt(0).toUpperCase() || 'U';
+      document.getElementById('uc-account-wallet').textContent = account.walletAddress || 'Not linked';
+      document.querySelector('[data-copy-wallet="account"]').hidden = !account.walletAddress;
+    };
+    setIdentity();
+
+    const nameInput = document.getElementById('uc-name');
+    const saveName = document.getElementById('uc-save-name');
+    const accountDialog = document.getElementById('uc-account-dialog');
+    const passwordDialog = document.getElementById('uc-password-dialog');
+    const accountError = document.getElementById('uc-profile-error');
+    const passwordError = document.getElementById('uc-password-error');
+    const showError = (element, message) => { element.textContent = message; element.hidden = false; };
+    document.getElementById('uc-edit-name').addEventListener('click', () => {
+      nameInput.value = account.fullName || '';
+      accountError.hidden = true;
+      accountDialog.showModal();
+      nameInput.focus();
+    });
+    document.getElementById('uc-open-password').addEventListener('click', () => {
+      document.getElementById('uc-password-form').reset();
+      passwordError.hidden = true;
+      passwordDialog.showModal();
+      document.getElementById('uc-current-password').focus();
+    });
+    [accountDialog, passwordDialog].forEach(dialog => {
+      dialog.querySelectorAll('[data-close-dialog]').forEach(button => button.addEventListener('click', () => dialog.close()));
+      dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
+    });
+    passwordDialog.addEventListener('close', () => {
+      document.getElementById('uc-password-form').reset();
+      passwordDialog.querySelectorAll('.uc-password-wrap').forEach(wrap => {
+        wrap.querySelector('input').type = 'password';
+        const toggle = wrap.querySelector('.uc-show-password');
+        toggle.textContent = 'Show';
+        toggle.setAttribute('aria-label', 'Show password');
+      });
+      passwordError.hidden = true;
+    });
+    document.getElementById('uc-profile-form').addEventListener('submit', async event => {
+      event.preventDefault();
+      const fullName = nameInput.value.trim();
+      if (!fullName || fullName.length > 120) { showError(accountError, 'Enter a name between 1 and 120 characters.'); return; }
+      saveName.disabled = true;
+      try {
+        const result = await API.put('/auth/profile', { fullName });
+        account = result.data;
+        sessionStorage.setItem(Auth.profileKey, JSON.stringify(account));
+        setIdentity(); accountDialog.close(); Toast.success('Profile updated.');
+      } catch (error) { showError(accountError, error.message || 'Could not update profile.'); }
+      finally { saveName.disabled = false; }
+    });
+
+    document.querySelectorAll('[data-password-target]').forEach(button => button.addEventListener('click', () => {
+      const field = document.getElementById(button.dataset.passwordTarget);
+      const show = field.type === 'password';
+      field.type = show ? 'text' : 'password';
+      button.textContent = show ? 'Hide' : 'Show';
+      button.setAttribute('aria-label', `${show ? 'Hide' : 'Show'} password`);
+    }));
+    document.getElementById('uc-password-form').addEventListener('submit', async event => {
+      event.preventDefault();
+      const currentPassword = document.getElementById('uc-current-password').value;
+      const newPassword = document.getElementById('uc-new-password').value;
+      const confirmPassword = document.getElementById('uc-confirm-password').value;
+      passwordError.hidden = true;
+      if (newPassword.length < 10 || newPassword.length > 128) { showError(passwordError, 'New password must be 10–128 characters.'); return; }
+      if (newPassword !== confirmPassword) { showError(passwordError, 'New password and confirmation do not match.'); return; }
+      const button = document.getElementById('uc-change-password');
+      button.disabled = true;
+      try {
+        const result = await API.post('/auth/password/change', { currentPassword, newPassword });
+        Toast.success(result.message || 'Password changed. Please sign in again.');
+        Auth.clear(); Wallet.disconnect(); localStorage.removeItem('dc_wallet_disconnected'); localStorage.setItem('dc_wallet_logged_out', '1');
+        setTimeout(() => location.replace('user-login.html?message=' + encodeURIComponent('Password changed. Please sign in again.')), 900);
+      } catch (error) { showError(passwordError, error.message || 'Could not change password.'); button.disabled = false; }
+    });
+
+    const connectedEl = document.getElementById('uc-connected-wallet');
+    const walletStatus = document.getElementById('uc-wallet-status');
+    const walletMatch = document.getElementById('uc-wallet-match');
+    const walletNetwork = document.getElementById('uc-wallet-network');
+    const securityNetwork = document.getElementById('uc-security-network');
+    const connectButton = document.getElementById('uc-connect-wallet');
+    const connectedCopy = document.querySelector('[data-copy-wallet="connected"]');
+    let connectedAddress = null;
+    document.getElementById('uc-disconnect-wallet').addEventListener('click', () => WalletStatus.disconnectLocally());
+    const setWalletStatus = () => {
+      const matched = Boolean(account.walletAddress && connectedAddress && walletAddressMatches(connectedAddress, account.walletAddress));
+      const mismatch = Boolean(account.walletAddress && connectedAddress && !matched);
+      const onSepolia = WalletStatus.snapshot().onSepolia;
+      connectedEl.textContent = connectedAddress || 'Not connected';
+      connectedCopy.hidden = !connectedAddress;
+      walletStatus.textContent = !connectedAddress ? 'Not connected' : mismatch ? 'Wrong account' : !matched ? 'Not linked' : onSepolia ? 'Verified on Sepolia' : 'Wrong network';
+      walletStatus.dataset.state = matched && onSepolia ? 'good' : connectedAddress ? 'warn' : '';
+      walletMatch.textContent = matched ? 'Linked' : mismatch ? 'Different wallet' : 'Not linked';
+      walletMatch.dataset.state = matched ? 'good' : mismatch ? 'warn' : '';
+      connectButton.textContent = connectedAddress
+        ? matched ? onSepolia ? `Connected · ${Wallet.short(connectedAddress)}` : 'Switch to Sepolia on Home' : 'Select linked wallet on Home'
+        : 'Connect from Home';
+      connectButton.disabled = false;
+    };
+    const updateNetwork = async () => {
+      const state = WalletStatus.snapshot();
+      if (!state.connected) { walletNetwork.textContent = 'Not connected'; securityNetwork.textContent = 'No wallet connected'; return; }
+      const chainId = state.chainId ? Number(BigInt(state.chainId)) : null;
+      const text = chainId === 11155111 ? 'Ethereum Sepolia' : chainId ? `Other network (${chainId})` : 'Unknown';
+      walletNetwork.textContent = text;
+      walletNetwork.dataset.state = state.onSepolia ? 'good' : 'warn';
+      securityNetwork.textContent = text;
+      securityNetwork.dataset.state = state.onSepolia ? 'good' : 'warn';
+    };
+    connectedAddress = await WalletStatus.start();
+    syncWalletUI(connectedAddress);
+    setWalletStatus(); await updateNetwork();
+    window.addEventListener('dc:wallet-state', event => {
+      connectedAddress = event.detail.account;
+      setWalletStatus();
+      updateNetwork();
+    });
+    document.getElementById('uc-contract-address').textContent = CONTRACT_ADDRESS;
+    document.getElementById('uc-explorer-link').href = `https://sepolia.etherscan.io/address/${encodeURIComponent(CONTRACT_ADDRESS)}`;
+    const copyText = async text => {
+      try { await navigator.clipboard.writeText(text); Toast.success('Copied to clipboard.'); }
+      catch { Toast.error('Clipboard access is unavailable in this browser.'); }
+    };
+    document.getElementById('uc-copy-contract').addEventListener('click', () => copyText(CONTRACT_ADDRESS));
+    document.querySelectorAll('[data-copy-wallet]').forEach(button => button.addEventListener('click', () => {
+      const text = button.dataset.copyWallet === 'account' ? account.walletAddress : connectedAddress;
+      if (text) copyText(text);
+    }));
+    document.getElementById('uc-clear-local').addEventListener('click', () => {
+      if (!confirm('Clear the cached wallet, theme, avatar, and display-name overrides from this browser? This will not delete your account, notification preference, or on-chain data.')) return;
+      ['dc_wallet', 'dc_theme', 'dc_avatar', 'dc_name'].forEach(key => localStorage.removeItem(key));
+      document.body.classList.remove('dark');
+      location.reload();
+    });
+    const notifications = document.getElementById('uc-notifications-toggle');
+    try {
+      const preference = await API.get('/notifications/preferences');
+      notifications.checked = preference.notificationsEnabled !== false;
+      notifications.disabled = false;
+    } catch (error) {
+      notifications.disabled = true;
+      notifications.title = 'Notification preference could not be loaded';
+      Toast.error(error.message || 'Could not load notification preference.');
+    }
+    notifications.addEventListener('change', async () => {
+      const requested = notifications.checked;
+      notifications.disabled = true;
+      try {
+        const saved = await API.patch('/notifications/preferences', { notificationsEnabled: requested });
+        notifications.checked = saved.notificationsEnabled !== false;
+        Toast.success(notifications.checked ? 'In-app notifications enabled.' : 'In-app notifications disabled.');
+      } catch (error) {
+        notifications.checked = !requested;
+        Toast.error(error.message || 'Could not save notification preference.');
+      } finally { notifications.disabled = false; }
+    });
+  } catch (error) {
+    console.warn('User Account & Security Center could not load:', error.message);
+  }
+})();
 </script>
 </body>
 </html>

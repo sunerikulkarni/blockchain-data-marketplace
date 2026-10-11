@@ -1439,6 +1439,55 @@
   .lp-ecosystem-copy small { font-size:.47rem; }
 }
 
+/* The public page shares the saved DataChain dark palette. */
+html.dark .lp-body {
+  --text-2:#B5D0AF;
+  --text-3:#A9C3A3;
+  --border:rgba(115,163,111,.42);
+  --border-card:rgba(115,163,111,.48);
+}
+html.dark .lp-topbar { background:rgba(17,25,16,.94); }
+html.dark .lp-hero-eyebrow { background:rgba(31,49,30,.9);border-color:#527653;color:#B9DEB5; }
+html.dark .lp-hero-art { background:radial-gradient(ellipse at 50% 49%,rgba(49,81,47,.5),rgba(28,48,27,.18) 45%,transparent 72%); }
+html.dark .lp-hero-art::before { background:radial-gradient(ellipse,rgba(55,91,51,.35) 0 31%,transparent 70%); }
+html.dark .lp-network-lines circle { fill:#263a25;stroke:#82B884; }
+html.dark .lp-ecosystem-core { background:linear-gradient(148deg,#294029,#1d301e);border-color:#638e64;box-shadow:var(--sh-lg); }
+html.dark .lp-core-wordmark,
+html.dark .lp-ecosystem-copy strong { color:var(--text-1); }
+html.dark .lp-core-wordmark em,
+html.dark .lp-core-network { color:#A9D6A3; }
+html.dark .lp-core-caption,
+html.dark .lp-ecosystem-copy small,
+html.dark .lp-ecosystem-footer { color:#B5D0AF; }
+html.dark .lp-ecosystem-card { background:linear-gradient(135deg,#2a4129,#223622);border-color:#527653;box-shadow:var(--sh-md); }
+html.dark .lp-ecosystem-node { border-color:#B9DEB5; }
+html.dark .lp-ecosystem-icon,
+html.dark .lp-icon-lock,
+html.dark .lp-icon-chain,
+html.dark .lp-icon-access { background:#345137;color:#B9DEB5;border-color:#527653; }
+html.dark .lp-journey { background:linear-gradient(110deg,#223622,#1c2e1d);border-color:#527653;box-shadow:var(--sh-sm); }
+html.dark .lp-journey-icon { background:#345137;color:#B9DEB5;border-color:#527653; }
+html.dark .lp-step-num { color:#B9DEB5;border-color:#527653; }
+html.dark .lp-role-icon.ri-company,
+html.dark .lp-role-icon.ri-admin,
+html.dark .lp-role-tag.tag-company,
+html.dark .lp-role-tag.tag-admin,
+html.dark .lp-about-icon.icon-warm,
+html.dark .lp-feature-icon.fi-warm,
+html.dark .lp-feature-icon.fi-danger,
+html.dark .lp-tech-icon.ti-warm,
+html.dark .lp-tech-icon.ti-danger { background:var(--accent-sub);color:#B9DEB5;border-color:#527653; }
+html.dark .lp-role-card.rc-company:hover,
+html.dark .lp-role-card.rc-admin:hover { border-color:#527653; }
+html.dark .lp-about-icon.icon-purple,
+html.dark .lp-feature-icon.fi-purple,
+html.dark .lp-tech-icon.ti-purple,
+html.dark .lp-about-icon.icon-info,
+html.dark .lp-feature-icon.fi-info,
+html.dark .lp-tech-icon.ti-info { background:var(--accent-sub);color:#B9DEB5;border-color:#527653; }
+html.dark .lp-mobile-drawer { background:#1c2c1c;border-color:#527653; }
+html.dark .lp-footer { background:#192719;border-color:#527653; }
+
 @media (max-width: 360px) {
   .lp-ecosystem-core { top:46%; min-height:0; width:38%; padding:7px 6px; }
 }

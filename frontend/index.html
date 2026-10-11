@@ -1,505 +1,461 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DataChain — Home</title>
-  <link rel="stylesheet" href="style.css"/>
+  <script src="theme-init.js"></script>
+  <link rel="stylesheet" href="style.css">
   <style>
-    /* ── PAGE-SPECIFIC ── */
-    .hero{
-      background:var(--g-hero);
-      border:1px solid var(--border-card);
-      border-radius:var(--r-2xl);
-      padding:28px 24px 26px;
-      position:relative;overflow:hidden;
-      margin-bottom:22px;
+    .user-home-page { min-height:100vh; background:var(--bg); }
+    .user-home-page .main-content { min-width:0; }
+    .user-home-page .content-inner { max-width:1180px; }
+    .user-home-page .app-header { gap:12px; }
+    .user-home-page .live-badge { margin-right:0 !important; }
+    .user-home-page .user-home-header-wallet { display:flex; align-items:center; gap:9px; min-width:0; padding:8px 11px; border:1px solid var(--border-card); border-radius:var(--r-f); background:var(--bg-card); color:var(--text-2); font-size:.73rem; font-weight:700; }
+    .user-home-page .user-home-header-wallet .w-dot { position:static; flex:0 0 7px; width:7px; height:7px; border-radius:50%; background:var(--border); }
+    .user-home-page .user-home-header-wallet strong { color:var(--text-1); font-weight:800; }
+    .user-home-page .user-home-header-wallet .user-home-wallet-address { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:150px; font-variant-numeric:tabular-nums; }
+    .user-home-page .content-inner { display:grid; gap:22px; }
+    .user-home-welcome { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; padding:10px 2px 2px; }
+    .user-home-welcome-copy { min-width:0; }
+    .user-home-eyebrow { display:inline-flex; align-items:center; gap:8px; margin-bottom:8px; color:var(--accent); font-size:.68rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
+    .user-home-eyebrow::before { content:""; width:7px; height:7px; border-radius:50%; background:#68a66d; box-shadow:0 0 0 4px rgba(104,166,109,.12); }
+    .user-home-welcome h1 { margin:0 0 5px; color:var(--text-1); font-family:var(--font-d); font-size:clamp(1.75rem,3vw,2.35rem); line-height:1.15; letter-spacing:-.025em; }
+    .user-home-welcome p { margin:0; color:var(--text-2); font-size:.9rem; }
+    .user-home-quick-actions { display:flex; flex-wrap:wrap; gap:9px; flex:0 0 auto; }
+    .user-home-quick-actions .btn { min-height:40px; }
+    .user-home-wallet-notice { display:none; width:100%; padding:10px 13px; color:var(--warm); border:1px solid rgba(191,151,93,.25); border-radius:12px; background:var(--warm-sub); font-size:.78rem; line-height:1.5; }
+    .user-home-wallet-notice.is-visible { display:block; }
+    .user-home-stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:13px; }
+    .user-home-stat { position:relative;min-width:0; padding:17px 18px; border:1px solid var(--border-card); border-radius:18px; background:var(--g-card); box-shadow:var(--sh-sm); overflow:hidden; }
+    .user-home-stat::before { content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--accent-mid);opacity:.75; }
+    .user-home-stat-label { color:var(--text-2); font-size:.76rem; font-weight:700; }
+    .user-home-stat-value { margin-top:6px; color:var(--text-1); font-family:var(--font-d); font-size:1.8rem; font-weight:700; line-height:1.1; font-variant-numeric:tabular-nums; }
+    .user-home-panel { min-width:0; padding:20px; border:1px solid var(--border-card); border-radius:20px; background:var(--bg-card-solid); box-shadow:var(--sh-md); }
+    .user-home-panel-head { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:14px; padding-bottom:12px;border-bottom:1px solid var(--border); }
+    .user-home-panel-head h2 { margin:0; color:var(--text-1); font-family:var(--font-d); font-size:1.13rem; line-height:1.3; }
+    .user-home-panel-head p { margin:4px 0 0; color:var(--text-3); font-size:.75rem; line-height:1.5; }
+    .user-home-panel-link { flex:0 0 auto; color:var(--accent); font-size:.76rem; font-weight:800; white-space:nowrap; }
+    .user-home-panel-link:hover,.user-home-dataset-bottom a:hover,.user-home-request-link:hover{text-decoration:underline;text-underline-offset:3px;color:var(--accent-dk)}
+    .user-home-datasets { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+    .user-home-dataset { display:flex; flex-direction:column; min-width:0; min-height:150px; padding:15px; border:1px solid var(--border-card); border-radius:15px; background:var(--surface-soft); transition:border-color .18s,box-shadow .18s; }
+    .user-home-dataset:hover { border-color:var(--accent-pale);box-shadow:var(--sh-sm); }
+    .user-home-dataset-top { display:flex; justify-content:space-between; gap:8px; align-items:flex-start; }
+    .user-home-dataset-name { min-width:0; color:var(--text-1); font-size:.86rem; font-weight:800; line-height:1.35; overflow-wrap:anywhere; }
+    .user-home-dataset-id { flex:0 0 auto; color:var(--text-3); font-size:.65rem; font-weight:700; }
+    .user-home-dataset-meta { display:flex; flex-wrap:wrap; gap:7px; margin-top:9px; color:var(--text-2); font-size:.7rem; }
+    .user-home-chip { padding:3px 8px; border:1px solid var(--border-card); border-radius:var(--r-f); background:var(--accent-sub); }
+    .user-home-dataset-bottom { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:auto; padding-top:14px; }
+    .user-home-price { color:var(--accent); font-family:var(--font-d); font-size:.9rem; font-weight:700; }
+    .user-home-dataset-bottom a { color:var(--accent); font-size:.73rem; font-weight:800; }
+    .user-home-lower-grid { display:grid; grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr); gap:16px; align-items:start; }
+    .user-home-request-list, .user-home-activity-list { display:flex; flex-direction:column; }
+    .user-home-request, .user-home-activity { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; min-width:0; padding:12px 0; border-top:1px solid rgba(126,158,119,.16); }
+    .user-home-request:first-child, .user-home-activity:first-child { border-top:0; padding-top:2px; }
+    .user-home-request-main, .user-home-activity-main { min-width:0; }
+    .user-home-request-name, .user-home-activity-name { color:var(--text-1); font-size:.8rem; font-weight:800; line-height:1.4; overflow-wrap:anywhere; }
+    .user-home-request-meta, .user-home-activity-meta { margin-top:4px; color:var(--text-3); font-size:.69rem; line-height:1.45; overflow-wrap:anywhere; }
+    .user-home-request-status { flex:0 0 auto; padding:4px 8px; border:1px solid var(--border-card); border-radius:var(--r-f); background:var(--accent-sub); color:var(--accent); font-size:.63rem; font-weight:800; letter-spacing:.035em; }
+    .user-home-request-status[data-status="PENDING"] { border-color:rgba(193,145,77,.25); background:var(--warm-sub); color:var(--warm); }
+    .user-home-request-status[data-status="REJECTED"] { border-color:rgba(180,64,56,.2); background:var(--danger-sub); color:var(--danger); }
+    .user-home-request-link { display:block; margin-top:5px; color:var(--accent); font-size:.7rem; font-weight:800; }
+    .user-home-activity-kind { flex:0 0 auto; color:var(--accent); font-size:.62rem; font-weight:800; letter-spacing:.05em; text-align:right; }
+    .user-home-empty, .user-home-loading, .user-home-error { display:flex; flex-direction:column; align-items:flex-start; gap:5px; padding:14px; border:1px dashed var(--border-card);border-radius:12px;background:var(--surface-soft);color:var(--text-2); font-size:.78rem; line-height:1.5; }
+    .user-home-empty strong, .user-home-error strong { color:var(--text-1); font-size:.81rem; }
+    .user-home-error { color:var(--danger); }
+    .user-home-retry { margin-top:6px; padding:7px 11px; border:1px solid var(--border-card); border-radius:9px; background:var(--surface-soft); color:var(--accent); font-size:.73rem; font-weight:800; }
+    .user-home-retry:hover { background:var(--accent-sub); }
+    .user-home-header-wallet .user-home-wallet-label { color:var(--text-3); }
+    .user-home-header-wallet.is-mismatch { border-color:rgba(193,145,77,.35); color:var(--warm); }
+    .user-home-header-wallet.is-mismatch .w-dot { background:#c18c43; }
+    @media (max-width:900px) {
+      .user-home-page .content-inner { gap:18px; }
+      .user-home-datasets { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .user-home-page .user-home-header-wallet .user-home-wallet-address { max-width:112px; }
     }
-    .hero::before{
-      content:'';position:absolute;right:-40px;top:-40px;
-      width:180px;height:180px;
-      background:radial-gradient(circle,rgba(130,196,138,.28) 0%,transparent 65%);
-      border-radius:50%;pointer-events:none;
+    @media (max-width:700px) {
+      .user-home-page .content-inner { gap:15px; }
+      .user-home-welcome { align-items:flex-start; flex-direction:column; gap:13px; }
+      .user-home-stats { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+      .user-home-stat { padding:14px; border-radius:15px; }
+      .user-home-stat-value { font-size:1.55rem; }
+      .user-home-lower-grid { grid-template-columns:1fr; gap:13px; }
+      .user-home-page .app-header { gap:7px; }
+      .user-home-page .app-header .logo { font-size:1.06rem; }
+      .user-home-page .live-badge { display:none; }
+      .user-home-page .user-home-header-wallet { flex:1 1 auto; justify-content:center; gap:6px; padding:7px 9px; font-size:.68rem; }
+      .user-home-page .user-home-header-wallet .user-home-wallet-address { max-width:82px; }
+      .user-home-page [data-user-wallet-connect] { padding:7px 9px; font-size:.68rem; }
     }
-    .hero-eye{
-      display:inline-flex;align-items:center;gap:6px;
-      background:rgba(255,255,255,.6);border:1px solid rgba(130,196,138,.35);
-      border-radius:var(--r-f);padding:4px 12px;margin-bottom:14px;
-      font-size:.67rem;font-weight:800;color:var(--accent);
-      text-transform:uppercase;letter-spacing:.06em;
-      backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    @media (max-width:480px) {
+      .user-home-page .main-content { padding-left:14px; padding-right:14px; }
+      .user-home-welcome h1 { font-size:1.68rem; }
+      .user-home-welcome p { font-size:.82rem; }
+      .user-home-quick-actions { width:100%; }
+      .user-home-quick-actions .btn { flex:1; justify-content:center; }
+      .user-home-panel { padding:15px; border-radius:17px; }
+      .user-home-datasets { grid-template-columns:1fr; }
+      .user-home-dataset { min-height:126px; }
+      .user-home-header-wallet .user-home-wallet-address { max-width:65px; }
+      .user-home-header-wallet .user-home-wallet-label { display:none; }
     }
-    .hero-eye .dot{width:6px;height:6px;border-radius:50%;background:var(--accent-light)}
-    .hero h1{
-      font-family:var(--font-d);
-      font-size:clamp(1.7rem,4vw,2.4rem);
-      line-height:1.18;color:var(--text-1);
-      letter-spacing:-.02em;margin-bottom:12px;
+    @media (max-width:360px) {
+      .user-home-page .main-content { padding-left:11px; padding-right:11px; }
+      .user-home-page .app-header { padding-left:10px; padding-right:10px; }
+      .user-home-page .app-header > a[href="profile.html"] { display:none; }
+      .user-home-page .user-home-header-wallet { padding:6px 7px; }
+      .user-home-page .user-home-header-wallet .user-home-wallet-address { max-width:49px; }
+      .user-home-page [data-user-wallet-connect] { padding:6px 8px; font-size:.64rem; }
+      .user-home-panel { padding:13px; }
+      .user-home-request, .user-home-activity { gap:8px; }
     }
-    .hero h1 em{color:var(--accent);font-style:italic}
-    .hero p{
-      font-size:.875rem;color:var(--text-2);line-height:1.7;
-      margin-bottom:22px;max-width:380px;
-    }
-    .hero-actions{display:flex;gap:10px;flex-wrap:wrap}
-
-    /* Quick action portal cards */
-    .quick-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-    @media(min-width: 640px) {
-      .quick-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
-    .quick-card {
-      background: var(--g-card);
-      border: 1px solid var(--border-card);
-      border-radius: var(--r-xl);
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      text-decoration: none;
-      color: inherit;
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      transition: all .24s var(--ease-std);
-    }
-    .quick-card:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--sh-md);
-      border-color: var(--accent-pale);
-    }
-    .quick-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: var(--r-lg);
-      background: var(--accent-sub);
-      color: var(--accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 4px;
-    }
-    .quick-icon svg { width: 20px; height: 20px; stroke-width: 2; }
-    .quick-title {
-      font-size: .88rem;
-      font-weight: 700;
-      color: var(--text-1);
-    }
-    .quick-desc {
-      font-size: .75rem;
-      color: var(--text-2);
-      line-height: 1.45;
-    }
-
-    .feature-list{display:flex;flex-direction:column;gap:12px;margin-bottom:24px}
-    .feature-item{
-      display:flex;align-items:flex-start;gap:14px;
-      background:var(--g-card);border:1px solid var(--border-card);
-      border-radius:var(--r-xl);padding:18px;
-      backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-      box-shadow:var(--sh-xs);
-      transition:box-shadow .26s var(--ease-std),transform .26s var(--ease-std);
-    }
-    .feature-item:hover{box-shadow:var(--sh-md);transform:translateY(-2px)}
-    .feat-icon{
-      width:46px;height:46px;border-radius:var(--r-lg);
-      display:flex;align-items:center;justify-content:center;flex-shrink:0;
-    }
-    .feat-icon svg{width:22px;height:22px}
-    .fi-g {background:var(--accent-sub);color:var(--accent);border:1px solid var(--accent-pale)}
-    .fi-w {background:var(--warm-sub);color:var(--warm);border:1px solid rgba(200,120,68,.2)}
-    .fi-b {background:var(--info-sub);color:var(--info);border:1px solid rgba(78,128,168,.2)}
-    .fi-p {background:#F0EBFF;color:#6E4EA8;border:1px solid rgba(110,78,168,.15)}
-    body.dark .fi-p{background:#281E40;color:#B090D8}
-    body.dark .fi-b{background:#162030;color:#76ACCC}
-    body.dark .fi-w{background:#271D12;color:#D0885A}
-    .feat-text h3{font-size:.9rem;font-weight:700;margin-bottom:4px}
-    .feat-text p {font-size:.8rem;color:var(--text-2);line-height:1.6}
-
-    .activity-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
-    .activity-row:first-child{padding-top:0}
-    .activity-row:last-child {border-bottom:none;padding-bottom:0}
-    .act-left{display:flex;align-items:center;gap:12px}
-    .act-dot{
-      width:38px;height:38px;border-radius:var(--r-lg);
-      background:var(--accent-sub);border:1px solid var(--accent-pale);
-      display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0;
-    }
-    .act-dot svg{width:16px;height:16px}
-    .act-name{font-size:.875rem;font-weight:600;color:var(--text-1);line-height:1.3}
-    .act-date{font-size:.7rem;color:var(--text-3);font-weight:500;margin-top:2px}
-    .act-price{font-family:var(--font-d);font-size:.95rem;font-weight:700;color:var(--accent)}
+    @media (prefers-reduced-motion:reduce) { .user-home-page * { scroll-behavior:auto !important; } }
   </style>
 </head>
-<body>
+<body class="user-home-page">
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
 
 <div class="site-wrap">
-
-  <!-- ── Sidebar nav (tablet/desktop) ── -->
   <nav class="side-nav" aria-label="Sidebar navigation">
     <div class="side-nav-logo">Data<em>Chain</em></div>
-
-    <a href="index.html" class="side-nav-link" data-page="index.html">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      Home
-    </a>
-    <a href="marketplace.html" class="side-nav-link" data-page="marketplace.html">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-      Marketplace
-    </a>
-    <a href="listings.html" class="side-nav-link" data-page="listings.html">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-      My Listings
-    </a>
-    <a href="addData.html" class="side-nav-link nav-add-side" data-page="addData.html">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Add Dataset
-    </a>
-    <a href="transactions.html" class="side-nav-link" data-page="transactions.html">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-      Transactions
-    </a>
-    <a href="access.html" class="side-nav-link" data-page="access.html">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      Company Access
-    </a>
-    <a href="owner.html" class="side-nav-link" data-page="owner.html">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-1.5 6.1L12 15l-4-4 4.9-5.5a5.5 5.5 0 1 1 7.1 6.6z"/></svg>
-      Owner Hub
-    </a>
-    <a href="profile.html" class="side-nav-link" data-page="profile.html">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-      Profile
-    </a>
-
+    <a href="index.html" class="side-nav-link" data-page="index.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</a>
+    <a href="listings.html" class="side-nav-link" data-page="listings.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>My Listings</a>
+    <a href="marketplace.html" class="side-nav-link" data-page="marketplace.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Marketplace</a>
+    <a href="addData.html" class="side-nav-link nav-add-side" data-page="addData.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Dataset</a>
+    <a href="transactions.html" class="side-nav-link" data-page="transactions.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Transactions</a>
+    <a href="access.html" class="side-nav-link" data-page="access.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Company Access</a>
+    <a href="owner.html" class="side-nav-link" data-page="owner.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-1.5 6.1L12 15l-4-4 4.9-5.5a5.5 5.5 0 1 1 7.1 6.6z"/></svg>Owner Hub</a>
+    <a href="profile.html" class="side-nav-link" data-page="profile.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Profile</a>
     <div class="side-nav-spacer"></div>
-
-    <div class="side-wallet-chip">
-      <div class="w-dot"></div>
-      <span class="wallet-addr-txt">Not connected</span>
-    </div>
+    <div class="side-wallet-chip"><div class="w-dot"></div><span class="wallet-addr-txt">Not connected</span></div>
+    <button class="side-nav-link" type="button" data-auth-logout><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg>Logout</button>
   </nav>
 
-  <!-- ── Header ── -->
   <header class="app-header">
     <div class="logo">Data<em>Chain</em></div>
     <div class="hdr-spacer"></div>
-    <div class="live-badge" style="margin-right:12px;"><div class="live-dot"></div>Sepolia Live</div>
-    <button
-      class="btn btn-secondary btn-sm"
-      data-wallet-connect
-      data-wallet-label="Connect Wallet">
-      Connect Wallet
-    </button>
+    <div class="live-badge"><div class="live-dot"></div>Sepolia · Testnet</div>
+    <div class="user-home-header-wallet" id="user-home-header-wallet" aria-live="polite"><div class="w-dot"></div><span class="user-home-wallet-label" id="user-home-wallet-label">Not connected</span><strong class="user-home-wallet-address" id="user-home-wallet-address">Not linked</strong></div>
+    <a class="btn btn-outline btn-sm" href="profile.html">Profile</a>
+    <button class="btn btn-secondary btn-sm" type="button" data-user-wallet-connect disabled>Connect MetaMask</button>
   </header>
 
-  <!-- ── Main ── -->
   <main class="main-content">
-    <div class="content-inner stagger">
-
-      <!-- Hero -->
-      <section class="hero anim-up">
-        <div class="hero-eye"><div class="dot"></div>Decentralised · Trustless · Sepolia</div>
-        <h1>Trade Data.<br/><em>Own</em> the Future.</h1>
-        <p>A blockchain-powered marketplace to buy, sell, and monetise datasets with full cryptographic access control and zero middlemen.</p>
-        <div class="hero-actions">
-          <a href="marketplace.html" class="btn btn-primary">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-            Explore Market
-          </a>
-          <a href="addData.html" class="btn btn-secondary">+ List Dataset</a>
-          <a href="owner.html" class="btn btn-outline">Owner Hub ↗</a>
+    <div class="content-inner">
+      <section class="user-home-welcome">
+        <div class="user-home-welcome-copy">
+          <div class="user-home-eyebrow">Your account</div>
+          <h1 id="user-dashboard-greeting">Welcome back</h1>
+          <p>Manage your datasets, access requests and blockchain activity.</p>
+        </div>
+        <div class="user-home-quick-actions">
+          <a href="addData.html" class="btn btn-primary">+ Add Data</a>
+          <a href="marketplace.html" class="btn btn-secondary">Browse Marketplace</a>
         </div>
       </section>
 
-      <section class="card dashboard-card" aria-label="User dashboard">
-        <div class="section-hdr"><h2 class="section-ttl">Your DataChain Overview</h2><a href="profile.html" class="section-lnk">Profile →</a></div>
-        <p id="user-dashboard-greeting">Loading account…</p>
-        <div class="dashboard-grid" style="margin-top:14px">
-          <div class="dashboard-card"><h3>Your datasets</h3><div class="dashboard-value" id="user-owned-count">—</div></div>
-          <div class="dashboard-card"><h3>Purchases</h3><div class="dashboard-value" id="user-purchase-count">—</div></div>
-          <div class="dashboard-card"><h3>Access requests</h3><div class="dashboard-value" id="user-request-count">—</div></div>
-        </div>
-        <div class="dashboard-grid" style="margin-top:14px">
-          <div><h3>Recently added</h3><div id="user-recent-datasets" class="dashboard-list">Loading…</div></div>
-          <div><h3>Access request status</h3><div id="user-access-requests" class="dashboard-list">Loading…</div></div>
-        </div>
+      <div class="user-home-wallet-notice" id="user-home-wallet-notice" role="status"></div>
+
+      <section class="user-home-stats" aria-label="Account summary">
+        <article class="user-home-stat"><div class="user-home-stat-label">My Datasets</div><div class="user-home-stat-value" id="user-owned-count">—</div></article>
+        <article class="user-home-stat"><div class="user-home-stat-label">Purchases</div><div class="user-home-stat-value" id="user-purchase-count">—</div></article>
+        <article class="user-home-stat"><div class="user-home-stat-label">Access Requests</div><div class="user-home-stat-value" id="user-request-count">—</div></article>
+        <article class="user-home-stat"><div class="user-home-stat-label">Activity</div><div class="user-home-stat-value" id="user-activity-count">—</div></article>
       </section>
 
-      <!-- Stats -->
-      <div class="stats-grid">
-        <div class="stat-chip"><div class="stat-val" id="stat-total">2+</div><div class="stat-lbl">On-Chain Datasets</div></div>
-        <div class="stat-chip"><div class="stat-val">Sepolia</div><div class="stat-lbl">Testnet</div></div>
-        <div class="stat-chip"><div class="stat-val">100%</div><div class="stat-lbl">Integrity Verified</div></div>
-      </div>
+      <section class="user-home-panel" aria-labelledby="my-datasets-title">
+        <div class="user-home-panel-head"><div><h2 id="my-datasets-title">My Datasets</h2><p id="user-datasets-caption">Your datasets recorded on Sepolia.</p></div><a class="user-home-panel-link" href="listings.html">View all →</a></div>
+        <div class="user-home-datasets" id="user-recent-datasets" aria-live="polite"><div class="user-home-loading">Loading your datasets…</div></div>
+      </section>
 
-      <!-- Quick Portals -->
-      <div class="section-hdr"><h2 class="section-ttl">Marketplace Sections</h2></div>
-      <div class="quick-grid">
-        <a href="marketplace.html" class="quick-card">
-          <div class="quick-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div>
-          <div class="quick-title">Marketplace</div>
-          <div class="quick-desc">Browse real datasets on Sepolia testnet.</div>
-        </a>
-        <a href="owner.html" class="quick-card">
-          <div class="quick-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-1.5 6.1L12 15l-4-4 4.9-5.5a5.5 5.5 0 1 1 7.1 6.6z"/></svg></div>
-          <div class="quick-title">Owner Dashboard</div>
-          <div class="quick-desc">Review &amp; approve incoming access requests.</div>
-        </a>
-        <a href="company-register.html" class="quick-card">
-          <div class="quick-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-          <div class="quick-title">Company Registration</div>
-          <div class="quick-desc">Submit company details for admin verification.</div>
-        </a>
-        <a href="listings.html" class="quick-card">
-          <div class="quick-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
-          <div class="quick-title">My Listings</div>
-          <div class="quick-desc">Track datasets you have listed and monitor sales.</div>
-        </a>
-        <a href="transactions.html" class="quick-card">
-          <div class="quick-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
-          <div class="quick-title">Transactions</div>
-          <div class="quick-desc">View confirmed blockchain transactions on Etherscan.</div>
-        </a>
-        <a href="profile.html" class="quick-card">
-          <div class="quick-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
-          <div class="quick-title">Profile</div>
-          <div class="quick-desc">Manage your wallet connection &amp; preferences.</div>
-        </a>
-      </div>
+      <section class="user-home-panel" aria-labelledby="marketplace-preview-title">
+        <div class="user-home-panel-head"><div><h2 id="marketplace-preview-title">Marketplace datasets</h2><p>Public datasets recorded on Sepolia.</p></div><a class="user-home-panel-link" href="marketplace.html">Browse all →</a></div>
+        <div id="home-public-datasets" class="user-home-datasets" aria-live="polite"><div class="user-home-loading">Loading public datasets…</div></div>
+      </section>
 
-      <!-- Features -->
-      <div class="section-hdr"><h2 class="section-ttl">Why DataChain?</h2></div>
-      <div class="feature-list">
-        <div class="feature-item">
-          <div class="feat-icon fi-g"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-          <div class="feat-text"><h3>Verified &amp; Trustless</h3><p>Every dataset is cryptographically signed and recorded on Sepolia. Access permissions are strictly enforced on-chain.</p></div>
-        </div>
-        <div class="feature-item">
-          <div class="feat-icon fi-w"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-          <div class="feat-text"><h3>Earn in ETH</h3><p>Monetise your data directly. Set your price and receive payments in Sepolia Ether directly to your wallet.</p></div>
-        </div>
-        <div class="feature-item">
-          <div class="feat-icon fi-b"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-          <div class="feat-text"><h3>Approval &amp; Instant Settlement</h3><p>Owners inspect incoming requests and approve or reject via MetaMask. Settled automatically on-chain.</p></div>
-        </div>
-        <div class="feature-item">
-          <div class="feat-icon fi-p"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>
-          <div class="feat-text"><h3>IPFS &amp; Data Integrity</h3><p>Encrypted payload stored on IPFS with SHA-256 integrity verification against on-chain hashes.</p></div>
-        </div>
-      </div>
+      <div class="user-home-lower-grid">
+        <section class="user-home-panel" aria-labelledby="requests-title">
+          <div class="user-home-panel-head"><div><h2 id="requests-title">Access Requests</h2><p>Requests made from your linked wallet.</p></div><a class="user-home-panel-link" href="marketplace.html">Marketplace →</a></div>
+          <div class="user-home-request-list" id="user-access-requests" aria-live="polite"><div class="user-home-loading">Loading access requests…</div></div>
+        </section>
 
-      <!-- Recent activity -->
-      <div class="section-hdr">
-        <h2 class="section-ttl">Recent Activity</h2>
-        <a href="transactions.html" class="section-lnk">See all →</a>
+        <section class="user-home-panel" aria-labelledby="activity-title">
+          <div class="user-home-panel-head"><div><h2 id="activity-title">Recent Activity</h2><p>Purchases, sales and access events for your account.</p></div><a class="user-home-panel-link" href="transactions.html">Transactions →</a></div>
+          <div class="user-home-activity-list" id="activity-list" aria-live="polite"><div class="user-home-loading">Loading recent activity…</div></div>
+        </section>
       </div>
-      <div class="card" id="activity-list">
-        <div class="empty-state" style="padding:28px 16px">
-          <div class="empty-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
-          <h3>Connect wallet to view activity</h3>
-          <p>Your confirmed Sepolia purchases and access requests will appear here.</p>
-        </div>
-      </div>
-
     </div>
   </main>
 
-  <!-- ── Bottom nav (mobile only) ── -->
   <nav class="bottom-nav" aria-label="Bottom navigation">
-    <a href="index.html" class="b-nav-item" data-page="index.html">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      <span class="b-nav-label">Home</span>
-    </a>
-    <a href="marketplace.html" class="b-nav-item" data-page="marketplace.html">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-      <span class="b-nav-label">Market</span>
-    </a>
-    <div class="b-nav-add-wrap">
-      <a href="addData.html" class="b-nav-add" aria-label="Add Dataset">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      </a>
-      <span class="b-nav-add-label">Add</span>
-    </div>
-    <a href="owner.html" class="b-nav-item" data-page="owner.html">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-1.5 6.1L12 15l-4-4 4.9-5.5a5.5 5.5 0 1 1 7.1 6.6z"/></svg>
-      <span class="b-nav-label">Owner</span>
-    </a>
-    <a href="profile.html" class="b-nav-item" data-page="profile.html">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-      <span class="b-nav-label">Profile</span>
-    </a>
+    <a href="index.html" class="b-nav-item" data-page="index.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="b-nav-label">Home</span></a>
+    <a href="marketplace.html" class="b-nav-item" data-page="marketplace.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="b-nav-label">Market</span></a>
+    <div class="b-nav-add-wrap"><a href="addData.html" class="b-nav-add" aria-label="Add Dataset"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></a><span class="b-nav-add-label">Add</span></div>
+    <a href="owner.html" class="b-nav-item" data-page="owner.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-1.5 6.1L12 15l-4-4 4.9-5.5a5.5 5.5 0 1 1 7.1 6.6z"/></svg><span class="b-nav-label">Owner</span></a>
+    <a href="profile.html" class="b-nav-item" data-page="profile.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="b-nav-label">Profile</span></a>
   </nav>
+</div>
 
-</div><!-- /site-wrap -->
-
-<script src="app.js"></script>
-<!-- ethers.js -->
+<script src="app.js?v=user-wallet-state-20261007-2"></script>
 <script src="https://cdn.jsdelivr.net/npm/ethers@6.15.0/dist/ethers.umd.min.js"></script>
-
 <script>
-  async function loadStats() {
-    try {
-      const chainData = await API.get('/chain/datasets');
-      if (chainData.success && Number.isFinite(Number(chainData.count))) {
-        document.getElementById('stat-total').textContent = chainData.count;
-        return;
-      }
-    } catch {
-      // fallback
-    }
+  let userDashboard = null;
+  let currentMetaMaskWallet = null;
+  let authenticatedProfileLoaded = false;
+  let dashboardRequestId = 0;
+  let publicDatasetRequestId = 0;
 
-    try {
-  const res = await API.get('/getData');
-  const count = res.total || (res.data && res.data.length);
-
-  if (count !== undefined) {
-    document.getElementById('stat-total').textContent = count;
-  }
-} catch {
-  console.warn('Could not load dataset count from backend.');
-}
+  function shortWallet(address) {
+    return address ? `${address.slice(0, 6)}…${address.slice(-4)}` : 'Not linked';
   }
 
-  async function renderActivity() {
-  const el = document.getElementById('activity-list');
-  if (!el) return;
+  function dashboardState(element, text, kind = 'empty', retry = false, retryKey = 'dashboard') {
+    const className = kind === 'error' ? 'user-home-error' : kind === 'loading' ? 'user-home-loading' : 'user-home-empty';
+    element.innerHTML = `<div class="${className}"><strong>${esc(text)}</strong>${retry ? `<button class="user-home-retry" type="button" data-${retryKey}-retry>Retry</button>` : ''}</div>`;
+  }
 
-  if (Auth.role() === 'user') {
+  async function loadHomePublicDatasets() {
+    const requestId = ++publicDatasetRequestId;
+    const element = document.getElementById('home-public-datasets');
+    dashboardState(element, 'Loading public datasets…', 'loading');
     try {
-      const response = await API.get('/dashboard/user');
-      const entries = response.data.activity || [];
-      if (!entries.length) {
-        el.innerHTML = '<div class="empty-state" style="padding:28px 16px"><h3>No transactions recorded yet</h3><p>Confirmed blockchain purchases and access requests will appear here.</p></div>';
-        return;
-      }
-      el.innerHTML = entries.slice(0, 5).map(item => {
-        const kind = item.type === 'purchase' ? 'PURCHASE' : item.type === 'sale' ? 'SALE' : item.type === 'request_received' ? 'REQUEST RECEIVED' : 'ACCESS REQUEST';
-        const value = item.amount ? `${parseFloat(item.amount).toFixed(4)} ETH` : (item.status || 'Access request');
-        return `<div class="activity-row"><div class="act-left"><div class="act-dot">${kind.slice(0,1)}</div><div><div class="act-name">${esc(item.name || `Dataset #${item.dataId}`)}</div><div class="act-date">${kind} · Block ${esc(item.blockNumber || '—')}</div></div></div><div class="act-price">${esc(value)}</div></div>`;
-      }).join('');
-      return;
+      const result = await API.get('/chain/datasets');
+      if (requestId !== publicDatasetRequestId) return;
+      if (!result.success || !Array.isArray(result.data)) throw new Error('The public dataset list was not returned by the API.');
+      const datasets = result.data.slice(0, 4);
+      if (!datasets.length) { dashboardState(element, 'No public datasets are currently recorded on Sepolia.'); return; }
+      element.innerHTML = datasets.map(item => `<article class="user-home-dataset">
+        <div class="user-home-dataset-top"><div class="user-home-dataset-name">${esc(item.name || `Dataset #${item.id}`)}</div><span class="user-home-dataset-id">#${esc(item.id)}</span></div>
+        <div class="user-home-dataset-meta"><span class="user-home-chip">${esc(item.category || 'Uncategorized')}</span><span class="user-home-chip">${esc(Number(item.price || 0).toFixed(4))} ETH</span></div>
+        <div class="user-home-dataset-bottom"><span class="user-home-price">${esc(shortWallet(item.owner || ''))}</span><a href="${PageNavigation.datasetHref(item.id, 'home')}">View dataset →</a></div>
+      </article>`).join('');
     } catch (error) {
-      el.innerHTML = `<div class="empty-state" style="padding:28px 16px"><h3>Unable to load recent activity</h3><p>${esc(error.message)}</p></div>`;
-      return;
+      if (requestId !== publicDatasetRequestId) return;
+      dashboardState(element, error.message || 'Unable to load public datasets from Sepolia.', 'error', true, 'public-datasets');
     }
   }
 
-  if (!Wallet.getAddress()) {
-    el.innerHTML = `
-      <div class="empty-state" style="padding:28px 16px">
-        <div class="empty-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
-        <h3>Connect wallet to view activity</h3>
-        <p>Your confirmed Sepolia purchases and access requests will appear here.</p>
-      </div>
-    `;
-    return;
-  }
-
-  try {
-    const activity = await loadWalletActivity(Wallet.getAddress());
-
-    if (!activity.length) {
-      el.innerHTML = `
-        <div class="empty-state" style="padding:28px 16px">
-          <div class="empty-icon">
-            <svg xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round">
-              <path d="M6 2h12v20H6z"/>
-              <path d="M9 6h6M9 10h6M9 14h4"/>
-            </svg>
-          </div>
-
-          <h3>No transactions recorded yet</h3>
-          <p>When you request access or buy datasets on Sepolia, your activity will appear here.</p>
-        </div>
-      `;
+  function renderDatasets(data) {
+    const element = document.getElementById('user-recent-datasets');
+    const items = Array.isArray(data.recentDatasets) ? data.recentDatasets : [];
+    document.getElementById('user-owned-count').textContent = Number(data.ownedCount || 0);
+    document.getElementById('user-datasets-caption').textContent = data.ownedCount
+      ? `${data.ownedCount} dataset${data.ownedCount === 1 ? '' : 's'} owned by your linked wallet.`
+      : 'Your datasets recorded on Sepolia.';
+    if (!items.length) {
+      dashboardState(element, 'No datasets added yet.');
       return;
     }
-
-    el.innerHTML = activity.slice(0, 5).map(tx => `
-      <div class="activity-row">
-        <div class="act-left">
-          <div class="act-icon">
-            <svg xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round">
-              <path d="M6 2h12v20H6z"/>
-              <path d="M9 6h6M9 10h6M9 14h4"/>
-            </svg>
-          </div>
-
-          <div>
-            <div class="act-name">${esc(tx.name)}</div>
-            <div class="act-date">
-              ${tx.type === 'request' ? `ACCESS REQUEST · ${esc(tx.accessStatus)}` : tx.type.toUpperCase()}
-              · ${tx.timestamp ? fmtDate(tx.timestamp) : `Block ${esc(tx.blockNumber || '—')}`}
-            </div>
-          </div>
-        </div>
-
-        <div class="act-price">
-          ${tx.type === 'request' ? 'Access requested' : `${parseFloat(tx.price || 0).toFixed(4)} ETH`}
-        </div>
-      </div>
-    `).join('');
-
-  } catch (error) {
-    console.error('Failed to load recent blockchain activity:', error);
-
-    el.innerHTML = `
-      <div class="empty-state" style="padding:28px 16px">
-        <div class="empty-icon">
-          <svg xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round">
-            <path d="M6 2h12v20H6z"/>
-            <path d="M9 6h6M9 10h6M9 14h4"/>
-          </svg>
-        </div>
-
-        <h3>Unable to load recent activity</h3>
-        <p>Please check the DataChain API connection and Sepolia event service.</p>
-      </div>
-    `;
+    element.innerHTML = items.map(item => `<article class="user-home-dataset">
+      <div class="user-home-dataset-top"><div class="user-home-dataset-name">${esc(item.name || `Dataset #${item.id}`)}</div><span class="user-home-dataset-id">#${esc(item.id)}</span></div>
+      <div class="user-home-dataset-meta"><span class="user-home-chip">${esc(item.category || 'Uncategorized')}</span><span class="user-home-chip">Recorded on-chain</span></div>
+      <div class="user-home-dataset-bottom"><span class="user-home-price">${esc(item.price || '0')} ETH</span><a href="${PageNavigation.datasetHref(item.id, 'home')}">View dataset →</a></div>
+    </article>`).join('');
   }
-}
 
-  loadStats();
-  renderActivity();
-  API.get('/dashboard/user').then(({data}) => {
-    document.getElementById('user-dashboard-greeting').textContent = `Welcome, ${data.user.fullName}. ${data.user.walletAddress ? `Linked wallet ${Wallet.short(data.user.walletAddress)}.` : 'Connect MetaMask to link a wallet and use blockchain features.'}`;
-    document.getElementById('user-owned-count').textContent = data.ownedCount;
-    document.getElementById('user-purchase-count').textContent = data.purchases.length;
-    document.getElementById('user-request-count').textContent = data.accessRequestsMade.length;
+  function renderRequests(requests) {
+    const element = document.getElementById('user-access-requests');
+    const items = Array.isArray(requests) ? requests.slice(0, 5) : [];
+    document.getElementById('user-request-count').textContent = Array.isArray(requests) ? requests.length : 0;
+    if (!items.length) {
+      dashboardState(element, 'No access requests yet.');
+      return;
+    }
+    element.innerHTML = items.map(item => {
+      const status = String(item.status || 'NONE').toUpperCase();
+      const date = item.timestamp ? fmtDate(item.timestamp) : item.blockNumber ? `Block ${item.blockNumber}` : '';
+      return `<article class="user-home-request"><div class="user-home-request-main"><div class="user-home-request-name">${esc(item.datasetName || `Dataset #${item.dataId}`)}</div><div class="user-home-request-meta">Owner ${esc(shortWallet(item.owner))}${date ? ` · ${esc(date)}` : ''}</div><a class="user-home-request-link" href="${PageNavigation.datasetHref(item.dataId, 'home')}">View dataset →</a></div><span class="user-home-request-status" data-status="${esc(status)}">${esc(status)}</span></article>`;
+    }).join('');
+  }
+
+  function renderActivity(activity) {
+    const element = document.getElementById('activity-list');
+    const items = Array.isArray(activity) ? activity.slice(0, 8) : [];
+    document.getElementById('user-activity-count').textContent = items.length;
+    if (!items.length) {
+      dashboardState(element, 'No recent activity yet.');
+      return;
+    }
+    element.innerHTML = items.map(item => {
+      const kind = ({ purchase:'PURCHASE', sale:'SALE', request:'ACCESS REQUEST', request_received:'REQUEST RECEIVED' })[item.type] || String(item.type || 'ACTIVITY').replaceAll('_',' ').toUpperCase();
+      const date = item.timestamp ? fmtDate(item.timestamp) : item.blockNumber ? `Block ${item.blockNumber}` : '';
+      const detail = item.type === 'request' || item.type === 'request_received'
+        ? item.status || 'Access request'
+        : item.amount ? `${item.amount} ETH` : '';
+      return `<article class="user-home-activity"><div class="user-home-activity-main"><div class="user-home-activity-name">${esc(item.name || item.datasetName || `Dataset #${item.dataId}`)}</div><div class="user-home-activity-meta">${esc(kind)}${date ? ` · ${esc(date)}` : ''}${detail ? ` · ${esc(detail)}` : ''}</div></div><span class="user-home-activity-kind">${esc(kind === 'PURCHASE' || kind === 'SALE' ? `${item.amount || '0'} ETH` : (item.status || 'REQUEST'))}</span></article>`;
+    }).join('');
+  }
+
+  function renderDashboard(data) {
+    userDashboard = data;
+    document.getElementById('user-dashboard-greeting').textContent = `Welcome back, ${data.user?.fullName || 'User'}`;
+    renderDatasets(data);
+    document.getElementById('user-purchase-count').textContent = Array.isArray(data.purchases) ? data.purchases.length : 0;
+    renderRequests(data.accessRequestsMade);
+    renderActivity(data.activity);
+    syncDashboardWallet();
+  }
+
+  function clearPrivateDashboard(message = 'Connect the wallet linked to your DataChain account to view your dashboard.') {
+    userDashboard = null;
+    document.getElementById('user-dashboard-greeting').textContent = 'Your DataChain dashboard';
+    document.getElementById('user-owned-count').textContent = '—';
+    document.getElementById('user-purchase-count').textContent = '—';
+    document.getElementById('user-request-count').textContent = '—';
+    document.getElementById('user-activity-count').textContent = '—';
+    document.getElementById('user-datasets-caption').textContent = message;
+    dashboardState(document.getElementById('user-recent-datasets'), message);
+    dashboardState(document.getElementById('user-access-requests'), message);
+    dashboardState(document.getElementById('activity-list'), message);
+  }
+
+  function syncDashboardWallet() {
+    const profileResolved = authenticatedProfileLoaded;
+    const linked = userDashboard?.user?.walletAddress || '';
+    const connected = currentMetaMaskWallet;
+    const isLinked = Boolean(connected && linked && walletAddressMatches(connected, linked));
+    const walletState = WalletStatus.snapshot();
+    const walletReady = Boolean(walletState.authenticated && isLinked && walletState.onSepolia);
+    const chip = document.getElementById('user-home-header-wallet');
+    const label = document.getElementById('user-home-wallet-label');
+    const walletAddressEl = document.getElementById('user-home-wallet-address');
+    const notice = document.getElementById('user-home-wallet-notice');
+    chip.classList.toggle('is-mismatch', Boolean(connected && (!isLinked || !walletState.onSepolia)));
+    chip.querySelector('.w-dot').classList.toggle('on', walletReady);
+    label.textContent = !walletState.initialized ? 'Checking wallet…' : walletReady ? 'Connected' : connected ? !isLinked ? 'Wrong account' : 'Wrong network' : 'Not connected';
+    walletAddressEl.textContent = !walletState.initialized ? 'Verifying MetaMask account…' : connected ? `Connected: ${shortWallet(connected)}` : linked ? `Linked: ${shortWallet(linked)}` : profileResolved ? 'Not linked' : 'Unable to verify';
+    walletAddressEl.title = linked ? `Registered wallet ${shortWallet(linked)}` : 'No wallet is stored on this account';
+    const button = document.querySelector('[data-user-wallet-connect]');
+    button.textContent = walletReady ? 'Switch Wallet' : connected ? !isLinked ? 'Select linked account' : 'Switch to Sepolia' : profileResolved ? linked ? 'Connect MetaMask' : 'Link Wallet' : 'Connect MetaMask';
+    button.disabled = !profileResolved;
+    if (connected && linked && !isLinked) {
+      notice.textContent = 'The connected MetaMask account differs from your linked wallet. Dashboard data continues to use your account’s linked wallet.';
+      notice.classList.add('is-visible');
+    } else if (isLinked || !connected) {
+      notice.classList.remove('is-visible');
+    }
+    if (connected && isLinked && !walletState.onSepolia) {
+      notice.textContent = 'Your linked wallet is connected on the wrong network. Switch to Sepolia from this Home page before viewing private dashboard information.';
+      notice.classList.add('is-visible');
+    }
+  }
+
+  async function refreshMetaMaskAccount() {
+    await WalletStatus.start();
+    currentMetaMaskWallet = WalletStatus.account;
+    syncDashboardWallet();
+  }
+
+  async function loadUserDashboard() {
+    const requestId = ++dashboardRequestId;
+    userDashboard = null;
+    authenticatedProfileLoaded = false;
+    clearPrivateDashboard('Checking your DataChain wallet…');
+    const activity = document.getElementById('activity-list');
     const datasets = document.getElementById('user-recent-datasets');
-    datasets.innerHTML = data.recentDatasets.length ? data.recentDatasets.map(item => `<div class="dashboard-row"><a href="dataset.html?id=${encodeURIComponent(item.id)}">${esc(item.name)}</a><span>#${esc(item.id)}</span></div>`).join('') : '<p>No datasets added yet.</p>';
     const requests = document.getElementById('user-access-requests');
-    requests.innerHTML = data.accessRequestsMade.length ? data.accessRequestsMade.slice(0,5).map(item => `<div class="dashboard-row"><span>Dataset #${esc(item.dataId)}</span><span>${esc(item.status || 'Requested')}</span></div>`).join('') : '<p>No access requests yet.</p>';
-  }).catch(error => {
-    document.getElementById('user-dashboard-greeting').textContent = `Dashboard unavailable: ${error.message}`;
+    dashboardState(activity, 'Loading recent activity…', 'loading');
+    dashboardState(datasets, 'Loading your datasets…', 'loading');
+    dashboardState(requests, 'Loading access requests…', 'loading');
+    try {
+      const session = await Auth.me();
+      if (session.role !== 'user' || !session.data) throw new Error('The authenticated user profile was not returned.');
+      authenticatedProfileLoaded = true;
+      userDashboard = { user: session.data };
+      await refreshMetaMaskAccount();
+      if (requestId !== dashboardRequestId) return;
+      const linked = session.data.walletAddress || null;
+      const walletState = WalletStatus.snapshot();
+      if (!currentMetaMaskWallet || !linked || !walletAddressMatches(currentMetaMaskWallet, linked) || !walletState.onSepolia) {
+        clearPrivateDashboard(walletState.verificationStatus === 'wrong-network'
+          ? 'Switch MetaMask to Sepolia to view private dashboard information.'
+          : currentMetaMaskWallet
+            ? 'This MetaMask account is not linked to your DataChain account. Select the linked account using Switch Wallet on Home to view private dashboard information.'
+            : 'Connect your linked wallet from Home to view datasets, purchases, access requests, and recent activity.');
+        syncDashboardWallet();
+        return;
+      }
+      const response = await API.get('/dashboard/user');
+      const latestWallet = WalletStatus.snapshot();
+      if (requestId !== dashboardRequestId || !latestWallet.authenticated || !latestWallet.account ||
+          !walletAddressMatches(latestWallet.account, linked) || !latestWallet.onSepolia) return;
+      if (!response.success || !response.data) throw new Error('Dashboard data was not returned by the API.');
+      const authWallet = session.data.walletAddress || null;
+      const dashboardWallet = response.data.user?.walletAddress || null;
+      const walletDataMatches = authWallet === null
+        ? dashboardWallet === null
+        : walletAddressMatches(authWallet, dashboardWallet);
+      if (!walletDataMatches) {
+        throw new Error('Your account wallet information is out of sync. Refresh and sign in again.');
+      }
+      response.data.user = { ...response.data.user, walletAddress: authWallet };
+      renderDashboard(response.data);
+    } catch {
+      if (requestId !== dashboardRequestId) return;
+      document.getElementById('user-dashboard-greeting').textContent = 'Your dashboard is temporarily unavailable';
+      dashboardState(datasets, 'Unable to load your datasets.', 'error');
+      dashboardState(requests, 'Unable to load access requests.', 'error');
+      dashboardState(activity, 'Unable to load activity.', 'error', true);
+      syncDashboardWallet();
+    }
+  }
+
+  document.addEventListener('click', event => {
+    if (event.target.closest('[data-dashboard-retry]')) loadUserDashboard();
+    if (event.target.closest('[data-public-datasets-retry]')) loadHomePublicDatasets();
   });
+
+  document.querySelector('[data-user-wallet-connect]').addEventListener('click', async () => {
+    const button = document.querySelector('[data-user-wallet-connect]');
+    if (!authenticatedProfileLoaded) {
+      Toast.warning('Could not verify the signed-in account. Refresh the dashboard and try again.');
+      return;
+    }
+    const linked = userDashboard?.user?.walletAddress || '';
+    const notice = document.getElementById('user-home-wallet-notice');
+    button.disabled = true;
+    button.textContent = 'Connecting…';
+    try {
+      if (!window.ethereum?.request) {
+        notice.textContent = 'MetaMask was not detected. You can still use your account dashboard with its linked wallet.';
+        notice.classList.add('is-visible');
+      }
+      await Wallet.connect();
+      currentMetaMaskWallet = WalletStatus.account;
+      if (currentMetaMaskWallet && linked && !walletAddressMatches(currentMetaMaskWallet, linked)) {
+        notice.textContent = `This MetaMask account does not match your linked wallet ${shortWallet(linked)}. Select the linked account in MetaMask; DataChain updates when accountsChanged fires. Your linked wallet remains unchanged.`;
+        notice.classList.add('is-visible');
+      } else if (currentMetaMaskWallet) {
+        notice.classList.remove('is-visible');
+      }
+    } catch (error) {
+      console.error('Could not refresh the User dashboard after connecting MetaMask:', error);
+    } finally {
+      syncDashboardWallet();
+    }
+  });
+
+  window.addEventListener('dc:wallet-state', event => {
+    currentMetaMaskWallet = event.detail.account;
+    syncDashboardWallet();
+    ++dashboardRequestId;
+    if (event.detail.authenticated && event.detail.connected && event.detail.matchesRegisteredWallet && event.detail.onSepolia) {
+      loadUserDashboard();
+    } else {
+      const message = event.detail.verificationStatus === 'wrong-network'
+        ? 'Switch MetaMask to Sepolia to view private dashboard information.'
+        : event.detail.verificationStatus === 'mismatch'
+          ? 'Select your linked wallet in MetaMask to view private dashboard information.'
+          : 'Connect your linked wallet from Home to view datasets, purchases, access requests, and recent activity.';
+      clearPrivateDashboard(message);
+    }
+  });
+
+  syncDashboardWallet();
+  loadUserDashboard();
+  loadHomePublicDatasets();
 </script>
 </body>
 </html>

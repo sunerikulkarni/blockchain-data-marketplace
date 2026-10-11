@@ -45,7 +45,31 @@ document.addEventListener('DOMContentLoaded', () => {
   const mode    = form.dataset.authForm;
   const params  = new URLSearchParams(location.search);
 
-  if (params.get('message')) {
+  if (mode === 'company-login' || mode === 'company-register') {
+    form.querySelectorAll('input, textarea').forEach(input => input.addEventListener('input', () => {
+      input.removeAttribute('aria-invalid');
+      if (message.dataset.companyValidation === 'true') {
+        message.hidden = true;
+        message.dataset.companyValidation = 'false';
+      }
+    }));
+  }
+
+  if (mode === 'user-register') {
+    const wallet = form.elements.walletAddress;
+    const confirm = form.elements.confirmPassword;
+    const clearFieldError = (input, errorId) => {
+      input.setCustomValidity('');
+      input.removeAttribute('aria-invalid');
+      const error = document.getElementById(errorId);
+      if (error) error.hidden = true;
+    };
+    wallet.addEventListener('input', () => clearFieldError(wallet, 'wallet-error'));
+    confirm.addEventListener('input', () => clearFieldError(confirm, 'confirm-password-error'));
+    form.elements.password.addEventListener('input', () => clearFieldError(confirm, 'confirm-password-error'));
+  }
+
+  if (mode !== 'admin-login' && params.get('message')) {
     message.textContent = params.get('message');
     message.hidden = false;
   }
@@ -54,10 +78,57 @@ document.addEventListener('DOMContentLoaded', () => {
     event.preventDefault();
     message.hidden = true;
     message.classList.remove('is-error');
+    const value = name => form.elements[name]?.value.trim() || '';
+
+    if (mode === 'company-login' || mode === 'company-register') {
+      form.querySelectorAll('[aria-invalid="true"]').forEach(input => input.removeAttribute('aria-invalid'));
+      if (!form.checkValidity()) {
+        const invalid = [...form.elements].filter(input => input.willValidate && !input.checkValidity());
+        invalid.forEach(input => input.setAttribute('aria-invalid', 'true'));
+        const first = invalid[0];
+        const label = form.querySelector(`label[for="${first.id}"]`)?.textContent.trim() || 'This field';
+        message.textContent = `${label}: ${first.validationMessage}`;
+        message.dataset.companyValidation = 'true';
+        message.setAttribute('role', 'alert');
+        message.classList.add('is-error');
+        message.hidden = false;
+        first.focus();
+        return;
+      }
+      message.dataset.companyValidation = 'false';
+    }
+
+    if (mode === 'user-register') {
+      const wallet = form.elements.walletAddress;
+      const confirm = form.elements.confirmPassword;
+      const walletError = document.getElementById('wallet-error');
+      const confirmError = document.getElementById('confirm-password-error');
+      wallet.setCustomValidity('');
+      confirm.setCustomValidity('');
+      walletError.hidden = true;
+      confirmError.hidden = true;
+      wallet.removeAttribute('aria-invalid');
+      confirm.removeAttribute('aria-invalid');
+
+      if (!/^0x[a-fA-F0-9]{40}$/.test(wallet.value.trim())) {
+        wallet.setCustomValidity('Enter a valid Ethereum wallet address (0x followed by 40 hexadecimal characters).');
+        walletError.textContent = wallet.validationMessage;
+        walletError.hidden = false;
+        wallet.setAttribute('aria-invalid', 'true');
+      }
+      if (confirm.value !== form.elements.password.value) {
+        confirm.setCustomValidity('Passwords do not match.');
+        confirmError.textContent = confirm.validationMessage;
+        confirmError.hidden = false;
+        confirm.setAttribute('aria-invalid', 'true');
+      }
+      if (!form.reportValidity()) return;
+    }
+
     submit.disabled = true;
+    if (mode === 'company-login' || mode === 'company-register') form.setAttribute('aria-busy', 'true');
     const originalText = submit.textContent;
     submit.textContent = mode.endsWith('register') ? 'Registering…' : 'Signing in…';
-    const value = name => form.elements[name]?.value.trim() || '';
 
     try {
       let result;
@@ -66,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
         result = await API.post('/auth/register/user', {
           fullName: value('fullName'),
           email: value('email'),
+          walletAddress: value('walletAddress'),
           password: form.elements.password.value
         });
         location.replace('user-login.html?message=' + encodeURIComponent(result.message || 'Account created. Please sign in.'));
@@ -105,6 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } finally {
       submit.disabled = false;
       submit.textContent = originalText;
+      if (mode === 'company-login' || mode === 'company-register') form.removeAttribute('aria-busy');
     }
   });
 });

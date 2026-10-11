@@ -13,6 +13,12 @@ const AccessRequest = require('../models/AccessRequest');
 const Company = require('../models/Company');
 const Data = require('../models/Data');
 const requireAuth = require('../middleware/authMiddleware');
+const { notifyCompanyAccessRequest } = require('../services/notificationService');
+
+async function notifyAfterSuccess(request, status) {
+  try { await notifyCompanyAccessRequest(request, status); }
+  catch (error) { console.error(`Company ${status} notification failed:`, error.message); }
+}
 
 const router = express.Router();
 
@@ -239,6 +245,8 @@ router.post(
             'companyName email walletAddress verificationStatus'
           );
 
+      await notifyAfterSuccess(populatedRequest || request, 'pending');
+
       res.status(201).json({
         success: true,
         message:
@@ -326,7 +334,7 @@ router.get(
     try {
       const wallet =
         req.params.wallet.toLowerCase();
-      if (!req.user.walletAddress || wallet !== req.user.walletAddress) {
+      if (!req.user.walletAddress || wallet !== req.user.walletAddress.toLowerCase()) {
         return res.status(403).json({ success: false, message: 'Owner access denied' });
       }
 
@@ -394,7 +402,7 @@ router.put(
 
       const normalizedWallet =
         ownerWallet.toLowerCase();
-      if (!req.user.walletAddress || req.user.walletAddress !== normalizedWallet) {
+      if (!req.user.walletAddress || req.user.walletAddress.toLowerCase() !== normalizedWallet) {
         return res.status(403).json({ success: false, message: 'Owner wallet does not match the authenticated user' });
       }
 
@@ -420,7 +428,7 @@ router.put(
 
       // Make sure the requester is the dataset owner
       if (
-        request.ownerWallet !==
+        request.ownerWallet?.toLowerCase() !==
         normalizedWallet
       ) {
         return res.status(403).json({
@@ -443,6 +451,8 @@ router.put(
       request.approvedAt = new Date();
 
       await request.save();
+
+      await notifyAfterSuccess(request, 'approved');
 
       res.json({
         success: true,
@@ -504,7 +514,7 @@ router.put(
 
       const normalizedWallet =
         ownerWallet.toLowerCase();
-      if (!req.user.walletAddress || req.user.walletAddress !== normalizedWallet) {
+      if (!req.user.walletAddress || req.user.walletAddress.toLowerCase() !== normalizedWallet) {
         return res.status(403).json({ success: false, message: 'Owner wallet does not match the authenticated user' });
       }
 
@@ -530,7 +540,7 @@ router.put(
 
       // Make sure the requester is the dataset owner
       if (
-        request.ownerWallet !==
+        request.ownerWallet?.toLowerCase() !==
         normalizedWallet
       ) {
         return res.status(403).json({
@@ -557,6 +567,8 @@ router.put(
         'Access request rejected by data owner';
 
       await request.save();
+
+      await notifyAfterSuccess(request, 'rejected');
 
       res.json({
         success: true,
@@ -612,7 +624,7 @@ router.get(
       }
 
       const allowed = req.auth.role === 'user'
-        ? req.user.walletAddress && request.ownerWallet === req.user.walletAddress
+        ? req.user.walletAddress && request.ownerWallet?.toLowerCase() === req.user.walletAddress.toLowerCase()
         : String(request.companyId?._id || request.companyId) === String(req.company._id);
       if (!allowed) return res.status(403).json({ success: false, message: 'Access request is not available to this account' });
 

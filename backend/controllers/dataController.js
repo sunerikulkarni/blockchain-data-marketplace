@@ -229,6 +229,16 @@ async function getIPFSData(req, res) {
             catch (e) { console.warn(`Lookup by datasetId #${req.query.datasetId}:`, e.message); }
         }
 
+        // A caller-supplied dataset ID may only authorize the CID recorded for
+        // that same dataset. Otherwise an authorized ID could be paired with
+        // an unrelated CID and bypass the per-dataset access check.
+        if (matched && (!matched.ipfsCID || matched.ipfsCID.toLowerCase() !== cid.toLowerCase())) {
+            return res.status(403).json({
+                success: false,
+                message: "The requested CID does not belong to the specified dataset."
+            });
+        }
+
         if (!matched) {
             try {
                 const { datasets } = await listDatasets();

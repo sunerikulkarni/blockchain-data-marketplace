@@ -16,18 +16,11 @@
 
     @media(min-width: 1024px) {
       .detail-layout {
-        grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+        grid-template-columns: minmax(0, 1.45fr) minmax(280px, .85fr);
         gap: 24px;
         align-items: start;
       }
-      .detail-side-col {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        position: sticky;
-        top: calc(var(--hdr-h) + 20px);
-        min-width: 0;
-      }
+      .detail-access-card { grid-column: 1 / -1; }
     }
 
     /* Ensure both columns shrink safely */
@@ -147,7 +140,7 @@
     #dataset-price { white-space: nowrap; }
     .detail-category{display:inline-flex;max-width:100%;margin-top:8px;padding:3px 10px;border:1px solid var(--border-card);border-radius:var(--r-f);background:var(--accent-sub);color:var(--accent);font-size:.72rem;font-weight:800;overflow-wrap:anywhere}
     .dataset-price-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0}
-    .detail-side-col .card > * { min-width: 0; }
+    .detail-layout .card > * { min-width: 0; }
   </style>
 </head>
 
@@ -174,7 +167,7 @@
     <div class="content-inner">
 
       <div style="margin-bottom:18px;">
-        <a href="marketplace.html" class="btn btn-secondary btn-sm">
+        <a href="marketplace.html" id="dataset-back-link" class="btn btn-secondary btn-sm">
           ← Back to Marketplace
         </a>
       </div>
@@ -217,11 +210,25 @@
           </div>
         </section>
 
-        <!-- RIGHT COLUMN: ACCESS & INTEGRITY -->
-        <div class="detail-side-col anim-up">
+        <!-- RIGHT COLUMN: INTEGRITY -->
+        <section class="card anim-up">
+          <div class="section-hdr">
+            <h2 class="section-ttl">Data Integrity</h2>
+          </div>
 
-          <!-- ACCESS CARD -->
-          <section class="card">
+          <div>
+            <p class="detail-label">SHA-256 Hash</p>
+            <div class="hash-box" id="data-hash">Not available</div>
+          </div>
+
+          <div style="margin-top:14px;">
+            <p class="detail-label">IPFS CID</p>
+            <div class="hash-box" id="ipfs-cid">Not available</div>
+          </div>
+        </section>
+
+        <!-- ACCESS AND PURCHASE ACTIONS -->
+          <section class="card detail-access-card anim-up">
             <div class="section-hdr">
               <h2 class="section-ttl">Access Control</h2>
             </div>
@@ -271,29 +278,6 @@
             </div>
           </section>
 
-          <!-- INTEGRITY CARD -->
-          <section class="card">
-            <div class="section-hdr">
-              <h2 class="section-ttl">Data Integrity</h2>
-            </div>
-
-            <div>
-              <p class="detail-label">SHA-256 Hash</p>
-              <div class="hash-box" id="data-hash">
-                Not available
-              </div>
-            </div>
-
-            <div style="margin-top:14px;">
-              <p class="detail-label">IPFS CID</p>
-              <div class="hash-box" id="ipfs-cid">
-                Not available
-              </div>
-            </div>
-          </section>
-
-        </div><!-- /detail-side-col -->
-
       </div><!-- /detail-layout -->
 
     </div><!-- /content-inner -->
@@ -319,6 +303,11 @@
   const datasetParams = datasetUrl.searchParams;
   const datasetId =
     datasetParams.get('id') || datasetParams.get('datasetId');
+  const datasetParentKey = datasetParams.get('from');
+  const datasetParent = PageNavigation.getParent(datasetParentKey);
+  const datasetBackLink = document.getElementById('dataset-back-link');
+  datasetBackLink.href = datasetParent.href;
+  datasetBackLink.textContent = `← Back to ${datasetParent.label}`;
 
   // Temporary, non-sensitive trace for diagnosing broken detail links.
   console.info('[Dataset load diagnostic]', {
@@ -619,22 +608,32 @@
      LOAD ACCESS STATUS
   ========================================================= */
 
+  let accessStatusRequestId = 0;
   async function loadAccessStatus() {
+    if (!WalletStatus.snapshot().initialized) return;
+    const requestId = ++accessStatusRequestId;
     const statusEl = document.getElementById('access-status');
     const payBtn = document.getElementById('pay-btn');
     const requestBtn = document.getElementById('request-access-btn');
     const accessDataBtn = document.getElementById('access-data-btn');
     const verifyBtn = document.getElementById('verify-integrity-btn');
 
-    if (!Wallet.isConnected()) {
-      statusEl.textContent = 'Connect Wallet';
+    if (!Wallet.isAuthorized()) {
+      const walletState = WalletStatus.snapshot();
+      const connectedButUnauthorized = walletState.connected;
+      statusEl.textContent = walletState.verificationStatus === 'wrong-network' ? 'Sepolia required'
+        : walletState.verificationStatus === 'mismatch' ? 'Wrong account' : 'Connect from Home';
       statusEl.className = 'access-status';
-      requestBtn.disabled = false;
+      requestBtn.disabled = true;
       requestBtn.style.display = 'inline-flex';
       payBtn.style.display = 'none';
       if (accessDataBtn) accessDataBtn.style.display = 'none';
       if (verifyBtn) verifyBtn.style.display = 'none';
-      document.getElementById('access-message').textContent = 'Connect your wallet to check access status.';
+      document.getElementById('access-message').textContent = walletState.verificationStatus === 'wrong-network'
+        ? 'Switch MetaMask to Sepolia from Home to check access status.'
+        : connectedButUnauthorized
+          ? 'Select the wallet linked to your DataChain account from Home to check access status.'
+          : 'Connect your wallet from Home to check access status.';
       return;
     }
 
@@ -672,6 +671,7 @@
         contract.getAccessStatus(datasetId, wallet),
         timeoutPromise
       ]);
+      if (requestId !== accessStatusRequestId || !Wallet.isAuthorized() || !walletAddressMatches(Wallet.getAddress(), wallet)) return;
 
       const statusNumber = Number(status);
       const statusText = ACCESS_STATUS[statusNumber] || 'UNKNOWN';
@@ -717,6 +717,7 @@
         document.getElementById('access-message').textContent = 'Access authorized on-chain! Click "Access Dataset Payload" to retrieve and decrypt the file from IPFS.';
       }
     } catch (error) {
+      if (requestId !== accessStatusRequestId) return;
       console.error('[AccessControl Error]', {
         datasetId,
         wallet,
@@ -740,7 +741,7 @@
 
   async function requestAccess() {
 
-    if (!Wallet.isConnected()) {
+    if (!Wallet.isAuthorized()) {
 
       Toast.warning(
         'Connect your wallet first.'
@@ -803,8 +804,11 @@
         return;
       }
 
+      if (!(await Wallet.verifyAuthorization(true))) throw new Error('Connect the wallet linked to your DataChain account on Sepolia before requesting access.');
+
       const signer =
         await provider.getSigner();
+      if (!walletAddressMatches(await signer.getAddress(), Auth.profile()?.walletAddress)) throw new Error('The selected MetaMask signer does not match your linked wallet.');
 
 
       const contract =
@@ -833,6 +837,12 @@
 
 
       await tx.wait();
+
+      try {
+        await API.post('/notifications/ingest', { transactionHash: tx.hash });
+      } catch (notificationError) {
+        console.warn('Confirmed access request notification sync failed:', notificationError.message);
+      }
 
       Transactions.addLocal({
         txHash: tx.hash,
@@ -914,7 +924,7 @@
 
   async function payForDataset() {
 
-    if (!Wallet.isConnected()) {
+    if (!Wallet.isAuthorized()) {
 
       Toast.warning(
         'Connect your wallet first.'
@@ -975,8 +985,11 @@
       const provider =
         getProvider();
 
+      if (!(await Wallet.verifyAuthorization(true))) throw new Error('Connect the wallet linked to your DataChain account on Sepolia before purchasing.');
+
       const signer =
         await provider.getSigner();
+      if (!walletAddressMatches(await signer.getAddress(), Auth.profile()?.walletAddress)) throw new Error('The selected MetaMask signer does not match your linked wallet.');
 
 
       const contract =
@@ -1022,6 +1035,12 @@
 
 
       await tx.wait();
+
+      try {
+        await API.post('/notifications/ingest', { transactionHash: tx.hash });
+      } catch (notificationError) {
+        console.warn('Confirmed purchase notification sync failed:', notificationError.message);
+      }
 
       Transactions.addLocal({
         txHash: tx.hash,
@@ -1117,7 +1136,7 @@
   let lastRetrievedPayload = null;
 
   async function accessDatasetPayload() {
-    if (!Wallet.isConnected()) {
+    if (!Wallet.isAuthorized()) {
       Toast.warning('Connect your wallet first.');
       return;
     }
@@ -1249,73 +1268,11 @@
 
 
   /* =========================================================
-     REFRESH ACCESS STATUS AFTER WALLET CONNECT
-  ========================================================= */
-
-  const walletButton =
-    document.querySelector(
-      '[data-wallet-connect]'
-    );
-
-
-  if (walletButton) {
-
-    walletButton.addEventListener(
-      'click',
-      () => {
-
-        setTimeout(
-          () => {
-            loadAccessStatus();
-          },
-          800
-        );
-
-      }
-    );
-
-  }
-
-
-  /* =========================================================
      META MASK ACCOUNT CHANGE
   ========================================================= */
 
-  if (
-    typeof window.ethereum !== 'undefined'
-  ) {
-
-    window.ethereum.on(
-      'accountsChanged',
-      async (accounts) => {
-
-        if (
-          accounts &&
-          accounts.length
-        ) {
-
-          Wallet.setAddress(
-            accounts[0]
-          );
-
-        } else {
-
-          Wallet.disconnect();
-
-        }
-
-
-        syncWalletUI(
-          Wallet.getAddress()
-        );
-
-
-        await loadAccessStatus();
-
-      }
-    );
-
-  }
+  window.addEventListener('dc:wallet-state', loadAccessStatus);
+  window.addEventListener('dc:auth-profile', loadAccessStatus);
 
 
   /* =========================================================

@@ -10,7 +10,7 @@ const router = express.Router();
 const requireAuth = require('../middleware/authMiddleware');
 
 function walletScopedAuth(req, res, next) {
-    const roles = req.query.owner ? ['user'] : ['user', 'company'];
+    const roles = req.query.owner || !req.query.requester ? ['user'] : ['user', 'company'];
     return requireAuth(...roles)(req, res, next);
 }
 
@@ -45,10 +45,14 @@ router.get("/chain/access-requests", walletScopedAuth, async (req, res) => {
     try {
         const owner = req.query.owner;
         const requester = req.query.requester;
+        const datasetId = req.query.datasetId;
 
         if (requester) {
             const wallet = req.auth.role === 'user' ? req.user.walletAddress : req.company.walletAddress;
-            if (!wallet || wallet !== requester.toLowerCase()) {
+            const walletMatches = req.auth.role === 'user'
+                ? wallet && wallet.toLowerCase() === requester.toLowerCase()
+                : wallet === requester.toLowerCase();
+            if (!walletMatches) {
                 return res.status(403).json({ success: false, message: 'Wallet does not match the authenticated account' });
             }
             const data = await getAccessRequestsForRequester(requester);
@@ -66,16 +70,28 @@ router.get("/chain/access-requests", walletScopedAuth, async (req, res) => {
             });
         }
 
-        if (!req.user.walletAddress || req.user.walletAddress !== owner.toLowerCase()) {
+        if (!/^0x[0-9a-fA-F]{40}$/.test(String(owner))) {
+            return res.status(400).json({ success: false, message: 'A valid owner wallet is required' });
+        }
+
+        if (!req.user.walletAddress || req.user.walletAddress.toLowerCase() !== owner.toLowerCase()) {
             return res.status(403).json({ success: false, message: 'Owner wallet does not match the authenticated user' });
         }
 
         const result = await getAccessRequestsForOwner(owner);
+        if (datasetId !== undefined) {
+            if (!/^\d+$/.test(String(datasetId)) || !result.owned.some((dataset) => String(dataset.id) === String(datasetId))) {
+                return res.status(403).json({ success: false, message: 'Dataset is not owned by the authenticated user' });
+            }
+        }
+        const requests = datasetId === undefined
+            ? result.requests
+            : result.requests.filter((request) => String(request.dataId) === String(datasetId));
         res.json({
             success: true,
-            count: result.requests.length,
-            ownedCount: result.owned.length,
-            data: result.requests
+            count: requests.length,
+            ownedCount: datasetId === undefined ? result.owned.length : 1,
+            data: requests
         });
     } catch (error) {
         console.error("GET /chain/access-requests error:", error.message);
@@ -86,14 +102,18 @@ router.get("/chain/access-requests", walletScopedAuth, async (req, res) => {
     }
 });
 
-router.get("/chain/purchases", (req, res, next) => req.query.wallet
-    ? requireAuth('user', 'company')(req, res, next)
-    : next(), async (req, res) => {
+router.get("/chain/purchases", requireAuth('user', 'company'), async (req, res) => {
     try {
         const wallet = req.query.wallet || null;
+        if (!wallet) {
+            return res.status(400).json({ success: false, message: 'An authorized wallet is required' });
+        }
         if (wallet) {
             const authenticatedWallet = req.auth.role === 'user' ? req.user.walletAddress : req.company.walletAddress;
-            if (!authenticatedWallet || authenticatedWallet !== wallet.toLowerCase()) {
+            const walletMatches = req.auth.role === 'user'
+                ? authenticatedWallet && authenticatedWallet.toLowerCase() === wallet.toLowerCase()
+                : authenticatedWallet === wallet.toLowerCase();
+            if (!walletMatches) {
                 return res.status(403).json({ success: false, message: 'Wallet does not match the authenticated account' });
             }
         }

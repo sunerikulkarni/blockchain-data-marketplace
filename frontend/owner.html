@@ -32,10 +32,40 @@
       gap: 20px;
     }
     .owner-grid > * { min-width: 0; }
+    body.dataset-access-mode #owner-wallet-overview,
+    body.dataset-access-mode #owner-datasets-panel { display: none !important; }
+    #selected-dataset-card { display: none; }
+    body.dataset-access-mode #selected-dataset-card { display: block; }
 
+    .owner-grid { grid-template-columns:minmax(0,1fr); align-items:start; }
+    #owner-back-link { display:none; }
+    body.dataset-access-mode #owner-back-link { display:inline-flex; }
+    .owner-dataset-select-wrap { display:flex; align-items:end; gap:14px; flex-wrap:wrap; }
+    .owner-dataset-select-field { flex:1; min-width:min(100%,280px); }
+    .owner-dataset-select-field label { display:block; margin-bottom:7px; color:var(--text-2); font-size:.8rem; font-weight:700; }
+    .owner-dataset-select-control { position:relative; }
+    .owner-dataset-select-control::after { content:""; position:absolute; top:50%; right:17px; width:8px; height:8px; border-right:2px solid var(--text-3); border-bottom:2px solid var(--text-3); transform:translateY(-65%) rotate(45deg); pointer-events:none; }
+    .owner-dataset-select-control:focus-within::after { border-color:var(--accent); }
+    #owner-dataset-select { width:100%; max-width:none; padding-right:44px; }
+    #owner-datasets-status { margin-top:10px; color:var(--text-3); font-size:.8rem; }
+    #access-requests-scroll { max-height:580px; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:rgba(88,119,88,.55) rgba(88,119,88,.08); }
+    #access-requests-scroll::-webkit-scrollbar { width:7px; }
+    #access-requests-scroll::-webkit-scrollbar-track { background:rgba(88,119,88,.08); border-radius:999px; }
+    #access-requests-scroll::-webkit-scrollbar-thumb { background:rgba(88,119,88,.5); border-radius:999px; }
+    #access-requests-scroll::-webkit-scrollbar-thumb:hover { background:rgba(88,119,88,.68); }
+    #access-requests { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; align-items:stretch; }
+    #access-requests > .empty-state { grid-column:1/-1; }
+    .request-card { min-width:0; height:100%; padding:14px; gap:9px; margin:0; backdrop-filter:none; -webkit-backdrop-filter:none; }
+    .request-card-header > div { min-width:0; overflow-wrap:anywhere; }
+    .request-card-header .access-status { flex-shrink:0; }
+    .request-card > div { min-width:0; overflow-wrap:anywhere; }
+    .request-actions { margin-top:auto; }
+
+    @media(max-width:700px){
+      #access-requests { grid-template-columns:minmax(0,1fr); }
+      #access-requests-scroll { max-height:520px; }
+    }
     @media(min-width:1200px){
-      .owner-grid{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
-      .owner-grid>.network-alert,.owner-grid>.section-hdr,.owner-grid>section.card:last-of-type{grid-column:1/-1}
       .wallet-card-body{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 20px}
     }
 
@@ -277,7 +307,7 @@
       font-family: monospace;
       font-size: .72rem;
       padding: 4px 8px;
-      background: rgba(255,255,255,.6);
+      background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: var(--r-sm);
       word-break: break-all;
@@ -334,7 +364,7 @@
 
   <!-- Header -->
   <header class="app-header">
-    <div class="hdr-title">Owner Hub</div>
+    <div class="hdr-title" id="owner-page-title">Owner Hub</div>
     <div class="hdr-spacer"></div>
 
     <div class="live-badge" id="network-chip" style="margin-right:12px;">
@@ -365,20 +395,20 @@
       </div>
 
       <!-- Page heading -->
-      <div class="section-hdr">
+      <div class="section-hdr" id="owner-page-heading">
         <div>
-          <h1 class="section-ttl">Owner Dashboard</h1>
-          <p style="color:var(--text-2);margin-top:6px;">
+          <h1 class="section-ttl" id="owner-page-heading-title">Owner Dashboard</h1>
+          <p id="owner-page-description" style="color:var(--text-2);margin-top:6px;">
             Manage your datasets and review incoming access requests directly on Sepolia.
           </p>
         </div>
-        <a href="marketplace.html" class="btn btn-secondary btn-sm">
-          ← Marketplace
+        <a href="listings.html" id="owner-back-link" class="btn btn-secondary btn-sm">
+          ← Back
         </a>
       </div>
 
       <!-- Wallet Overview -->
-      <section class="card">
+      <section class="card" id="owner-wallet-overview">
         <div class="section-hdr">
           <h2 class="section-ttl">Connected Wallet</h2>
         </div>
@@ -407,35 +437,50 @@
         </div>
       </section>
 
-      <!-- Owner Datasets -->
-      <section class="card">
+      <!-- Owned Dataset Selector -->
+      <section class="card" id="owner-datasets-panel">
         <div class="section-hdr">
           <div>
-            <h2 class="section-ttl">My Datasets on Sepolia</h2>
+            <h2 class="section-ttl">Access Management</h2>
             <p style="font-size:.78rem;color:var(--text-3);margin-top:4px;">
-              Datasets where your connected address is the registered owner.
+              Choose one of your owned datasets to review its access requests.
             </p>
           </div>
-
           <a href="addData.html" class="btn btn-primary btn-sm">
             + Add Dataset
           </a>
         </div>
-
-        <div id="owner-datasets">
-          <div class="empty-state">
-            <h3>Checking datasets...</h3>
-            <p>Connect your MetaMask wallet to view datasets you own on the blockchain.</p>
+        <div class="owner-dataset-select-wrap">
+          <div class="owner-dataset-select-field">
+            <label for="owner-dataset-select">Select Dataset</label>
+            <div class="owner-dataset-select-control">
+              <select id="owner-dataset-select" class="form-input form-select" disabled>
+                <option value="">Connect wallet to load owned datasets</option>
+              </select>
+            </div>
           </div>
         </div>
+        <p id="owner-datasets-status" aria-live="polite">Connect your wallet to load datasets you own on Sepolia.</p>
+      </section>
+
+      <section class="card" id="selected-dataset-card" aria-live="polite">
+        <div class="section-hdr">
+          <div>
+            <span class="info-label" id="selected-dataset-id">Dataset</span>
+            <h2 class="section-ttl" id="selected-dataset-name" style="margin-top:5px;">Loading dataset…</h2>
+          </div>
+          <span class="badge" id="selected-dataset-category"></span>
+        </div>
+        <div class="wallet-info-row"><span class="info-label">Owner</span><span class="info-val" id="selected-dataset-owner"></span></div>
+        <p id="selected-dataset-error" class="muted-note" style="display:none;margin-top:12px;"></p>
       </section>
 
       <!-- Access Requests -->
-      <section class="card">
+      <section class="card" id="access-requests-panel">
         <div class="section-hdr">
           <div>
-            <h2 class="section-ttl">Pending &amp; Processed Access Requests</h2>
-            <p style="font-size:.78rem;color:var(--text-3);margin-top:4px;">
+            <h2 class="section-ttl" id="access-requests-title">Pending &amp; Processed Access Requests</h2>
+            <p id="access-requests-description" style="font-size:.78rem;color:var(--text-3);margin-top:4px;">
               Review access requests from buyers, approve with MetaMask, or reject.
             </p>
           </div>
@@ -445,14 +490,11 @@
         </div>
 
         <!-- Requester Lookup / Direct Access Manager -->
-        <div class="lookup-box">
+        <div class="lookup-box" id="requester-lookup">
           <div style="font-size:.8rem;font-weight:700;color:var(--text-2);">
             Look up or process request by buyer address:
           </div>
           <div class="lookup-row">
-            <select id="lookup-dataset-select" class="form-input form-select" style="max-width:220px;">
-              <option value="">Select Dataset…</option>
-            </select>
             <input
               type="text"
               id="lookup-requester-input"
@@ -464,11 +506,13 @@
           </div>
         </div>
 
-        <div id="access-requests" style="margin-top:20px;">
+        <div id="access-requests-scroll" style="margin-top:20px;">
+        <div id="access-requests">
           <div class="empty-state">
             <h3>Loading requests...</h3>
             <p>Connect your wallet to inspect access requests.</p>
           </div>
+        </div>
         </div>
       </section>
 
@@ -512,6 +556,28 @@
 <script>
   let ownerDatasets = [];
   let isSepolia = false;
+  const requestedDatasetId = new URLSearchParams(window.location.search).get('datasetId');
+  const datasetAccessMode = requestedDatasetId !== null;
+  const validRequestedDatasetId = requestedDatasetId && /^\d+$/.test(requestedDatasetId) ? requestedDatasetId : null;
+
+  if (datasetAccessMode) {
+    document.body.classList.add('dataset-access-mode');
+    document.title = 'Manage Dataset Access - DataChain';
+    document.getElementById('owner-page-title').textContent = 'Manage Access';
+    document.getElementById('owner-page-heading-title').textContent = 'Dataset Access Management';
+    document.getElementById('owner-page-description').textContent = 'Review incoming requests for this dataset and approve or reject them on Sepolia.';
+    document.getElementById('access-requests-title').textContent = 'Access Requests';
+    document.getElementById('access-requests-description').textContent = 'Only requests associated with the selected dataset are shown.';
+    const accessParent = PageNavigation.getParent(new URLSearchParams(window.location.search).get('from'), 'owner');
+    const backLink = document.getElementById('owner-back-link');
+    backLink.href = accessParent.href;
+    backLink.textContent = `← Back to ${accessParent.label}`;
+    if (!validRequestedDatasetId) {
+      document.getElementById('selected-dataset-name').textContent = 'Invalid dataset ID';
+      document.getElementById('selected-dataset-error').textContent = `Return to ${accessParent.label} and open Manage Access from a valid dataset.`;
+      document.getElementById('selected-dataset-error').style.display = 'block';
+    }
+  }
 
   /* =========================================================
      PROVIDER & NETWORK HELPERS
@@ -523,12 +589,13 @@
     return new ethers.BrowserProvider(window.ethereum);
   }
 
-  async function checkNetwork() {
-    if (typeof window.ethereum === 'undefined') return false;
+  async function checkNetwork(expectedWallet = null) {
+    const wallet = WalletStatus.snapshot();
+    if (!wallet.providerAvailable || !wallet.chainId) return false;
     try {
-      const provider = getProvider();
-      const network = await provider.getNetwork();
-      isSepolia = (network.chainId === SEPOLIA_CHAIN_ID);
+      if (expectedWallet && (!wallet.account || !walletAddressMatches(wallet.account, expectedWallet))) return false;
+      const chainId = BigInt(wallet.chainId);
+      isSepolia = wallet.onSepolia;
 
       const alertEl = document.getElementById('network-alert');
       const netNameEl = document.getElementById('network-name');
@@ -541,8 +608,8 @@
         netTxtEl.style.color = 'var(--accent)';
       } else {
         alertEl.classList.add('visible');
-        netNameEl.textContent = `Chain ${network.chainId}`;
-        netTxtEl.textContent = `Unsupported Network (${network.chainId})`;
+        netNameEl.textContent = `Chain ${chainId}`;
+        netTxtEl.textContent = `Unsupported Network (${chainId})`;
         netTxtEl.style.color = 'var(--danger)';
       }
       return isSepolia;
@@ -613,24 +680,25 @@
      LOAD OWNER DATASETS FROM SEPOLIA
   ========================================================= */
   async function loadOwnerDatasets(walletAddress) {
-    const container = document.getElementById('owner-datasets');
-    const selectEl = document.getElementById('lookup-dataset-select');
+    const contextId = ownerLoadId;
+    const selectEl = document.getElementById('owner-dataset-select');
+    const statusEl = document.getElementById('owner-datasets-status');
     ownerDatasets = [];
-    selectEl.innerHTML = '<option value="">Select Dataset…</option>';
+    selectEl.innerHTML = '<option value="">Loading owned datasets…</option>';
+    selectEl.disabled = true;
+    statusEl.textContent = 'Loading datasets owned by this wallet from Sepolia…';
 
     try {
       const provider = getProvider();
       const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
 
       const countBN = await contract.dataCount();
+      if (contextId !== ownerLoadId || !WalletStatus.account || !walletAddressMatches(WalletStatus.account, walletAddress)) return;
       const count = Number(countBN);
 
       if (count === 0) {
-        container.innerHTML = `
-          <div class="empty-state">
-            <h3>No datasets found on-chain</h3>
-            <p>Total dataset count on contract is 0.</p>
-          </div>`;
+        selectEl.innerHTML = '<option value="">No datasets owned yet.</option>';
+        statusEl.innerHTML = 'No datasets owned yet. <a href="addData.html" class="btn btn-secondary btn-sm" style="margin-left:8px;">+ Add Dataset</a>';
         return;
       }
 
@@ -639,6 +707,7 @@
       for (let i = 1; i <= count; i++) {
         try {
           const d = await contract.getData(i);
+          if (contextId !== ownerLoadId || !WalletStatus.account || !walletAddressMatches(WalletStatus.account, walletAddress)) return;
           const ownerAddr = d[5];
           if (ownerAddr.toLowerCase() === normalizedOwner) {
             ownerDatasets.push({
@@ -658,62 +727,52 @@
         }
       }
 
+      if (datasetAccessMode) {
+        const selected = ownerDatasets.find((dataset) => String(dataset.id) === String(validRequestedDatasetId));
+        if (!selected) {
+          ownerDatasets = [];
+          selectEl.innerHTML = '<option value="">Dataset ownership could not be verified</option>';
+          statusEl.textContent = 'Only the connected wallet owner can manage this dataset.';
+          const nameEl = document.getElementById('selected-dataset-name');
+          const errorEl = document.getElementById('selected-dataset-error');
+          nameEl.textContent = 'Dataset unavailable';
+          errorEl.textContent = 'This dataset was not found in the connected wallet’s owned datasets. Access requests cannot be managed.';
+          errorEl.style.display = 'block';
+          document.getElementById('access-requests').innerHTML = '<div class="empty-state"><h3>Access management unavailable</h3><p>Only the verified dataset owner can view or manage its requests.</p></div>';
+          return;
+        }
+        ownerDatasets = [selected];
+        document.getElementById('selected-dataset-id').textContent = `Dataset #${selected.id}`;
+        document.getElementById('selected-dataset-name').textContent = selected.name;
+        document.getElementById('selected-dataset-category').textContent = selected.category || 'Dataset';
+        document.getElementById('selected-dataset-owner').textContent = selected.owner;
+      }
+
       if (ownerDatasets.length === 0) {
-        container.innerHTML = `
-          <div class="empty-state">
-            <h3>No datasets owned by this wallet</h3>
-            <p>Your connected address (${Wallet.short(walletAddress)}) has not created any datasets on Sepolia yet.</p>
-            <a href="addData.html" class="btn btn-secondary mt-12">+ List a Dataset</a>
-          </div>`;
+        selectEl.innerHTML = '<option value="">No datasets owned yet.</option>';
+        statusEl.innerHTML = 'No datasets owned yet. <a href="addData.html" class="btn btn-secondary btn-sm" style="margin-left:8px;">+ Add Dataset</a>';
         return;
       }
 
-      // Populate lookup select
+      // Populate the access-management selector with datasets owned by this wallet.
+      const previousSelection = selectEl.value;
+      selectEl.innerHTML = '<option value="">Select Dataset…</option>';
       ownerDatasets.forEach(ds => {
         const opt = document.createElement('option');
         opt.value = ds.id;
-        opt.textContent = `#${ds.id} — ${ds.name}`;
+        opt.textContent = `${ds.name} — Dataset #${ds.id}`;
         selectEl.appendChild(opt);
       });
-
-      // Render dataset items
-      container.innerHTML = '';
-      ownerDatasets.forEach(ds => {
-        const bc = badgeClass(ds.category);
-        const item = document.createElement('div');
-        item.className = 'dataset-item anim-up';
-        item.innerHTML = `
-          <div class="dataset-item-header">
-            <div>
-              <span style="font-size:.72rem;font-weight:800;color:var(--text-3);text-transform:uppercase;">Dataset #${ds.id}</span>
-              <div class="dataset-title">${esc(ds.name)}</div>
-            </div>
-            <div style="text-align:right;">
-              <span class="badge ${bc}">${esc(ds.category)}</span>
-              <div class="dataset-price" style="margin-top:4px;">${parseFloat(ds.priceEth).toFixed(4)} ETH</div>
-            </div>
-          </div>
-          <p style="font-size:.82rem;color:var(--text-2);margin-bottom:12px;line-height:1.5;">${esc(ds.description)}</p>
-          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:.75rem;">
-            ${ds.ipfsCID ? `<span><strong>IPFS CID:</strong> <span class="hash-badge">${esc(ds.ipfsCID)}</span></span>` : ''}
-            ${ds.dataHash ? `<span><strong>Hash:</strong> <span class="hash-badge">${esc(ds.dataHash)}</span></span>` : ''}
-          </div>
-          <div style="margin-top:12px;display:flex;justify-content:flex-end;">
-            <a href="dataset.html?id=${encodeURIComponent(ds.id)}" class="btn btn-secondary btn-sm" target="_blank">
-              View Dataset Page ↗
-            </a>
-          </div>
-        `;
-        container.appendChild(item);
-      });
+      const selectedId = datasetAccessMode ? validRequestedDatasetId : ownerDatasets.some(ds => ds.id === previousSelection) ? previousSelection : ownerDatasets[0].id;
+      selectEl.value = selectedId || '';
+      selectEl.disabled = false;
+      statusEl.textContent = `${ownerDatasets.length} owned dataset${ownerDatasets.length === 1 ? '' : 's'} available.`;
 
     } catch (err) {
+      if (contextId !== ownerLoadId) return;
       console.error('Error loading owner datasets:', err);
-      container.innerHTML = `
-        <div class="empty-state">
-          <h3>Error reading contract</h3>
-          <p>${esc(err.message || 'Could not fetch datasets from Sepolia.')}</p>
-        </div>`;
+      selectEl.innerHTML = '<option value="">Could not load owned datasets</option>';
+      statusEl.textContent = err.message || 'Could not fetch datasets from Sepolia.';
     }
   }
 
@@ -722,7 +781,7 @@
   ========================================================= */
   function mergeCandidate(map, item) {
     if (!item || !item.dataId || !item.requester || !ethers.isAddress(item.requester)) return;
-    if (!ownerDatasets.some(ds => String(ds.id) === String(item.dataId))) return;
+    if (!getSelectedOwnerDatasets().some(ds => String(ds.id) === String(item.dataId))) return;
     const key = `${String(item.dataId)}_${item.requester.toLowerCase()}`;
     const prev = map.get(key);
     if (!prev) {
@@ -741,10 +800,17 @@
     });
   }
 
+  function getSelectedOwnerDatasets() {
+    const selectedId = datasetAccessMode ? validRequestedDatasetId : document.getElementById('owner-dataset-select').value;
+    return ownerDatasets.filter(ds => String(ds.id) === String(selectedId));
+  }
+
   async function loadAccessRequests(walletAddress) {
+    const contextId = ownerLoadId;
     const container = document.getElementById('access-requests');
     if (!walletAddress) return;
 
+    const selectedDatasets = getSelectedOwnerDatasets();
     if (ownerDatasets.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
@@ -754,16 +820,23 @@
       return;
     }
 
+    if (selectedDatasets.length === 0) {
+      container.innerHTML = '<div class="empty-state"><h3>Select a dataset</h3><p>Choose one of your owned datasets to review its access requests.</p></div>';
+      return;
+    }
+
     container.innerHTML = '<div class="empty-state"><h3>Scanning Sepolia for access requests...</h3></div>';
 
     try {
       const provider = getProvider();
       const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
-      const ownedIds = ownerDatasets.map(ds => String(ds.id));
+      const ownedIds = selectedDatasets.map(ds => String(ds.id));
       const candidates = new Map();
+      const blockTimestampCache = new Map();
 
       try {
-        const chainRes = await API.get(`/chain/access-requests?owner=${encodeURIComponent(walletAddress)}`);
+          const datasetFilter = `&datasetId=${encodeURIComponent(ownedIds[0])}`;
+          const chainRes = await API.get(`/chain/access-requests?owner=${encodeURIComponent(walletAddress)}${datasetFilter}`);
         if (chainRes && chainRes.success && Array.isArray(chainRes.data)) {
           chainRes.data.forEach(r => mergeCandidate(candidates, {
             dataId: r.dataId,
@@ -779,6 +852,7 @@
       }
 
       const eventRows = await queryAccessRequestedEvents(contract, ownedIds);
+      if (contextId !== ownerLoadId || !WalletStatus.account || !walletAddressMatches(WalletStatus.account, walletAddress)) return;
       eventRows.forEach(r => mergeCandidate(candidates, {
         dataId: r.dataId,
         requester: r.requester,
@@ -805,8 +879,21 @@
         }
         const statusText = ACCESS_STATUS[statusNumber] || 'UNKNOWN';
         if (statusText === 'NONE') continue;
+        if (!req.timestamp && req.blockNumber) {
+          try {
+            if (!blockTimestampCache.has(req.blockNumber)) {
+              blockTimestampCache.set(req.blockNumber, provider.getBlock(req.blockNumber));
+            }
+            const block = await blockTimestampCache.get(req.blockNumber);
+            if (block) req.timestamp = new Date(Number(block.timestamp) * 1000).toISOString();
+          } catch (timestampError) {
+            console.warn('Could not load request block timestamp:', timestampError.message);
+          }
+        }
         verified.push({ ...req, statusText, statusNumber });
       }
+
+      if (contextId !== ownerLoadId || !WalletStatus.account || !walletAddressMatches(WalletStatus.account, walletAddress)) return;
 
       const rank = { PENDING: 0, APPROVED: 1, AUTHORIZED: 2, REJECTED: 3 };
       verified.sort((a, b) => {
@@ -823,11 +910,9 @@
       if (verified.length === 0) {
         container.innerHTML = `
           <div class="empty-state">
-            <h3>No on-chain access requests</h3>
-            <p>When a buyer requests access to your datasets on Sepolia, the live request appears here after the transaction confirms.</p>
-            <p style="font-size:.75rem;color:var(--text-3);margin-top:6px;">
-              Tip: Use the lookup bar to check any buyer address against the contract.
-            </p>
+            <h3>${datasetAccessMode ? 'No access requests for this dataset yet.' : 'No on-chain access requests'}</h3>
+            <p>${datasetAccessMode ? 'Incoming requests for this dataset will appear here after they are confirmed on Sepolia.' : 'When a buyer requests access to your datasets on Sepolia, the live request appears here after the transaction confirms.'}</p>
+            ${datasetAccessMode ? '' : `<p style="font-size:.75rem;color:var(--text-3);margin-top:6px;">Tip: Use the lookup bar to check any buyer address against the contract.</p>`}
           </div>`;
         return;
       }
@@ -852,6 +937,7 @@
       });
 
     } catch (err) {
+      if (contextId !== ownerLoadId) return;
       console.error('Error loading requests:', err);
       container.innerHTML = `
         <div class="empty-state">
@@ -957,7 +1043,9 @@
 
     try {
       const provider = getProvider();
+      if (!(await Wallet.verifyAuthorization(true))) throw new Error('Connect the wallet linked to your DataChain account on Sepolia before approving access.');
       const signer = await provider.getSigner();
+      if (!walletAddressMatches(await signer.getAddress(), Auth.profile()?.walletAddress)) throw new Error('The selected MetaMask signer does not match your linked wallet.');
       const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
       Toast.show(`Submitting approval for ${Wallet.short(requester)}...`);
@@ -975,6 +1063,12 @@
       }
 
       await tx.wait();
+
+      try {
+        await API.post('/notifications/ingest', { transactionHash: tx.hash });
+      } catch (notificationError) {
+        console.warn('Confirmed approval notification sync failed:', notificationError.message);
+      }
 
       const liveStatus = Number(await contract.getAccessStatus(dataId, requester));
       if (ACCESS_STATUS[liveStatus] !== 'APPROVED') {
@@ -1060,7 +1154,9 @@
 
     try {
       const provider = getProvider();
+      if (!(await Wallet.verifyAuthorization(true))) throw new Error('Connect the wallet linked to your DataChain account on Sepolia before rejecting access.');
       const signer = await provider.getSigner();
+      if (!walletAddressMatches(await signer.getAddress(), Auth.profile()?.walletAddress)) throw new Error('The selected MetaMask signer does not match your linked wallet.');
       const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
       Toast.show(`Submitting rejection for ${Wallet.short(requester)}...`);
@@ -1078,6 +1174,12 @@
       }
 
       await tx.wait();
+
+      try {
+        await API.post('/notifications/ingest', { transactionHash: tx.hash });
+      } catch (notificationError) {
+        console.warn('Confirmed rejection notification sync failed:', notificationError.message);
+      }
 
       const liveStatus = Number(await contract.getAccessStatus(dataId, requester));
       if (ACCESS_STATUS[liveStatus] !== 'REJECTED') {
@@ -1140,7 +1242,7 @@
      MANUAL LOOKUP / VERIFY REQUESTER HANDLER
   ========================================================= */
   async function handleLookup() {
-    const datasetSelect = document.getElementById('lookup-dataset-select');
+    const datasetSelect = document.getElementById('owner-dataset-select');
     const inputEl = document.getElementById('lookup-requester-input');
     const dataId = datasetSelect.value;
     const requester = inputEl.value.trim();
@@ -1182,32 +1284,65 @@
   /* =========================================================
      LOAD OWNER DASHBOARD
   ========================================================= */
+  let ownerLoadId = 0;
   async function loadOwnerDashboard() {
-    const wallet = Wallet.getAddress();
+    const walletState = WalletStatus.snapshot();
+    if (!walletState.initialized) {
+      document.getElementById('wallet-network-txt').textContent = 'Checking wallet…';
+      document.getElementById('network-name').textContent = 'Checking…';
+      document.getElementById('owner-datasets-status').textContent = 'Verifying your connected wallet…';
+      return;
+    }
+    const loadId = ++ownerLoadId;
+    const wallet = walletState.account;
+    const linkedWallet = Auth.profile()?.walletAddress || null;
+    ownerDatasets = [];
+    document.getElementById('wallet-balance-txt').textContent = '—';
+    document.getElementById('wallet-network-txt').textContent = wallet ? 'Checking network…' : 'Not connected';
+    document.getElementById('network-name').textContent = wallet ? 'Checking…' : 'Not connected';
+    document.getElementById('network-alert').classList.remove('visible');
+    document.getElementById('owner-dataset-select').innerHTML = '<option value="">Loading owned datasets…</option>';
+    document.getElementById('owner-dataset-select').disabled = true;
+    document.getElementById('owner-datasets-status').textContent = 'Checking the connected wallet…';
+    document.getElementById('access-requests').innerHTML = '<div class="empty-state"><h3>Loading owner information</h3><p>Verifying your connected wallet.</p></div>';
 
-    if (!wallet) {
-      document.getElementById('wallet-balance-txt').textContent = '—';
+    if (!wallet || !linkedWallet || !walletAddressMatches(wallet, linkedWallet)) {
       document.getElementById('wallet-network-txt').textContent = 'Not connected';
-      document.getElementById('owner-datasets').innerHTML = `
-        <div class="empty-state">
-          <h3>Connect your wallet</h3>
-          <p>Connect your MetaMask wallet to view datasets and manage access requests.</p>
-        </div>`;
+      document.getElementById('network-name').textContent = 'Not connected';
+      document.getElementById('network-alert').classList.remove('visible');
+      document.querySelectorAll('.info-val.wallet-addr-txt').forEach(el => el.textContent = 'Not connected');
+      document.getElementById('owner-dataset-select').innerHTML = '<option value="">Connect from Home to load owned datasets</option>';
+      document.getElementById('owner-dataset-select').disabled = true;
+      document.getElementById('owner-datasets-status').textContent = 'Connect your wallet from Home to load datasets you own on Sepolia.';
       document.getElementById('access-requests').innerHTML = `
         <div class="empty-state">
           <h3>Wallet required</h3>
-          <p>Connect your wallet to review and approve access requests.</p>
+          <p>${datasetAccessMode ? 'Select the wallet that owns this dataset from Home to review its access requests.' : 'Connect your wallet from Home to review and approve access requests.'}</p>
         </div>`;
+      if (datasetAccessMode && validRequestedDatasetId) {
+        document.getElementById('selected-dataset-id').textContent = `Dataset #${validRequestedDatasetId}`;
+        document.getElementById('selected-dataset-name').textContent = 'Connect owner wallet from Home to verify dataset';
+      }
       return;
     }
 
     // Check network
-    await checkNetwork();
+    const onSepolia = await checkNetwork(wallet);
+    if (loadId !== ownerLoadId || !WalletStatus.account || !walletAddressMatches(WalletStatus.account, wallet)) return;
+    if (!onSepolia) {
+      ownerDatasets = [];
+      document.getElementById('owner-dataset-select').innerHTML = '<option value="">Switch MetaMask to Sepolia</option>';
+      document.getElementById('owner-dataset-select').disabled = true;
+      document.getElementById('owner-datasets-status').textContent = 'Switch MetaMask to Sepolia to view owner data.';
+      document.getElementById('access-requests').innerHTML = '<div class="empty-state"><h3>Sepolia required</h3><p>Switch MetaMask to Sepolia to view owner requests and perform owner actions.</p></div>';
+      return;
+    }
 
     // Check balance
     try {
       const provider = getProvider();
       const bal = await provider.getBalance(wallet);
+      if (loadId !== ownerLoadId || !WalletStatus.account || !walletAddressMatches(WalletStatus.account, wallet)) return;
       document.getElementById('wallet-balance-txt').textContent = `${parseFloat(ethers.formatEther(bal)).toFixed(4)} ETH`;
     } catch {
       document.getElementById('wallet-balance-txt').textContent = '—';
@@ -1215,6 +1350,7 @@
 
     // Load datasets and requests
     await loadOwnerDatasets(wallet);
+    if (loadId !== ownerLoadId || !WalletStatus.account || !walletAddressMatches(WalletStatus.account, wallet)) return;
     await loadAccessRequests(wallet);
   }
 
@@ -1224,33 +1360,14 @@
   document.getElementById('switch-network-btn').addEventListener('click', switchToSepolia);
   document.getElementById('refresh-requests-btn').addEventListener('click', () => loadAccessRequests(Wallet.getAddress()));
   document.getElementById('lookup-btn').addEventListener('click', handleLookup);
+  document.getElementById('owner-dataset-select').addEventListener('change', () => loadAccessRequests(Wallet.getAddress()));
 
-  // MetaMask network change listener
-  if (typeof window.ethereum !== 'undefined') {
-    window.ethereum.on('chainChanged', async () => {
-      await loadOwnerDashboard();
-    });
+  window.addEventListener('dc:wallet-state', loadOwnerDashboard);
+  window.addEventListener('dc:auth-profile', loadOwnerDashboard);
 
-    window.ethereum.on('accountsChanged', async (accounts) => {
-      if (accounts && accounts.length) {
-        Wallet.setAddress(accounts[0]);
-      } else {
-        Wallet.disconnect();
-      }
-      syncWalletUI(Wallet.getAddress());
-      await loadOwnerDashboard();
-    });
-  }
-
-  // Reload after connecting wallet via header button
-  const walletBtn = document.querySelector('[data-wallet-connect]');
-  if (walletBtn) {
-    walletBtn.addEventListener('click', () => {
-      setTimeout(loadOwnerDashboard, 800);
-    });
-  }
-
-  document.addEventListener('DOMContentLoaded', loadOwnerDashboard);
+  document.addEventListener('DOMContentLoaded', () => {
+    if (ownerLoadId === 0) loadOwnerDashboard();
+  });
 </script>
 
 </body>

@@ -3,84 +3,59 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DataChain — Company Dashboard</title>
+  <title>DataChain — Company Home</title>
+  <script src="theme-init.js"></script>
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="auth-page.css">
+  <link rel="stylesheet" href="company-pages.css">
 </head>
-<body>
+<body class="user-home-page company-home-page">
   <div class="site-wrap">
+    <header class="app-header">
+      <div class="logo">Data<em>Chain</em></div>
+      <div class="hdr-spacer"></div>
+      <div class="live-badge"><div class="live-dot"></div>Sepolia · Testnet</div>
+      <div class="company-header-wallet" aria-live="polite"><div class="w-dot"></div><span class="company-wallet-label">Not connected</span><strong class="company-wallet-state">Not linked</strong></div>
+      <a class="btn btn-outline btn-sm" href="profile.html">Profile</a>
+      <button class="btn btn-secondary btn-sm" type="button" data-home-wallet-connect disabled>Connect MetaMask</button>
+    </header>
     <main class="main-content">
       <div class="content-inner">
-
-        <div class="section-hdr">
-          <h1 class="section-ttl">Company Dashboard</h1>
-          <span class="badge badge-green" id="company-status">Verified</span>
-        </div>
-
-        <!-- Company info card -->
-        <section class="card dashboard-card" style="margin-bottom: 14px;">
-          <h2 id="company-name" class="section-ttl">Loading company…</h2>
-          <p id="company-email" style="margin-top: 6px; color: var(--text-2); font-size: .875rem;"></p>
-          <p id="company-wallet" style="margin-top: 4px; color: var(--text-3); font-size: .78rem; font-family: monospace; overflow-wrap: anywhere;"></p>
+        <section class="user-home-welcome">
+          <div class="user-home-welcome-copy">
+            <div class="user-home-eyebrow">Your company</div>
+            <h1 id="company-name">Welcome back</h1>
+            <p id="company-email">Your DataChain company workspace.</p>
+          </div>
+          <div class="user-home-quick-actions">
+            <a class="btn btn-primary" href="company-my-list.html">My List</a>
+            <a class="btn btn-secondary" href="marketplace.html">Browse Marketplace</a>
+          </div>
         </section>
-
-        <!-- Stats grid -->
-        <div class="dashboard-grid" style="margin-bottom: 14px;">
-          <section class="card dashboard-card">
-            <h3>Purchased datasets</h3>
-            <div class="dashboard-value" id="company-purchased-count">—</div>
-          </section>
-          <section class="card dashboard-card">
-            <h3>Pending access requests</h3>
-            <div class="dashboard-value" id="company-pending-count">—</div>
-          </section>
-        </div>
-
-        <!-- Recent purchases -->
-        <section class="card dashboard-card" style="margin-bottom: 20px;">
-          <h3>Recent purchases</h3>
-          <div id="company-recent" class="dashboard-list">Loading…</div>
+        <div class="company-wallet-notice" role="status"></div>
+        <section class="user-home-panel company-identity" aria-label="Company identity">
+          <div><span>Email</span><strong id="company-identity-email">—</strong></div>
+          <div><span>Registered wallet</span><strong id="company-wallet">—</strong></div>
+          <div><span>Verification</span><strong class="badge badge-green" id="company-status">—</strong></div>
         </section>
-
-        <!-- Navigation actions -->
-        <div class="dashboard-actions">
-          <a class="btn btn-secondary" href="company-my-list.html">My List</a>
-          <a class="btn btn-primary" href="marketplace.html">Marketplace</a>
-          <a class="btn btn-secondary" href="transactions.html">Transactions</a>
+        <section class="user-home-stats company-home-stats" aria-label="Company summary">
+          <article class="user-home-stat"><div class="user-home-stat-label">Purchased datasets</div><div class="user-home-stat-value" id="company-purchased-count">—</div></article>
+          <article class="user-home-stat"><div class="user-home-stat-label">Pending access requests</div><div class="user-home-stat-value" id="company-pending-count">—</div></article>
+          <article class="user-home-stat"><div class="user-home-stat-label">Recent purchases</div><div class="user-home-stat-value" id="company-recent-count">—</div></article>
+        </section>
+        <div class="user-home-lower-grid">
+          <section class="user-home-panel" aria-labelledby="company-purchases-title">
+            <div class="user-home-panel-head"><div><h2 id="company-purchases-title">Recent purchases</h2><p>Datasets purchased by your company wallet.</p></div><a class="user-home-panel-link" href="company-my-list.html">View all →</a></div>
+            <div class="user-home-activity-list" id="company-recent" aria-live="polite"><div class="user-home-loading">Loading purchases…</div></div>
+          </section>
+          <section class="user-home-panel" aria-labelledby="company-requests-title">
+            <div class="user-home-panel-head"><div><h2 id="company-requests-title">Pending access requests</h2><p>Requests awaiting an owner decision.</p></div><a class="user-home-panel-link" href="transactions.html">Transactions →</a></div>
+            <div class="user-home-request-list" id="company-requests" aria-live="polite"><div class="user-home-loading">Loading requests…</div></div>
+          </section>
         </div>
-
       </div>
     </main>
   </div>
-
   <script src="app.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-      try {
-        const { data } = await API.get('/dashboard/company');
-
-        document.getElementById('company-name').textContent    = data.company.companyName;
-        document.getElementById('company-email').textContent   = data.company.email;
-        document.getElementById('company-wallet').textContent  = data.company.walletAddress;
-        document.getElementById('company-status').textContent  = data.company.verificationStatus;
-        document.getElementById('company-purchased-count').textContent = data.purchasedCount;
-        document.getElementById('company-pending-count').textContent   = data.pendingAccessRequests.length;
-
-        const el = document.getElementById('company-recent');
-        el.innerHTML = data.recentPurchases.length
-          ? data.recentPurchases.slice(0, 5).map(item =>
-              `<div class="dashboard-row">
-                <span>${esc(item.name || `Dataset #${item.dataId}`)}</span>
-                <span>${esc(item.amount || '')} ETH</span>
-              </div>`
-            ).join('')
-          : '<p style="color:var(--text-3);font-size:.875rem;">No purchases recorded yet.</p>';
-
-      } catch (error) {
-        document.getElementById('company-name').textContent  = 'Unable to load company dashboard';
-        document.getElementById('company-email').textContent = error.message;
-      }
-    });
-  </script>
+  <script src="company-dashboard.js"></script>
 </body>
 </html>

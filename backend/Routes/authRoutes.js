@@ -15,7 +15,13 @@ function validPassword(password) {
 }
 
 function publicUser(user) {
-  return { id: user._id, fullName: user.fullName, email: user.email, walletAddress: user.walletAddress || null };
+  return {
+    id: user._id,
+    fullName: user.fullName,
+    email: user.email,
+    walletAddress: user.walletAddress || null,
+    notificationsEnabled: user.notificationsEnabled !== false
+  };
 }
 
 function publicCompany(company) {
@@ -50,15 +56,21 @@ function sendLogin(res, role, subjectId, account) {
 router.post('/auth/register/user', async (req, res) => {
   const fullName = String(req.body.fullName || '').trim();
   const email = String(req.body.email || '').trim().toLowerCase();
+  const walletAddress = String(req.body.walletAddress || '').trim();
   const password = req.body.password;
-  if (!fullName || fullName.length > 120 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254 || !validPassword(password)) {
-    return res.status(400).json({ success: false, message: `Name, valid email, and a password of ${PASSWORD_MIN_LENGTH}–128 characters are required` });
+  if (!fullName || fullName.length > 120 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254 || !ethers.isAddress(walletAddress) || !validPassword(password)) {
+    return res.status(400).json({ success: false, message: `Name, valid email, valid Ethereum wallet address, and a password of ${PASSWORD_MIN_LENGTH}–128 characters are required` });
   }
   try {
-    const user = await User.create({ fullName, email, passwordHash: await hashPassword(password) });
+    const user = await User.create({ fullName, email, walletAddress: walletAddress.toLowerCase(), passwordHash: await hashPassword(password) });
     return res.status(201).json({ success: true, message: 'User account created. Please log in.', data: publicUser(user) });
   } catch (error) {
-    if (error.code === 11000) return res.status(409).json({ success: false, message: 'An account with this email already exists' });
+    if (error.code === 11000) {
+      if (error.keyPattern?.walletAddress || error.keyValue?.walletAddress) {
+        return res.status(409).json({ success: false, message: 'This wallet is already linked to another user account' });
+      }
+      return res.status(409).json({ success: false, message: 'An account with this email already exists' });
+    }
     console.error('User registration failed:', error.message);
     return res.status(500).json({ success: false, message: 'Could not create account' });
   }
@@ -129,6 +141,49 @@ router.post('/auth/logout', requireAuth(), async (req, res) => {
   res.json({ success: true, message: 'Signed out' });
 });
 
+router.put('/auth/profile', requireAuth('user'), async (req, res) => {
+  const fullName = String(req.body.fullName || '').trim();
+  if (!fullName || fullName.length > 120) {
+    return res.status(400).json({ success: false, message: 'Enter a name between 1 and 120 characters' });
+  }
+  try {
+    const user = await User.findByIdAndUpdate(req.user._id, { $set: { fullName } }, {
+      new: true,
+      runValidators: true,
+      projection: 'fullName email walletAddress'
+    });
+    if (!user) return res.status(404).json({ success: false, message: 'User account was not found' });
+    res.json({ success: true, data: publicUser(user) });
+  } catch (error) {
+    console.error('User profile update failed:', error.message);
+    res.status(503).json({ success: false, message: 'Profile update service is unavailable' });
+  }
+});
+
+router.post('/auth/password/change', requireAuth('user'), async (req, res) => {
+  const { currentPassword, newPassword } = req.body || {};
+  if (typeof currentPassword !== 'string' || !currentPassword) {
+    return res.status(400).json({ success: false, message: 'Enter your current password' });
+  }
+  if (!validPassword(newPassword)) {
+    return res.status(400).json({ success: false, message: `New password must be ${PASSWORD_MIN_LENGTH}–128 characters` });
+  }
+  try {
+    const user = await User.findById(req.user._id).select('+passwordHash');
+    if (!user || !(await verifyPassword(currentPassword, user.passwordHash))) {
+      return res.status(401).json({ success: false, message: 'Current password is incorrect' });
+    }
+    const nextPasswordHash = await hashPassword(newPassword);
+    await AuthSession.deleteMany({ subjectId: String(user._id), role: 'user' });
+    user.passwordHash = nextPasswordHash;
+    await user.save();
+    res.json({ success: true, message: 'Password changed. Please sign in again.' });
+  } catch (error) {
+    console.error('User password change failed:', error.message);
+    res.status(503).json({ success: false, message: 'Password change service is unavailable' });
+  }
+});
+
 router.post('/auth/wallet/challenge', requireAuth('user'), async (req, res) => {
   const nonce = crypto.randomBytes(24).toString('hex');
   const message = `DataChain wallet verification\nNonce: ${nonce}`;
@@ -151,6 +206,9 @@ router.post('/auth/wallet/verify', requireAuth('user'), async (req, res) => {
     const signer = ethers.verifyMessage(session.walletChallenge, signature);
     if (signer.toLowerCase() !== walletAddress.toLowerCase()) {
       return res.status(403).json({ success: false, message: 'Wallet signature does not match the requested address' });
+    }
+    if (req.user.walletAddress && req.user.walletAddress.toLowerCase() !== walletAddress.toLowerCase()) {
+      return res.status(409).json({ success: false, message: 'A wallet is already linked to this account. The registered wallet was not changed.' });
     }
     const existing = await User.findOne({ walletAddress: walletAddress.toLowerCase(), _id: { $ne: req.user._id } });
     if (existing) return res.status(409).json({ success: false, message: 'This wallet is already linked to another user account' });

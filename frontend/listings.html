@@ -53,9 +53,10 @@
     .listing-meta-item svg { width: 13px; height: 13px; }
 
     .listing-actions { display: flex; gap: 8px; margin-left: auto; }
+    .listing-actions .btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 
     .earn-card {
-      background: linear-gradient(135deg, var(--accent-sub) 0%, rgba(255,255,255,.5) 100%);
+      background: linear-gradient(135deg, var(--accent-sub) 0%, var(--bg-card) 100%);
       border: 1px solid var(--accent-pale);
       border-radius: var(--r-2xl); padding: 20px;
       display: flex; align-items: center; justify-content: space-between;
@@ -161,7 +162,7 @@
 
       <div class="no-wallet" id="no-wallet-nag">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <span>Connect your MetaMask wallet on Sepolia to view the datasets you own and track sales.</span>
+        <span>Checking your MetaMask wallet…</span>
       </div>
 
       <!-- Earn card -->
@@ -230,18 +231,56 @@
 
 <script>
   let allListings = [];
+  let listingsLoadId = 0;
+  let lastListingsAuthorizationKey = null;
 
   async function loadListings() {
+    const walletState = WalletStatus.snapshot();
     const listEl = document.getElementById('listings-list');
     const emptyEl = document.getElementById('empty-listings');
     const nagEl = document.getElementById('no-wallet-nag');
-    const walletAddr = Wallet.getAddress() || Auth.profile()?.walletAddress;
+    const listingCountEl = document.getElementById('listing-count');
+    if (!walletState.initialized) {
+      if (nagEl) {
+        nagEl.classList.remove('hidden');
+        nagEl.querySelector('span').textContent = 'Checking your MetaMask wallet…';
+      }
+      listingCountEl.textContent = 'Checking wallet…';
+      return;
+    }
 
-    if (!walletAddr) {
+    const linkedWallet = Auth.profile()?.walletAddress || null;
+    const walletAddr = walletState.account;
+    const authorizationKey = JSON.stringify([
+      walletState.authenticated,
+      Auth.role(),
+      walletAddr?.toLowerCase() || null,
+      linkedWallet?.toLowerCase() || null,
+      walletState.chainId || null,
+      walletState.verificationStatus,
+      walletState.locallyDisconnected,
+      walletState.loggedOut
+    ]);
+    if (authorizationKey === lastListingsAuthorizationKey) return;
+    lastListingsAuthorizationKey = authorizationKey;
+    const loadId = ++listingsLoadId;
+
+    if (!walletAddr || !linkedWallet || !walletAddressMatches(walletAddr, linkedWallet) || !walletState.onSepolia) {
+      allListings = [];
       if (nagEl) nagEl.classList.remove('hidden');
+      if (nagEl) {
+        const message = !walletAddr
+          ? 'Connect your MetaMask wallet on Sepolia from Home to view the datasets you own and track sales.'
+          : !linkedWallet
+            ? 'Link a wallet to your DataChain account to view the datasets you own and track sales.'
+            : !walletAddressMatches(walletAddr, linkedWallet)
+              ? 'Select the wallet linked to your DataChain account in MetaMask to view your listings.'
+              : 'Switch MetaMask to Sepolia to view the datasets you own and track sales.';
+        nagEl.querySelector('span').textContent = message;
+      }
       listEl.innerHTML = '';
       emptyEl.classList.remove('hidden');
-      document.getElementById('listing-count').textContent = 'Connect wallet to view';
+      listingCountEl.textContent = !walletAddr ? 'Connect from Home to view' : !walletState.matchesRegisteredWallet ? 'Matching registered wallet required' : 'Sepolia network required';
       document.getElementById('total-earned').textContent = '0.0000 ETH';
       return;
     }
@@ -255,8 +294,11 @@
 
     try {
       const datasets = await loadOnChainDatasets();
+      const latestWallet = WalletStatus.snapshot();
+      if (loadId !== listingsLoadId || !latestWallet.authenticated || !latestWallet.account || !latestWallet.matchesRegisteredWallet || !walletAddressMatches(latestWallet.account, walletAddr) || !latestWallet.onSepolia) return;
       allListings = datasets.filter(d => d.owner && d.owner.toLowerCase() === normalizedWallet);
     } catch (chainErr) {
+      if (loadId !== listingsLoadId) return;
       listEl.innerHTML = `<div class="error-banner">${esc(chainErr.message || 'Could not load listings from Sepolia.')}</div>`;
       document.getElementById('listing-count').textContent = 'Unable to load listings';
       document.getElementById('total-earned').textContent = '—';
@@ -307,11 +349,8 @@
             <span>${item.id !== undefined ? `Sepolia Dataset #${item.id}` : 'Backend Listing'}</span>
           </div>
           <div class="listing-actions">
-            <a href="dataset.html?id=${encodeURIComponent(targetId)}" class="btn btn-secondary btn-sm">
-              View Dataset
-            </a>
-            <a href="owner.html" class="btn btn-primary btn-sm">
-              Manage Access
+            <a href="${PageNavigation.datasetHref(targetId, 'listings')}" class="btn btn-primary btn-sm">
+              View Dataset →
             </a>
           </div>
         </div>`;
@@ -319,14 +358,8 @@
     });
   }
 
-  // Refresh upon wallet connection
-  const walletBtn = document.querySelector('[data-wallet-connect]');
-  if (walletBtn) {
-    walletBtn.addEventListener('click', () => {
-      setTimeout(loadListings, 800);
-    });
-  }
-
+  window.addEventListener('dc:wallet-state', loadListings);
+  window.addEventListener('dc:auth-profile', loadListings);
   document.addEventListener('DOMContentLoaded', loadListings);
 </script>
 </body>

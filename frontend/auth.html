@@ -4,15 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>DataChain — Sign In</title>
+  <script src="theme-init.js"></script>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="auth-page.css">
 </head>
-<body>
+<body class="auth-selection-page">
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
 
   <main class="auth-main">
-    <section class="auth-card">
+    <section class="auth-card auth-role-selector">
       <div class="auth-brand">Data<em>Chain</em></div>
 
       <h1>Sign in to DataChain</h1>
@@ -46,9 +47,10 @@
 
       <div class="auth-links">
         <a href="landing.html">← Back to home</a>
-        <a href="user-register.html">Create user account</a>
-        <a href="company-register.html">Register company</a>
-        <a href="marketplace.html">Browse marketplace</a>
+        <div class="auth-account-links">
+          <a href="user-register.html">Create user account</a>
+          <a href="company-register.html">Register company</a>
+        </div>
       </div>
     </section>
   </main>

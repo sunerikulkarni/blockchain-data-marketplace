@@ -175,7 +175,7 @@
 
       <div class="nag-banner" id="wallet-nag">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <span>Connect your MetaMask wallet on Sepolia before publishing.</span>
+        <span>Connect your linked MetaMask wallet on Sepolia from Home before publishing.</span>
       </div>
 
       <div class="form-layout">
@@ -325,7 +325,30 @@ const previewCol = document.getElementById('preview-col');
 const txBox = document.getElementById('tx-box');
 const dataEl = document.getElementById('f-data');
 
-if (Wallet.isConnected()) document.getElementById('wallet-nag').classList.add('hidden');
+function syncPublishWalletState() {
+  const walletState = WalletStatus.snapshot();
+  const nag = document.getElementById('wallet-nag');
+  const submit = document.getElementById('submit-btn');
+  if (!walletState.initialized) {
+    nag.classList.remove('hidden');
+    nag.querySelector('span').textContent = 'Checking your MetaMask wallet…';
+    submit.disabled = true;
+    return;
+  }
+  const address = Wallet.getAddress();
+  const linked = Auth.profile()?.walletAddress;
+  const authorized = Boolean(address && linked && walletAddressMatches(address, linked));
+  const onSepolia = authorized && WalletStatus.chainId && BigInt(WalletStatus.chainId) === SEPOLIA_CHAIN_ID;
+  nag.classList.toggle('hidden', Boolean(onSepolia));
+  nag.querySelector('span').textContent = onSepolia
+    ? '' : !address ? 'Connect your linked MetaMask wallet on Sepolia from Home before publishing.'
+      : !authorized ? 'Select the wallet linked to your DataChain account from Home before publishing.'
+        : 'Switch MetaMask to Sepolia from Home before publishing.';
+  submit.disabled = !onSepolia;
+}
+window.addEventListener('dc:wallet-state', syncPublishWalletState);
+window.addEventListener('dc:auth-profile', syncPublishWalletState);
+syncPublishWalletState();
 
 function checkLayout(){
   const wide = window.innerWidth >= 900;
@@ -395,7 +418,8 @@ document.getElementById('add-form').addEventListener('submit', async e => {
     return;
   }
 
-  if (!Wallet.isConnected()) {
+  const linkedWallet = Auth.profile()?.walletAddress;
+  if (!Wallet.isConnected() || !linkedWallet || !walletAddressMatches(Wallet.getAddress(), linkedWallet)) {
     Toast.warning('Connect your MetaMask wallet on Sepolia first.');
     return;
   }
@@ -405,6 +429,7 @@ document.getElementById('add-form').addEventListener('submit', async e => {
   if (!isSep) {
     const switched = await switchSepoliaNetwork();
     if (!switched) return;
+    await WalletStatus.refresh();
   }
 
   const btn = document.getElementById('submit-btn');
@@ -498,7 +523,14 @@ document.getElementById('add-form').addEventListener('submit', async e => {
     const provider =
       new ethers.BrowserProvider(window.ethereum);
 
+    if (!(await Wallet.verifyAuthorization(true))) {
+      throw new Error('Your active MetaMask account must match your linked wallet on Sepolia. No blockchain transaction was submitted.');
+    }
+
     const signer = await provider.getSigner();
+    if (!walletAddressMatches(await signer.getAddress(), Auth.profile()?.walletAddress)) {
+      throw new Error('The selected MetaMask signer does not match your linked wallet. No blockchain transaction was submitted.');
+    }
 
     const contract =
       new ethers.Contract(
@@ -546,6 +578,12 @@ document.getElementById('add-form').addEventListener('submit', async e => {
     `;
 
     await tx.wait();
+
+    try {
+      await API.post('/notifications/ingest', { transactionHash: tx.hash });
+    } catch (notificationError) {
+      console.warn('Confirmed dataset notification sync failed:', notificationError.message);
+    }
 
     // ==========================================
     // STEP 3: Get the newly created dataset ID
@@ -603,7 +641,7 @@ document.getElementById('add-form').addEventListener('submit', async e => {
 
       <div style="margin-top:10px;">
         <a
-          href="dataset.html?id=${newCount}"
+          href="${PageNavigation.datasetHref(newCount, 'addData')}"
           class="btn btn-sm btn-primary"
         >
           View Dataset Page ↗

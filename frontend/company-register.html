@@ -4,30 +4,42 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>DataChain — Company Registration</title>
+  <script src="theme-init.js"></script>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="auth-page.css">
+  <link rel="stylesheet" href="company-auth.css">
 </head>
-<body>
+<body class="user-auth-page company-auth-page company-register-page">
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
 
-  <main class="auth-main">
-    <section class="auth-card">
-      <div class="auth-brand">
-        Data<em>Chain</em>
-        <span class="auth-role-badge role-company">Company</span>
-      </div>
-
+  <main class="auth-main user-auth-main company-auth-main">
+    <div class="company-auth-shell">
+      <aside class="company-auth-aside" aria-label="Company verification information">
+        <div class="user-auth-brand-row"><div class="auth-brand">Data<em>Chain</em></div><span class="auth-role-badge role-company">Company</span></div>
+        <div class="company-aside-copy">
+        <span class="company-aside-kicker">COMPANY REGISTRATION</span>
+        <h2>Built for accountable data exchange.</h2>
+        <p>Submit your organization details and connect its wallet. An administrator reviews the registration before company access is enabled.</p>
+        </div>
+        <div class="company-review-flow" aria-label="Registration process">
+          <div><span>01</span><strong>Submit details</strong><small>Provide company and intended-use information.</small></div>
+          <div><span>02</span><strong>Admin review</strong><small>Your registration is checked before approval.</small></div>
+          <div><span>03</span><strong>Company access</strong><small>Sign in after your company is approved.</small></div>
+        </div>
+    </aside>
+    <section class="auth-card user-auth-card company-auth-card">
+      <a class="auth-back-link" href="landing.html"><span aria-hidden="true">←</span> Back to DataChain</a>
+      <span class="user-form-kicker">COMPANY ACCOUNT</span>
       <h1>Company registration</h1>
       <p>Submit your company details for admin verification. Login is available after approval.</p>
 
-      <div class="auth-notice">
-        MetaMask will be used to connect your company wallet address during registration.
-      </div>
-
       <div id="auth-message" class="auth-message" role="status" hidden></div>
 
-      <form class="auth-form" data-auth-form="company-register" novalidate>
+      <form class="auth-form user-auth-form company-auth-form company-register-form" data-auth-form="company-register" novalidate>
+        <div class="company-form-section">
+          <div class="company-section-heading"><span>01</span><div><h2>Company information</h2><p>Use your organization’s official details.</p></div></div>
+          <div class="company-field-grid">
         <div>
           <label class="form-label" for="companyName">Company name</label>
           <input
@@ -67,7 +79,11 @@
             placeholder="Official company registration ID"
           >
         </div>
+          </div>
+        </div>
 
+        <div class="company-form-section">
+          <div class="company-section-heading"><span>02</span><div><h2>Verification</h2><p>Explain how your company intends to use the marketplace.</p></div></div>
         <div>
           <label class="form-label" for="description">Verification information / intended use</label>
           <textarea
@@ -78,7 +94,15 @@
             placeholder="Describe your company and intended use of the data marketplace…"
           ></textarea>
         </div>
+        </div>
 
+        <div class="company-form-section">
+          <div class="company-section-heading"><span>03</span><div><h2>Company wallet</h2><p>Link the wallet used for company transactions.</p></div></div>
+          <div class="auth-notice company-wallet-notice"><span class="company-wallet-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7h18v12H3zM3 7V5a2 2 0 0 1 2-2h13v4M17 13h4"/></svg></span><span>MetaMask will be used to connect your company wallet address during registration.</span></div>
+        </div>
+
+        <div class="company-form-section">
+          <div class="company-section-heading"><span>04</span><div><h2>Security</h2><p>Set a password for your company account.</p></div></div>
         <div>
           <label class="form-label" for="password">Password</label>
           <div class="pw-wrap">
@@ -113,15 +137,17 @@
             </button>
           </div>
         </div>
+        </div>
 
-        <button class="btn btn-primary" type="submit">Submit for verification</button>
+        <button class="btn btn-primary user-submit-button company-submit" type="submit">Submit for verification</button>
       </form>
 
-      <div class="auth-links">
-        <a href="company-login.html">Company login</a>
+      <p class="auth-signin-prompt">Already have an account? <a href="company-login.html">Sign in</a></p>
+      <div class="auth-links user-auth-links company-auth-links">
         <a href="user-register.html">User registration</a>
       </div>
     </section>
+    </div>
   </main>
 
   <script src="app.js"></script>

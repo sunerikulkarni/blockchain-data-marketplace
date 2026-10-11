@@ -5,6 +5,7 @@ const { verifyToken } = require('../services/authService');
 
 function requireAuth(...roles) {
   return async (req, res, next) => {
+    res.set('Cache-Control', 'private, no-store');
     try {
       const authorization = req.headers.authorization || '';
       const token = authorization.startsWith('Bearer ') ? authorization.slice(7) : '';
@@ -25,7 +26,7 @@ function requireAuth(...roles) {
 
       req.auth = { role: claims.role, subjectId: claims.sub, sessionId: claims.jti, session };
       if (claims.role === 'user') {
-        req.user = await User.findById(claims.sub).select('fullName email walletAddress');
+        req.user = await User.findById(claims.sub).select('fullName email walletAddress notificationsEnabled');
         if (!req.user) return res.status(401).json({ success: false, message: 'Account no longer exists' });
       } else if (claims.role === 'company') {
         req.company = await Company.findById(claims.sub).select('-passwordHash -__v');

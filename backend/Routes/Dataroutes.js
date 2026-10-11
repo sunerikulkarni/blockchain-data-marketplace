@@ -131,7 +131,7 @@ router.post(
     try {
       const { name, category, description, price, seller, blockchainId, ipfsCID, dataHash } = req.body;
       if (!req.user.walletAddress) return res.status(403).json({ success: false, message: 'Link and verify your MetaMask wallet before adding a dataset' });
-      if (seller && seller.toLowerCase() !== req.user.walletAddress) return res.status(403).json({ success: false, message: 'Dataset owner wallet does not match the authenticated user' });
+      if (seller && seller.toLowerCase() !== req.user.walletAddress.toLowerCase()) return res.status(403).json({ success: false, message: 'Dataset owner wallet does not match the authenticated user' });
       const newData = await Data.create({
         name,
         category,
@@ -167,7 +167,7 @@ router.put(
       if (!req.user.walletAddress) return res.status(403).json({ success: false, message: 'Link and verify your MetaMask wallet first' });
       const current = await Data.findById(req.params.id);
       if (!current) return res.status(404).json({ success: false, message: 'Dataset not found' });
-      if (!current.seller || current.seller.toLowerCase() !== req.user.walletAddress) return res.status(403).json({ success: false, message: 'Only the dataset owner can update it' });
+      if (!current.seller || current.seller.toLowerCase() !== req.user.walletAddress.toLowerCase()) return res.status(403).json({ success: false, message: 'Only the dataset owner can update it' });
       const allowed = ['name', 'description', 'price', 'status'];
       const updates = {};
       allowed.forEach(key => { if (req.body[key] !== undefined) updates[key] = req.body[key]; });
@@ -190,7 +190,7 @@ router.delete('/deleteData/:id', requireAuth('user'), async (req, res) => {
     if (!req.user.walletAddress) return res.status(403).json({ success: false, message: 'Link and verify your MetaMask wallet first' });
     const data = await Data.findById(req.params.id);
     if (!data) return res.status(404).json({ success: false, message: 'Dataset not found' });
-    if (!data.seller || data.seller.toLowerCase() !== req.user.walletAddress) return res.status(403).json({ success: false, message: 'Only the dataset owner can delete it' });
+    if (!data.seller || data.seller.toLowerCase() !== req.user.walletAddress.toLowerCase()) return res.status(403).json({ success: false, message: 'Only the dataset owner can delete it' });
     await Data.findByIdAndDelete(req.params.id);
     res.json({ success: true, message: 'Dataset deleted' });
   } catch (err) {

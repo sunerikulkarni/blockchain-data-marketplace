@@ -138,6 +138,32 @@ async function getDataset(datasetId) {
     return mapDataset(await contract.getData(datasetId));
 }
 
+async function getConfirmedMarketplaceTransaction(transactionHash) {
+    if (!ethers.isHexString(transactionHash || "", 32)) {
+        throw new Error("A valid transaction hash is required");
+    }
+    const contract = getReadContract();
+    const receipt = await contract.runner.provider.getTransactionReceipt(transactionHash);
+    if (!receipt || Number(receipt.status) !== 1) {
+        throw new Error("Marketplace transaction is not confirmed successfully");
+    }
+    const contractAddress = process.env.CONTRACT_ADDRESS.toLowerCase();
+    const events = [];
+    for (const log of receipt.logs) {
+        if (log.address.toLowerCase() !== contractAddress) continue;
+        try {
+            const parsed = contract.interface.parseLog({ topics: log.topics, data: log.data });
+            if (parsed && ["DataAdded", "AccessRequested", "AccessApproved", "AccessRejected", "DataPurchased"].includes(parsed.name)) {
+                events.push({ name: parsed.name, args: parsed.args });
+            }
+        } catch {
+            // Ignore logs that are not events from the marketplace ABI.
+        }
+    }
+    if (!events.length) throw new Error("Transaction contains no supported DataChain marketplace event");
+    return { transactionHash: receipt.hash, from: receipt.from, events };
+}
+
 async function getAccessStatus(datasetId, user) {
     const contract = getReadContract();
     const status = Number(await contract.getAccessStatus(datasetId, user));
@@ -327,5 +353,6 @@ module.exports = {
     getAccessRequestsForOwner,
     getAccessRequestsForRequester,
     getPurchaseEvents,
+    getConfirmedMarketplaceTransaction,
     ACCESS_STATUS
 };

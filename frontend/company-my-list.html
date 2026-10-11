@@ -4,67 +4,34 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>DataChain — Company My List</title>
+  <script src="theme-init.js"></script>
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="auth-page.css">
+  <link rel="stylesheet" href="company-pages.css">
 </head>
-<body>
+<body class="company-list-page">
   <div class="site-wrap">
+    <header class="app-header">
+      <div class="logo">Data<em>Chain</em></div>
+      <div class="hdr-title">My List</div>
+      <div class="hdr-spacer"></div>
+      <div class="live-badge"><div class="live-dot"></div>Sepolia · Testnet</div>
+      <div class="company-header-wallet" aria-live="polite"><div class="w-dot"></div><span class="company-wallet-label">Not connected</span><strong class="company-wallet-state">Not linked</strong></div>
+      <a class="btn btn-outline btn-sm" href="profile.html">Profile</a>
+      <button class="btn btn-secondary btn-sm" type="button" data-wallet-connect data-wallet-label="Connect MetaMask">Connect MetaMask</button>
+    </header>
     <main class="main-content">
       <div class="content-inner">
-
-        <div class="section-hdr">
-          <h1 class="section-ttl">My List</h1>
-          <a class="section-lnk" href="marketplace.html">Marketplace →</a>
-        </div>
-
-        <p style="margin-bottom: 18px; color: var(--text-2); font-size: .875rem;">
-          Datasets purchased by your verified company wallet.
-        </p>
-
-        <div id="company-list" class="dashboard-grid">
-          <div class="card dashboard-card">Loading…</div>
-        </div>
-
+        <div class="company-wallet-notice" role="status"></div>
+        <section class="page-banner">
+          <div class="banner-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+          <div class="banner-text"><h1>My List</h1><p>Datasets purchased by your verified company wallet.</p></div>
+        </section>
+        <div class="filter-bar"><span id="company-list-count" aria-live="polite">Loading datasets…</span><a class="btn btn-secondary btn-sm" href="marketplace.html">Browse Marketplace</a></div>
+        <div id="company-list" class="listings-list" aria-live="polite"><div class="user-home-loading">Loading your datasets…</div></div>
       </div>
     </main>
   </div>
-
   <script src="app.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-      const el = document.getElementById('company-list');
-      try {
-        const { data } = await API.get('/dashboard/company');
-
-        if (!data.authorizedDatasets.length) {
-          el.innerHTML = `
-            <div class="empty-state card" style="grid-column: 1 / -1; padding: 32px;">
-              <h3>No purchased datasets</h3>
-              <p>Company purchases will appear here.</p>
-            </div>`;
-          return;
-        }
-
-        el.innerHTML = data.authorizedDatasets.map(item => `
-          <article class="card dashboard-card">
-            <h3>${esc(item.name || `Dataset #${item.dataId}`)}</h3>
-            <p style="font-size:.82rem;color:var(--text-2);margin-top:6px;">Owner: ${esc(item.owner || '—')}</p>
-            <p style="font-size:.82rem;color:var(--text-2);">Access: ${esc(item.accessStatus || 'Unknown')}</p>
-            <p style="font-size:.78rem;color:var(--text-3);overflow-wrap:anywhere;margin-top:4px;">
-              Transaction:
-              <a href="https://sepolia.etherscan.io/tx/${encodeURIComponent(item.txHash || '')}"
-                 target="_blank" rel="noopener"
-                 style="color:var(--accent);word-break:break-all;">${esc(item.txHash || 'Unavailable')}</a>
-            </p>
-            <div class="dashboard-actions" style="margin-top:12px;">
-              <a class="btn btn-secondary btn-sm" href="dataset.html?id=${encodeURIComponent(item.dataId)}">Dataset details</a>
-            </div>
-          </article>`).join('');
-
-      } catch (error) {
-        el.innerHTML = `<div class="error-banner">${esc(error.message)}</div>`;
-      }
-    });
-  </script>
+  <script src="company-my-list.js"></script>
 </body>
 </html>

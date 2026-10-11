@@ -155,7 +155,7 @@
       <!-- Wallet nag -->
       <div class="wallet-nag" id="wallet-nag">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <span><a href="profile.html">Connect your MetaMask wallet</a> on Sepolia to request access and purchase datasets.</span>
+        <span><a href="index.html">Connect your MetaMask wallet from Home</a> on Sepolia to request access and purchase datasets.</span>
       </div>
 
       <!-- Results -->
@@ -234,12 +234,35 @@ listEl.addEventListener('click', e => {
   const datasetId = link.dataset.datasetId;
   if (!datasetId) return;
 
-  window.location.href = `dataset.html?id=${encodeURIComponent(datasetId)}`;
+  window.location.href = PageNavigation.datasetHref(datasetId, 'marketplace');
 });
 
-if (Wallet.isConnected()) {
-  document.getElementById('wallet-nag').classList.add('hidden');
+function syncMarketplaceWalletNag() {
+  const walletState = WalletStatus.snapshot();
+  if (!walletState.initialized) {
+    const nag = document.getElementById('wallet-nag');
+    nag.classList.remove('hidden');
+    const span = nag.querySelector('span');
+    if (span) span.textContent = 'Checking your MetaMask wallet…';
+    return;
+  }
+  const account = Wallet.getAddress();
+  const linked = Auth.profile()?.walletAddress;
+  const authorized = Boolean(account && linked && walletAddressMatches(account, linked));
+  const ready = authorized && WalletStatus.chainId && BigInt(WalletStatus.chainId) === SEPOLIA_CHAIN_ID;
+  const nag = document.getElementById('wallet-nag');
+  nag.classList.toggle('hidden', Boolean(ready));
+  const span = nag.querySelector('span');
+  if (span) span.innerHTML = ready
+    ? '' : !account
+    ? '<a href="index.html">Connect your MetaMask wallet from Home</a> on Sepolia to request access and purchase datasets.'
+      : !authorized
+        ? 'Select the wallet linked to your DataChain account from Home to request access and purchase datasets.'
+        : 'Switch MetaMask to Sepolia from Home to request access and purchase datasets.';
 }
+window.addEventListener('dc:wallet-state', syncMarketplaceWalletNag);
+window.addEventListener('dc:auth-profile', syncMarketplaceWalletNag);
+syncMarketplaceWalletNag();
 
 /* =========================================================
    LOAD REAL DATASETS FROM SMART CONTRACT & BACKEND

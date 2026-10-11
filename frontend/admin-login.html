@@ -4,26 +4,50 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>DataChain — Admin Login</title>
+  <script src="theme-init.js"></script>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="auth-page.css">
 </head>
-<body>
+<body class="user-auth-page admin-auth-page">
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
 
-  <main class="auth-main">
-    <section class="auth-card">
-      <div class="auth-brand">
-        Data<em>Chain</em>
-        <span class="auth-role-badge role-admin">Admin</span>
-      </div>
+  <main class="auth-main user-auth-main">
+    <div class="user-auth-layout">
+      <aside class="user-auth-aside" aria-label="DataChain administrator access">
+        <div class="user-auth-brand-row">
+          <div class="auth-brand">Data<em>Chain</em></div>
+          <span class="auth-role-badge role-admin">Admin</span>
+        </div>
+        <div class="user-aside-copy">
+          <span class="user-aside-eyebrow"><i></i> ADMINISTRATOR ACCESS</span>
+          <h2>Review access.<br>Keep it accountable.</h2>
+          <p>Use your DataChain administrator account to review company registrations and manage verification decisions.</p>
+        </div>
+        <div class="user-network-visual" aria-hidden="true">
+          <svg class="user-network-lines" viewBox="0 0 520 260" fill="none">
+            <path d="M112 130C157 130 172 76 222 76M298 76C348 76 360 130 408 130M112 130C160 130 177 190 222 190M298 190C348 190 365 130 408 130"/>
+            <circle cx="112" cy="130" r="5"/><circle cx="408" cy="130" r="5"/><circle cx="260" cy="76" r="4"/><circle cx="260" cy="190" r="4"/>
+          </svg>
+          <div class="user-visual-node user-visual-data"><span class="user-visual-icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h6"/></svg></span><span><b>Company records</b><small>Review submissions</small></span></div>
+          <div class="user-visual-node user-visual-secure"><span class="user-visual-icon"><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.5 2.8 8 7 10 4.2-2 7-5.5 7-10V6z"/><path d="m9 12 2 2 4-4"/></svg></span><span><b>Access decisions</b><small>Approve or reject</small></span></div>
+          <div class="user-visual-core"><span class="user-core-mark">D</span><b>DataChain</b><small>ADMIN WORKSPACE</small></div>
+          <span class="user-visual-orbit user-orbit-one"></span><span class="user-visual-orbit user-orbit-two"></span>
+        </div>
+        <div class="user-aside-foot"><span></span> Review <i></i> Verify <i></i> Manage</div>
+      </aside>
 
-      <h1>Admin login</h1>
-      <p>Sign in with the admin credentials configured on the backend.</p>
+      <section class="auth-card user-auth-card user-login-card">
+      <a class="auth-back-link" href="landing.html"><span aria-hidden="true">←</span> Back to DataChain</a>
+      <div class="user-form-heading">
+        <span class="user-form-kicker">ADMIN ACCOUNT</span>
+        <h1>Admin login</h1>
+        <p>Sign in with the admin credentials configured on the backend.</p>
+      </div>
 
       <div id="auth-message" class="auth-message" role="status" hidden></div>
 
-      <form class="auth-form" data-auth-form="admin-login" novalidate>
+      <form class="auth-form user-auth-form" data-auth-form="admin-login" novalidate>
         <div>
           <label class="form-label" for="username">Username</label>
           <input
@@ -70,14 +94,15 @@
           </div>
         </div>
 
-        <button class="btn btn-primary" type="submit">Sign in</button>
+        <button class="btn btn-primary user-submit-button" type="submit">Sign in</button>
       </form>
 
-      <div class="auth-links">
+      <div class="auth-links user-auth-links">
         <a href="user-login.html">User login</a>
         <a href="company-login.html">Company login</a>
       </div>
-    </section>
+      </section>
+    </div>
   </main>
 
   <script src="app.js"></script>

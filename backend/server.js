@@ -7,14 +7,17 @@ require('dotenv').config({ path: path.join(__dirname, '.env') });
 const express    = require('express');
 const cors       = require('cors');
 const connectDB  = require('./config/db');
-const dataRoutes = require('./Routes/dataRoutes');
-const txnRoutes = require('./Routes/transactionRoutes');
+// Preserve the tracked route filenames' casing so startup also works on
+// case-sensitive filesystems (for example, Linux deployment hosts).
+const dataRoutes = require('./Routes/Dataroutes');
+const txnRoutes = require('./Routes/Transactionroutes');
 const companyRoutes = require('./Routes/companyRoutes');
 const accessRequestRoutes = require('./Routes/accessRequestRoutes');
 const member3Routes = require('./Routes/member3Routes');
 const chainRoutes = require('./Routes/chainRoutes');
 const authRoutes = require('./Routes/authRoutes');
 const dashboardRoutes = require('./Routes/dashboardRoutes');
+const notificationRoutes = require('./Routes/notificationRoutes');
 // ── Connect to MongoDB ───────────────────────────────────────
 connectDB();
 
@@ -26,7 +29,7 @@ const app = express();
 // CORS — allow requests from your frontend
 app.use(cors({
   origin: process.env.FRONTEND_ORIGIN || '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-wallet-address'],
 }));
 
@@ -59,6 +62,7 @@ app.use('/', member3Routes);
 app.use('/', chainRoutes);
 app.use('/', authRoutes);
 app.use('/', dashboardRoutes);
+app.use('/', notificationRoutes);
 // ── 404 handler ──────────────────────────────────────────────
 app.use((req, res) => {
   res.status(404).json({ success: false, message: `Route ${req.method} ${req.path} not found` });

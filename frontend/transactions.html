@@ -233,22 +233,31 @@
   let allTxns = [];
   let activeType = 'all';
   let activityLoadFailed = false;
+  let transactionsLoadId = 0;
 
   /* Read the same confirmed Sepolia events shown in Recent Activity. */
   async function loadTxns() {
+  const walletState = WalletStatus.snapshot();
+  if (!walletState.initialized) return;
+  const loadId = ++transactionsLoadId;
   allTxns = [];
   activityLoadFailed = false;
-  const accountWallet = Wallet.getAddress() || Auth.profile()?.walletAddress;
-  if (!accountWallet) {
-    updateSummary();
-    document.getElementById('txn-count').textContent = 'Link a wallet to view activity';
+  const registeredWallet = Auth.profile()?.walletAddress || null;
+  const accountWallet = walletState.account;
+  if (!walletState.authenticated || !accountWallet || !registeredWallet || !walletAddressMatches(accountWallet, registeredWallet) || !walletState.onSepolia) {
     document.getElementById('txn-list').innerHTML = '';
     document.getElementById('empty-txns').classList.add('hidden');
+    updateSummary();
+    document.getElementById('txn-count').textContent = !accountWallet ? 'Connect from Home to view activity' : !walletState.onSepolia ? 'Switch to Sepolia to view activity' : 'Select your registered wallet to view activity';
     return;
   }
+  document.getElementById('txn-count').textContent = 'Loading activity…';
   try {
     allTxns = await loadWalletActivity(accountWallet);
+    const latestWallet = WalletStatus.snapshot();
+    if (loadId !== transactionsLoadId || !latestWallet.authenticated || !latestWallet.account || !latestWallet.matchesRegisteredWallet || !walletAddressMatches(latestWallet.account, accountWallet) || !latestWallet.onSepolia) return;
   } catch (err) {
+    if (loadId !== transactionsLoadId) return;
     activityLoadFailed = true;
     console.error('Blockchain activity API query failed:', err);
     Toast.error('Unable to load blockchain transactions.');
@@ -260,6 +269,7 @@
   if (allTxns.length) {
     document.getElementById('txn-info-note').style.display = 'block';
   }
+
 }
 
   function updateSummary() {
@@ -293,7 +303,11 @@
 
     document.getElementById('txn-count').textContent = `${filtered.length} record${filtered.length !== 1 ? 's' : ''}`;
 
-    if (!filtered.length) { emptyEl.classList.remove('hidden'); return; }
+    if (!filtered.length) {
+      emptyEl.innerHTML = '<div class="empty-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div><h3>No transactions yet</h3><p>Your confirmed purchases, sales, and access requests on Sepolia will appear here.</p><a href="marketplace.html" class="btn btn-primary mt-12">Browse Market</a>';
+      emptyEl.classList.remove('hidden');
+      return;
+    }
     emptyEl.classList.add('hidden');
 
     // Group by month
@@ -336,7 +350,7 @@
             }
           </div>
           <div class="txn-body">
-            <div class="txn-name">${esc(tx.name)}</div>
+            <div class="txn-name">${tx.dataId ? `<a href="${PageNavigation.datasetHref(tx.dataId, 'transactions')}" style="color:inherit;text-decoration:underline;text-decoration-color:var(--border);text-underline-offset:3px;">${esc(tx.name)}</a>` : esc(tx.name)}</div>
             <div class="txn-sub">
               <span class="txn-type-label ${tx.type}">${isBuy ? 'Purchase' : isRequest ? `Access request · ${esc(tx.accessStatus || 'PENDING')}` : 'Sale'}</span>
               <span class="txn-date">${tx.timestamp ? fmtDate(tx.timestamp) : `Block ${esc(tx.blockNumber || '—')}`}</span>
@@ -377,6 +391,8 @@
     Toast.success('CSV exported!');
   });
 
+  window.addEventListener('dc:wallet-state', loadTxns);
+  window.addEventListener('dc:auth-profile', loadTxns);
   loadTxns();
 </script>
 </body>

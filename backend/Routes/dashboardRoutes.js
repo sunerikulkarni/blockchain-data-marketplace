@@ -13,9 +13,9 @@ router.get('/dashboard/user', requireAuth('user'), async (req, res) => {
           getAccessRequestsForRequester(wallet), getAccessRequestsForOwner(wallet)
         ])
       : [{ datasets: [] }, [], [], { requests: [] }];
-    const owned = wallet ? listingResult.datasets.filter(d => d.owner.toLowerCase() === wallet) : [];
-    const buys = purchases.filter(p => p.buyer.toLowerCase() === wallet);
-    const sales = purchases.filter(p => p.owner.toLowerCase() === wallet);
+    const owned = wallet ? listingResult.datasets.filter(d => d.owner.toLowerCase() === wallet.toLowerCase()) : [];
+    const buys = purchases.filter(p => p.buyer.toLowerCase() === (wallet || '').toLowerCase());
+    const sales = purchases.filter(p => p.owner.toLowerCase() === (wallet || '').toLowerCase());
     const recentDatasets = owned.slice().sort((a, b) => Number(b.id) - Number(a.id)).slice(0, 5);
     const activity = [
       ...buys.map(item => ({ ...item, type: 'purchase' })),

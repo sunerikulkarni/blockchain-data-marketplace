@@ -4,26 +4,39 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>DataChain — Company Login</title>
+  <script src="theme-init.js"></script>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="auth-page.css">
+  <link rel="stylesheet" href="company-auth.css">
 </head>
-<body>
+<body class="user-auth-page company-auth-page company-login-page">
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
 
-  <main class="auth-main">
-    <section class="auth-card">
-      <div class="auth-brand">
-        Data<em>Chain</em>
-        <span class="auth-role-badge role-company">Company</span>
-      </div>
-
+  <main class="auth-main user-auth-main company-auth-main">
+    <div class="company-auth-shell">
+      <aside class="company-auth-aside" aria-label="Company access information">
+        <div class="user-auth-brand-row"><div class="auth-brand">Data<em>Chain</em></div><span class="auth-role-badge role-company">Company</span></div>
+        <div class="company-aside-copy">
+        <span class="company-aside-kicker">COMPANY ACCESS</span>
+        <h2>Trusted data access for your organization.</h2>
+        <p>Discover datasets, manage requests, and review transactions through your verified company account.</p>
+        </div>
+        <div class="company-trust-list" aria-label="Company account capabilities">
+          <div><span class="company-trust-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.5 2.8 8 7 10 4.2-2 7-5.5 7-10V6z"/><path d="m9 12 2 2 4-4"/></svg></span><span><strong>Verified access</strong><small>Company accounts are reviewed before access is enabled.</small></span></div>
+          <div><span class="company-trust-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h7"/></svg></span><span><strong>Clear ownership</strong><small>Explore datasets with transparent ownership records.</small></span></div>
+          <div><span class="company-trust-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 8h16M6 4h12v16H6z"/><path d="m9 14 2 2 4-4"/></svg></span><span><strong>Account activity</strong><small>Keep requests and transactions in one place.</small></span></div>
+        </div>
+    </aside>
+    <section class="auth-card user-auth-card company-auth-card">
+      <a class="auth-back-link" href="landing.html"><span aria-hidden="true">←</span> Back to DataChain</a>
+      <span class="user-form-kicker">COMPANY ACCOUNT</span>
       <h1>Company login</h1>
-      <p>Verified company accounts can access company datasets and transactions.</p>
+      <p>Sign in to your verified company account to access datasets and transactions.</p>
 
       <div id="auth-message" class="auth-message" role="status" hidden></div>
 
-      <form class="auth-form" data-auth-form="company-login" novalidate>
+      <form class="auth-form user-auth-form company-auth-form" data-auth-form="company-login" novalidate>
         <div>
           <label class="form-label" for="email">Company email</label>
           <input
@@ -70,15 +83,16 @@
           </div>
         </div>
 
-        <button class="btn btn-primary" type="submit">Sign in</button>
+        <button class="btn btn-primary user-submit-button company-submit" type="submit">Sign in</button>
       </form>
 
-      <div class="auth-links">
+      <div class="auth-links user-auth-links company-auth-links">
         <a href="company-register.html">Company registration</a>
         <a href="user-login.html">User login</a>
         <a href="admin-login.html">Admin login</a>
       </div>
     </section>
+    </div>
   </main>
 
   <script src="app.js"></script>

@@ -4,84 +4,84 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>DataChain — User Login</title>
+  <script src="theme-init.js"></script>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="auth-page.css">
 </head>
-<body>
+<body class="user-auth-page user-login-page">
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
 
-  <main class="auth-main">
-    <section class="auth-card">
-      <div class="auth-brand">
-        Data<em>Chain</em>
-        <span class="auth-role-badge role-user">User</span>
-      </div>
-
-      <h1>User login</h1>
-      <p>Sign in to your DataChain account.</p>
-
-      <div id="auth-message" class="auth-message" role="status" hidden></div>
-
-      <form class="auth-form" data-auth-form="user-login" novalidate>
-        <div>
-          <label class="form-label" for="email">Email</label>
-          <input
-            class="form-input"
-            id="email"
-            name="email"
-            type="email"
-            required
-            autocomplete="username"
-            placeholder="you@example.com"
-          >
+  <main class="auth-main user-auth-main">
+    <div class="user-auth-layout">
+      <aside class="user-auth-aside" aria-label="DataChain secure personal data sharing">
+        <div class="user-auth-brand-row">
+          <div class="auth-brand">Data<em>Chain</em></div>
+          <span class="auth-role-badge role-user">User</span>
         </div>
-
-        <div>
-          <label class="form-label" for="password">Password</label>
-          <div class="pw-wrap">
-            <input
-              class="form-input"
-              id="password"
-              name="password"
-              type="password"
-              required
-              autocomplete="current-password"
-              placeholder="Your password"
-            >
-            <button
-              type="button"
-              class="pw-toggle"
-              aria-pressed="false"
-              aria-label="Show password"
-              title="Show password"
-              data-pw-toggle="password"
-            >
-              <!-- eye open -->
-              <svg class="icon-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                <circle cx="12" cy="12" r="3"/>
-              </svg>
-              <!-- eye off -->
-              <svg class="icon-eye-off" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-                <line x1="1" y1="1" x2="23" y2="23"/>
-              </svg>
-            </button>
+        <div class="user-aside-copy">
+          <span class="user-aside-eyebrow"><i></i> PERSONAL DATA, YOUR CONTROL</span>
+          <h2>Your data.<br>Shared with confidence.</h2>
+          <p>Keep ownership clear as your data moves through encryption, verification, and trusted access.</p>
+        </div>
+        <div class="user-network-visual" aria-hidden="true">
+          <svg class="user-network-lines" viewBox="0 0 520 260" fill="none">
+            <path d="M112 130C157 130 172 76 222 76M298 76C348 76 360 130 408 130M112 130C160 130 177 190 222 190M298 190C348 190 365 130 408 130"/>
+            <circle cx="112" cy="130" r="5"/><circle cx="408" cy="130" r="5"/>
+            <circle cx="260" cy="76" r="4"/><circle cx="260" cy="190" r="4"/>
+          </svg>
+          <div class="user-visual-node user-visual-data">
+            <span class="user-visual-icon"><svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5zM4 5.5v15M8 7h8M8 10.5h8"/></svg></span>
+            <span><b>Personal data</b><small>Owned by you</small></span>
           </div>
+          <div class="user-visual-node user-visual-secure">
+            <span class="user-visual-icon"><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.5 2.8 8 7 10 4.2-2 7-5.5 7-10V6z"/><path d="m9 12 2 2 4-4"/></svg></span>
+            <span><b>Protected access</b><small>Verified on-chain</small></span>
+          </div>
+          <div class="user-visual-core"><span class="user-core-mark">D</span><b>DataChain</b><small>SECURE DATA NETWORK</small></div>
+          <span class="user-visual-orbit user-orbit-one"></span>
+          <span class="user-visual-orbit user-orbit-two"></span>
+        </div>
+        <div class="user-aside-foot"><span></span> Encrypted <i></i> Verified <i></i> Permissioned</div>
+      </aside>
+
+      <section class="auth-card user-auth-card user-login-card">
+        <a class="auth-back-link" href="landing.html"><span aria-hidden="true">←</span> Back to DataChain</a>
+        <div class="user-form-heading">
+          <span class="user-form-kicker">USER ACCOUNT</span>
+          <h1>Welcome back</h1>
+          <p>Sign in to your DataChain account.</p>
         </div>
 
-        <button class="btn btn-primary" type="submit">Sign in</button>
-      </form>
+        <div id="auth-message" class="auth-message" role="status" hidden></div>
 
-      <div class="auth-links">
-        <a href="landing.html">← Back to home</a>
-        <a href="user-register.html">Create user account</a>
-        <a href="company-login.html">Company login</a>
-        <a href="admin-login.html">Admin login</a>
-      </div>
-    </section>
+        <form class="auth-form user-auth-form" data-auth-form="user-login" novalidate>
+          <div>
+            <label class="form-label" for="email">Email</label>
+            <input class="form-input" id="email" name="email" type="email" required autocomplete="username" placeholder="you@example.com">
+          </div>
+
+          <div>
+            <label class="form-label" for="password">Password</label>
+            <div class="pw-wrap">
+              <input class="form-input" id="password" name="password" type="password" required autocomplete="current-password" placeholder="Your password">
+              <button type="button" class="pw-toggle" aria-pressed="false" aria-label="Show password" title="Show password" data-pw-toggle="password">
+                <svg class="icon-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="icon-eye-off" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <button class="btn btn-primary user-submit-button" type="submit">Sign in</button>
+        </form>
+
+        <div class="auth-links user-auth-links">
+          <a href="user-register.html">Create user account</a>
+          <a href="company-login.html">Company login</a>
+          <a href="admin-login.html">Admin login</a>
+        </div>
+      </section>
+    </div>
   </main>
 
   <script src="app.js"></script>

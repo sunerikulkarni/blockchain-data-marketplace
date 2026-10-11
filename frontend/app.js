@@ -48,6 +48,35 @@ const NAV_PAGES = [
   ['profile.html', 'Profile']
 ];
 
+const PageNavigation = Object.freeze({
+  parents: Object.freeze({
+    marketplace: Object.freeze({ href: 'marketplace.html', label: 'Marketplace' }),
+    listings: Object.freeze({ href: 'listings.html', label: 'My List' }),
+    companyList: Object.freeze({ href: 'company-my-list.html', label: 'My List' }),
+    owner: Object.freeze({ href: 'owner.html', label: 'Owner' }),
+    transactions: Object.freeze({ href: 'transactions.html', label: 'Transactions' }),
+    home: Object.freeze({ href: 'index.html', label: 'Home' }),
+    addData: Object.freeze({ href: 'addData.html', label: 'Add Data' })
+  }),
+  getParent(key, fallback = 'marketplace') {
+    return this.parents[key] || this.parents[fallback] || this.parents.marketplace;
+  },
+  datasetHref(id, parent) {
+    return `dataset.html?id=${encodeURIComponent(String(id))}&from=${encodeURIComponent(this.parents[parent] ? parent : 'marketplace')}`;
+  }
+});
+
+// Ethereum addresses are case-insensitive for identity comparison. Keep the
+// original address untouched for display, signing, and transaction calls.
+function walletAddressMatches(left, right) {
+  return typeof left === 'string' && typeof right === 'string' &&
+    left.toLowerCase() === right.toLowerCase();
+}
+function isSepoliaChain(chainId) {
+  try { return chainId !== null && chainId !== undefined && BigInt(chainId) === SEPOLIA_CHAIN_ID; }
+  catch { return false; }
+}
+
 function navSvg(page) {
   const icons = {
     'index.html': '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
@@ -58,7 +87,8 @@ function navSvg(page) {
     'access.html': '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
     'owner.html': '<path d="M21 2l-2 2m-1.5 6.1L12 15l-4-4 4.9-5.5a5.5 5.5 0 1 1 7.1 6.6z"/>',
     'profile.html': '<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>',
-    'company-dashboard.html': '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+    'logout': '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/>',
+    'company-dashboard.html': '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
     'company-my-list.html': '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>',
     'admin-dashboard.html': '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>',
     'admin-profile.html': '<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>'
@@ -93,6 +123,7 @@ function buildBottomNav() {
 }
 
 function injectSharedChrome() {
+  if (document.body.classList.contains('admin-workspace')) return;
   if (!document.querySelector('.orb')) {
     document.body.insertAdjacentHTML('afterbegin', '<div class="orb orb-1"></div><div class="orb orb-2"></div>');
   }
@@ -252,6 +283,7 @@ const Theme = {
   get() { return localStorage.getItem('dc_theme') || 'light'; },
   set(t) {
     localStorage.setItem('dc_theme', t);
+    document.documentElement.classList.toggle('dark', t === 'dark');
     document.body.classList.toggle('dark', t === 'dark');
     document.querySelectorAll('.theme-toggle-input').forEach(el => el.checked = t === 'dark');
   },
@@ -298,7 +330,7 @@ const API = {
     return { ...(token ? { Authorization: `Bearer ${token}` } : {}), ...headers };
   },
   async get(path) {
-    const res = await fetch(API_BASE + path, { headers: this._headers() });
+    const res = await fetch(API_BASE + path, { headers: this._headers(), cache: 'no-store' });
     const json = await res.json().catch(() => ({}));
     if (!res.ok) {
       const err = new Error(json.message || `HTTP ${res.status}`);
@@ -322,12 +354,29 @@ const API = {
       err.body = json;
       throw err;
     }
+    if (path === '/notifications/ingest') window.dispatchEvent(new CustomEvent('dc:notifications-updated'));
     return json;
   },
 
   async put(path, body, headers = {}) {
     const res = await fetch(API_BASE + path, {
       method: 'PUT',
+      headers: this._headers({ 'Content-Type': 'application/json', ...headers }),
+      body: JSON.stringify(body)
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const err = new Error(json.message || `HTTP ${res.status}`);
+      err.status = res.status;
+      err.body = json;
+      throw err;
+    }
+    return json;
+  },
+
+  async patch(path, body, headers = {}) {
+    const res = await fetch(API_BASE + path, {
+      method: 'PATCH',
       headers: this._headers({ 'Content-Type': 'application/json', ...headers }),
       body: JSON.stringify(body)
     });
@@ -367,6 +416,8 @@ const Auth = {
     sessionStorage.setItem(this.tokenKey, result.token);
     sessionStorage.setItem(this.roleKey, result.role);
     sessionStorage.setItem(this.profileKey, JSON.stringify(result.data || null));
+    localStorage.removeItem('dc_wallet_disconnected');
+    localStorage.removeItem('dc_wallet_logged_out');
   },
   clear() {
     sessionStorage.removeItem(this.tokenKey);
@@ -377,6 +428,7 @@ const Auth = {
     const result = await API.get('/auth/me');
     sessionStorage.setItem(this.roleKey, result.role);
     sessionStorage.setItem(this.profileKey, JSON.stringify(result.data || null));
+    window.dispatchEvent(new CustomEvent('dc:auth-profile', { detail: { role: result.role, profile: result.data || null } }));
     return result;
   },
   landing(role) {
@@ -394,10 +446,13 @@ const Auth = {
     return result.data;
   },
   async logout() {
+    const destination = this.role() === 'admin' ? 'admin-login.html' : 'landing.html';
     try { if (this.token()) await API.post('/auth/logout', {}); } catch { /* session is cleared locally either way */ }
     this.clear();
     Wallet.disconnect();
-    location.replace('landing.html');
+    localStorage.removeItem('dc_wallet_disconnected');
+    localStorage.setItem('dc_wallet_logged_out', '1');
+    location.replace(destination);
   },
   async guardPage() {
     const page = location.pathname.split('/').pop() || 'index.html';
@@ -433,16 +488,18 @@ const Auth = {
       this.clear();
       const destination = page.startsWith('company-') || page === 'access.html' ? 'company-login.html' :
         page.startsWith('admin-') ? 'admin-login.html' : 'auth.html';
-      location.replace(`${destination}?message=${encodeURIComponent(error.message)}`);
+      // A failed Admin session check is separate from a submitted login attempt.
+      location.replace(page.startsWith('admin-') ? destination : `${destination}?message=${encodeURIComponent(error.message)}`);
     }
   }
 };
 
 function applyRoleNavigation(role) {
+  if (role === 'user' || role === 'company') installUserSidebar();
   const entries = role === 'company'
     ? [['company-dashboard.html', 'Home'], ['company-my-list.html', 'My List'], ['marketplace.html', 'Marketplace'], ['transactions.html', 'Transactions'], ['profile.html', 'Profile']]
     : role === 'admin'
-      ? [['admin-dashboard.html', 'Dashboard'], ['admin-dashboard.html#companies', 'Companies'], ['admin-dashboard.html#pending', 'Pending Verification'], ['admin-dashboard.html#approved', 'Approved Companies'], ['admin-profile.html', 'Profile / Admin Account']]
+      ? [['admin-dashboard.html', 'Dashboard']]
       : [['index.html', 'Home'], ['listings.html', 'My List'], ['marketplace.html', 'Marketplace'], ['addData.html', 'Add Data'], ['transactions.html', 'Transactions'], ['owner.html', 'Owner'], ['profile.html', 'Profile']];
 
   const sidebar = document.querySelector('.side-nav');
@@ -464,7 +521,7 @@ function applyRoleNavigation(role) {
       logout.type = 'button';
       logout.dataset.authLogout = '';
       logout.className = 'side-nav-link';
-      logout.textContent = 'Logout';
+      logout.innerHTML = `${navSvg('logout')}<span>Logout</span>`;
       sidebar.appendChild(logout);
       logout.addEventListener('click', () => Auth.logout());
     }
@@ -477,7 +534,284 @@ function applyRoleNavigation(role) {
       return `<a href="${href}" class="b-nav-item" data-page="${path}">${navSvg(path)}<span class="b-nav-label">${label}</span></a>`;
     }).join('');
   }
+  if (role === 'user' || role === 'company') installUserNotificationCenter(role);
+  if (role === 'company') syncWalletUI(WalletStatus.account);
   setActiveNav();
+}
+
+function installUserSidebar() {
+  document.body.classList.add('user-role');
+  const header = document.querySelector('.app-header');
+  const sidebar = document.querySelector('.side-nav');
+  if (!header || !sidebar || document.querySelector('.user-sidebar-toggle')) return;
+  let headerBrand = header.querySelector('.logo');
+  if (!headerBrand) {
+    headerBrand = document.createElement('div');
+    headerBrand.className = 'logo user-header-brand';
+    headerBrand.innerHTML = 'Data<em>Chain</em>';
+    header.prepend(headerBrand);
+  } else headerBrand.classList.add('user-header-brand');
+  if (document.body.classList.contains('user-home-page')) {
+    const title = document.createElement('div');
+    title.className = 'hdr-title user-home-header-title';
+    title.textContent = 'Home';
+    headerBrand.after(title);
+  }
+  let sidebarLogo = sidebar.querySelector('.side-nav-logo');
+  if (!sidebarLogo) {
+    sidebarLogo = document.createElement('div');
+    sidebarLogo.className = 'side-nav-logo';
+    sidebarLogo.innerHTML = 'Data<em>Chain</em>';
+    sidebar.prepend(sidebarLogo);
+  }
+  const sidebarHead = document.createElement('div');
+  sidebarHead.className = 'user-sidebar-head';
+  sidebarLogo.before(sidebarHead);
+  sidebarHead.appendChild(sidebarLogo);
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'user-sidebar-toggle';
+  button.setAttribute('aria-controls', 'user-sidebar');
+  button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
+  sidebar.id = 'user-sidebar';
+  header.prepend(button);
+  let profile = header.querySelector(':scope > a[href="profile.html"]');
+  if (!profile) {
+    profile = document.createElement('a');
+    profile.href = 'profile.html';
+    header.appendChild(profile);
+  }
+  profile.className = 'user-header-profile';
+  profile.title = 'Profile';
+  profile.setAttribute('aria-label', 'Profile');
+  profile.innerHTML = navSvg('profile.html');
+  const backdrop = document.createElement('button');
+  backdrop.type = 'button';
+  backdrop.className = 'user-sidebar-backdrop';
+  backdrop.setAttribute('aria-label', 'Close navigation');
+  backdrop.hidden = true;
+  sidebar.after(backdrop);
+  const isDrawer = () => window.matchMedia('(max-width: 1023px)').matches;
+  const sync = () => {
+    const open = isDrawer() ? document.body.classList.contains('user-sidebar-open') :
+      !document.body.classList.contains('user-sidebar-collapsed');
+    button.setAttribute('aria-expanded', String(open));
+    button.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+    const destination = open ? sidebarHead : header;
+    if (button.parentElement !== destination) {
+      if (open) sidebarHead.appendChild(button);
+      else header.prepend(button);
+    }
+    backdrop.hidden = !isDrawer() || !open;
+    sidebar.inert = !open;
+    if (!isDrawer()) document.body.classList.remove('user-sidebar-open');
+  };
+  const sidebarStorageKey = Auth.role() === 'company' ? 'dc_company_sidebar' : 'dc_user_sidebar';
+  if (localStorage.getItem(sidebarStorageKey) === 'collapsed') document.body.classList.add('user-sidebar-collapsed');
+  button.addEventListener('click', () => {
+    if (isDrawer()) document.body.classList.toggle('user-sidebar-open');
+    else {
+      document.body.classList.toggle('user-sidebar-collapsed');
+      localStorage.setItem(sidebarStorageKey, document.body.classList.contains('user-sidebar-collapsed') ? 'collapsed' : 'expanded');
+    }
+    sync();
+  });
+  backdrop.addEventListener('click', () => { document.body.classList.remove('user-sidebar-open'); sync(); button.focus(); });
+  sidebar.addEventListener('click', event => {
+    if (isDrawer() && event.target.closest('a')) { document.body.classList.remove('user-sidebar-open'); sync(); }
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && document.body.classList.contains('user-sidebar-open')) {
+      document.body.classList.remove('user-sidebar-open'); sync(); button.focus();
+    }
+  });
+  window.addEventListener('resize', sync);
+  sync();
+}
+
+function installUserNotificationCenter(role = 'user') {
+  const header = document.querySelector('.app-header');
+  if (!header || header.querySelector('.dc-notification-root')) return;
+  const root = document.createElement('div');
+  root.className = 'dc-notification-root';
+  root.innerHTML = `
+    <button class="dc-notification-bell" type="button" aria-label="Notifications" aria-expanded="false" aria-controls="dc-notification-panel">
+      <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>
+      <span class="dc-notification-count" hidden></span>
+    </button>
+    <section class="dc-notification-panel" id="dc-notification-panel" aria-label="Notifications" hidden>
+      <header class="dc-notification-panel-head"><div><h2>Notifications</h2><p>Account and marketplace activity</p></div><div class="dc-notification-head-actions"><button type="button" class="dc-notification-mark-all" hidden>Mark all read</button><button type="button" class="dc-notification-clear" hidden>Clear all</button></div></header>
+      <div class="dc-notification-list" aria-live="polite"><p class="dc-notification-empty">Loading notifications…</p></div>
+    </section>`;
+  header.appendChild(root);
+
+  const button = root.querySelector('.dc-notification-bell');
+  const panel = root.querySelector('.dc-notification-panel');
+  const list = root.querySelector('.dc-notification-list');
+  const countBadge = root.querySelector('.dc-notification-count');
+  const markAll = root.querySelector('.dc-notification-mark-all');
+  const clearAll = root.querySelector('.dc-notification-clear');
+  const basePath = role === 'company' ? '/company/notifications' : '/notifications';
+  const companyKey = role === 'company' ? `dc_company_seen_notifications_${Auth.profile()?.walletAddress?.toLowerCase() || 'unknown'}` : null;
+  let notifications = [];
+  let unreadCount = 0;
+  let loading = false;
+
+  const updateCount = count => {
+    unreadCount = Math.max(0, Number(count) || 0);
+    countBadge.hidden = unreadCount === 0;
+    countBadge.textContent = unreadCount > 99 ? '99+' : String(unreadCount);
+    button.setAttribute('aria-label', unreadCount ? `Notifications, ${unreadCount} unread` : 'Notifications');
+    markAll.hidden = unreadCount === 0;
+  };
+  const relativeTime = dateValue => {
+    const date = new Date(dateValue);
+    if (Number.isNaN(date.getTime())) return '';
+    const seconds = Math.round((date.getTime() - Date.now()) / 1000);
+    const abs = Math.abs(seconds);
+    const [unit, divisor] = abs < 60 ? ['second', 1] : abs < 3600 ? ['minute', 60] : abs < 86400 ? ['hour', 3600] : ['day', 86400];
+    return new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' }).format(Math.round(seconds / divisor), unit);
+  };
+  const notificationSvg = type => {
+    if (type === 'ACCESS_REQUEST_APPROVED') return '<path d="m4 12 5 5L20 6"/>';
+    if (type === 'ACCESS_REQUEST_REJECTED') return '<path d="M5 5l14 14M19 5 5 19"/>';
+    if (type === 'PURCHASE_CONFIRMED' || type === 'TRANSACTION_CONFIRMED' || type === 'ETH_CREDITED' || type === 'ETH_DEBITED') return '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/>';
+    if (type === 'ACCESS_REQUEST_RECEIVED') return '<path d="M12 3v12m0 0-4-4m4 4 4-4M5 17v3h14v-3"/>';
+    return '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8m-4-4h8"/>';
+  };
+  const destinationFor = item => {
+    const id = item.relatedDatasetId ? encodeURIComponent(item.relatedDatasetId) : '';
+    if (role === 'company') {
+      if (item.type === 'ETH_CREDITED' || item.type === 'ETH_DEBITED') return 'transactions.html';
+      return /^\d+$/.test(String(item.relatedDatasetId || ''))
+        ? PageNavigation.datasetHref(item.relatedDatasetId, 'marketplace') : null;
+    }
+    if (item.type === 'ACCESS_REQUEST_RECEIVED') {
+      return id ? `owner.html?datasetId=${id}&from=owner` : 'owner.html';
+    }
+    if (item.type === 'DATASET_ADDED' || item.type === 'ACCESS_REQUEST_APPROVED' || item.type === 'ACCESS_REQUEST_REJECTED') {
+      return item.relatedDatasetId ? PageNavigation.datasetHref(item.relatedDatasetId, 'home') : null;
+    }
+    if (item.type === 'PURCHASE_CONFIRMED' || item.type === 'TRANSACTION_CONFIRMED') return 'transactions.html';
+    return null;
+  };
+  const render = () => {
+    list.replaceChildren();
+    clearAll.hidden = notifications.length === 0;
+    if (!notifications.length) {
+      const empty = document.createElement('p');
+      empty.className = 'dc-notification-empty';
+      empty.textContent = 'You’re all caught up.';
+      list.appendChild(empty);
+      return;
+    }
+    for (const item of notifications) {
+      const card = document.createElement('article');
+      card.className = `dc-notification-item${item.read ? '' : ' is-unread'}`;
+      const icon = document.createElement('span');
+      icon.className = 'dc-notification-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      icon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${notificationSvg(item.type)}</svg>`;
+      const copy = document.createElement('div');
+      copy.className = 'dc-notification-copy';
+      const title = document.createElement('h3'); title.textContent = item.title || 'DataChain update';
+      const message = document.createElement('p'); message.textContent = item.message || '';
+      const time = document.createElement('time'); time.dateTime = item.createdAt || ''; time.textContent = relativeTime(item.createdAt);
+      copy.append(title, message, time);
+      const destination = destinationFor(item);
+      if (destination) {
+        const link = document.createElement('a'); link.className = 'dc-notification-open'; link.href = destination;
+        link.textContent = 'Open'; copy.appendChild(link);
+      }
+      card.append(icon, copy);
+      {
+        const readButton = document.createElement('button');
+        readButton.type = 'button'; readButton.className = 'dc-notification-read'; readButton.textContent = item.read ? 'Read' : 'Mark as read';
+        readButton.disabled = Boolean(item.read);
+        readButton.addEventListener('click', async () => {
+          readButton.disabled = true;
+          try {
+            await API.patch(`${basePath}/${encodeURIComponent(item._id)}/read`, {});
+            item.read = true; render(); updateCount(unreadCount - 1); await refreshCount();
+          } catch (error) { Toast.error(error.message || 'Could not update notification.'); readButton.disabled = false; }
+        });
+        card.appendChild(readButton);
+      }
+      list.appendChild(card);
+    }
+  };
+  async function refreshCount() {
+    try {
+      const result = await API.get(`${basePath}/unread-count`);
+      updateCount(result.count);
+    } catch { /* Header can still be used if notifications are temporarily unavailable. */ }
+  }
+  async function loadNotifications() {
+    if (loading) return;
+    loading = true;
+    try {
+      if (!panel.hidden && !notifications.length) list.innerHTML = '<p class="dc-notification-empty">Loading notifications…</p>';
+      const result = await API.get(basePath);
+      notifications = Array.isArray(result.data) ? result.data : [];
+      if (companyKey) announceNewCompanyNotifications(notifications);
+      render();
+      await refreshCount();
+    } catch (error) {
+      list.replaceChildren();
+      const message = document.createElement('p'); message.className = 'dc-notification-empty';
+      message.textContent = error.message || 'Notifications are unavailable.'; list.appendChild(message);
+    } finally { loading = false; }
+  }
+  const setOpen = open => {
+    panel.hidden = !open;
+    button.setAttribute('aria-expanded', String(open));
+    if (open) loadNotifications();
+  };
+  button.addEventListener('click', () => setOpen(panel.hidden));
+  markAll.addEventListener('click', async () => {
+    markAll.disabled = true;
+    try {
+      await API.patch(`${basePath}/read-all`, {});
+      notifications = notifications.map(item => ({ ...item, read: true }));
+      render(); updateCount(0);
+    } catch (error) { Toast.error(error.message || 'Could not update notifications.'); }
+    finally { markAll.disabled = false; }
+  });
+  clearAll.addEventListener('click', async () => {
+    clearAll.disabled = true;
+    try {
+      await API.patch(`${basePath}/clear-all`, {});
+      notifications = [];
+      render(); updateCount(0);
+    } catch (error) { Toast.error(error.message || 'Could not clear notifications.'); }
+    finally { clearAll.disabled = false; }
+  });
+  document.addEventListener('click', event => { if (!root.contains(event.target)) setOpen(false); });
+  document.addEventListener('keydown', event => { if (event.key === 'Escape') setOpen(false); });
+  function announceNewCompanyNotifications(items) {
+    let previous;
+    try { previous = JSON.parse(localStorage.getItem(companyKey) || 'null'); } catch { previous = null; }
+    const known = new Set(Array.isArray(previous) ? previous : []);
+    if (previous !== null) {
+      for (const item of items.slice().reverse()) {
+        if (known.has(item._id)) continue;
+        const toast = document.createElement('button');
+        toast.type = 'button';
+        toast.className = 'toast toast-default dc-notification-toast';
+        const title = document.createElement('strong'); title.textContent = item.title || 'DataChain update';
+        const message = document.createElement('span'); message.textContent = item.message || '';
+        toast.append(title, message);
+        toast.addEventListener('click', () => { setOpen(true); toast.remove(); });
+        Toast._init(); Toast._el.appendChild(toast);
+        setTimeout(() => toast.remove(), 5500);
+      }
+    }
+    const next = [...new Set([...items.map(item => item._id), ...known])].slice(0, 200);
+    try { localStorage.setItem(companyKey, JSON.stringify(next)); } catch { /* Private browsing can disable storage. */ }
+  }
+  if (companyKey) loadNotifications(); else refreshCount();
+  window.addEventListener('dc:notifications-updated', () => { if (companyKey || !panel.hidden) loadNotifications(); else refreshCount(); });
+  window.setInterval(() => { if (companyKey || !panel.hidden) loadNotifications(); else refreshCount(); }, 15000);
 }
 
 const Transactions = {
@@ -518,6 +852,7 @@ async function loadWalletActivity(wallet) {
     const buyer = event.buyer?.toLowerCase();
     const owner = event.owner?.toLowerCase();
     const base = {
+      dataId: event.dataId,
       name: event.name || `Dataset #${event.dataId}`,
       category: event.category || '',
       price: event.amount || '0',
@@ -534,6 +869,7 @@ async function loadWalletActivity(wallet) {
     if (event.requester?.toLowerCase() !== address) continue;
     activity.push({
       type: 'request',
+      dataId: event.dataId,
       name: event.datasetName || `Dataset #${event.dataId}`,
       category: '',
       price: '0',
@@ -557,28 +893,119 @@ async function loadWalletActivity(wallet) {
 }
 
 const Wallet = {
+  connecting: false,
   getAddress() { return localStorage.getItem('dc_wallet') || null; },
   setAddress(a) { localStorage.setItem('dc_wallet', a); },
   disconnect() { localStorage.removeItem('dc_wallet'); },
   isConnected() { return !!this.getAddress(); },
+  isAuthorized() {
+    const connected = this.getAddress();
+    const registered = Auth.profile()?.walletAddress;
+    return Boolean(Auth.token() && connected && registered && walletAddressMatches(connected, registered) && isSepoliaChain(WalletStatus.chainId));
+  },
+  async verifyAuthorization(requireSepolia = false) {
+    if (!window.ethereum?.request || WalletStatus.providerStateSuppressed()) return false;
+    const contextId = WalletStatus.requestId;
+    try {
+      const [accounts, chainId] = await Promise.all([
+        window.ethereum.request({ method: 'eth_accounts' }),
+        window.ethereum.request({ method: 'eth_chainId' })
+      ]);
+      if (contextId !== WalletStatus.requestId || WalletStatus.providerStateSuppressed()) return false;
+      const account = accounts?.[0] || null;
+      const publishedAccount = WalletStatus.publish(account, false, chainId || null);
+      const linked = Auth.profile()?.walletAddress;
+      return Boolean(publishedAccount && linked && walletAddressMatches(publishedAccount, linked) &&
+        (!requireSepolia || BigInt(chainId) === SEPOLIA_CHAIN_ID));
+    } catch {
+      WalletStatus.publish(null, false, null);
+      return false;
+    }
+  },
   short(a) { return a ? a.slice(0, 6) + '…' + a.slice(-4) : ''; },
 
   async connect() {
-    if (typeof window.ethereum === 'undefined') {
+    if (!window.ethereum?.request) {
       Toast.error('MetaMask not detected. Please install it.');
       return null;
     }
+    if (this.connecting) {
+      Toast.warning('A MetaMask account request is already pending. Finish it in the extension, then try again.');
+      return null;
+    }
+    const previouslyConnected = WalletStatus.account;
+    this.connecting = true;
     try {
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      const account = accounts[0];
-      const accountProfile = Auth.profile();
-      if (Auth.role() === 'company' && accountProfile?.walletAddress?.toLowerCase() !== account.toLowerCase()) {
-        Toast.error('Connect the wallet registered to this company.');
+      let account = accounts?.[0];
+      let chainId = null;
+      try {
+        const [confirmedAccounts, confirmedChainId] = await Promise.all([
+          window.ethereum.request({ method: 'eth_accounts' }),
+          window.ethereum.request({ method: 'eth_chainId' })
+        ]);
+        account = confirmedAccounts?.[0] || null;
+        chainId = confirmedChainId || null;
+      } catch { /* Validate connection below and fail closed on network-dependent actions. */ }
+      if (!account) {
+        WalletStatus.publish(null);
+        if (!previouslyConnected) Toast.warning('MetaMask did not return an account. Select an account in the extension and try again.');
         return null;
       }
-      this.setAddress(account);
-      if (Auth.role() === 'user' && accountProfile?.walletAddress?.toLowerCase() !== account.toLowerCase()) {
+      localStorage.removeItem('dc_wallet_disconnected');
+      localStorage.removeItem('dc_wallet_logged_out');
+      const accountProfile = Auth.profile();
+      WalletStatus.publish(account, false, chainId);
+      const linkedAddress = accountProfile?.walletAddress || null;
+      const companyMismatch = Auth.role() === 'company' &&
+        (!linkedAddress || !walletAddressMatches(linkedAddress, account));
+      const userMismatch = Auth.role() === 'user' && linkedAddress &&
+        !walletAddressMatches(linkedAddress, account);
+      if (previouslyConnected && walletAddressMatches(previouslyConnected, account) &&
+          !(Auth.role() === 'user' && !linkedAddress)) {
+        if (linkedAddress && walletAddressMatches(linkedAddress, account) && !isSepoliaChain(chainId)) {
+          const switched = await ensureSepolia();
+          await WalletStatus.refresh();
+          if (switched) Toast.success('Switched MetaMask to Sepolia.');
+          return account;
+        }
+        let selection = null;
+        try {
+          await window.ethereum.request({
+            method: 'wallet_requestPermissions',
+            params: [{ eth_accounts: {} }]
+          });
+          const updatedAccounts = await window.ethereum.request({ method: 'eth_accounts' });
+          selection = updatedAccounts?.[0] || null;
+        } catch (error) {
+          selection = WalletStatus.account !== account ? WalletStatus.account : null;
+        }
+        const selectedAccount = selection || WalletStatus.account;
+        if (selectedAccount && !walletAddressMatches(selectedAccount, account)) {
+          WalletStatus.publish(selectedAccount, false);
+          const selectedMatches = Boolean(linkedAddress && walletAddressMatches(linkedAddress, selectedAccount));
+          if (Auth.role() === 'user' && !linkedAddress) await Auth.linkWallet(selectedAccount);
+          if (selectedMatches || Auth.role() === 'user' && !linkedAddress) {
+            Toast.success('MetaMask account switched.');
+          } else {
+            Toast.warning(Auth.role() === 'company'
+              ? 'The selected MetaMask account differs from the registered company wallet. The registered wallet is unchanged.'
+              : 'The selected MetaMask account differs from your linked wallet. The linked wallet is unchanged.');
+          }
+          return selectedAccount;
+        }
+        Toast.warning('MetaMask returned the current account. Use the MetaMask extension to select another account; DataChain will update when accountsChanged fires.');
+        return account;
+      }
+      if (companyMismatch || userMismatch) {
+        Toast.warning(companyMismatch
+          ? 'This MetaMask account differs from the registered company wallet. Select the registered account in MetaMask; the registered wallet has not changed. DataChain updates when accountsChanged fires.'
+          : 'This MetaMask account differs from your linked wallet. Select the linked account in MetaMask; the linked wallet has not changed. DataChain updates when accountsChanged fires.');
+        return account;
+      }
+      if (Auth.role() === 'user' && !linkedAddress) {
         await Auth.linkWallet(account);
+        await WalletStatus.refresh();
       }
       const onSepolia = await checkSepoliaNetwork();
       if (!onSepolia) {
@@ -587,9 +1014,15 @@ const Wallet = {
       }
       Toast.success('Wallet connected.');
       return account;
-    } catch {
-      Toast.error('Connection rejected.');
+    } catch (error) {
+      if (error?.code === 4001) Toast.warning('MetaMask connection request was rejected.');
+      else {
+        const currentAccount = await WalletStatus.refresh();
+        if (!(previouslyConnected && !currentAccount)) Toast.error(error?.message || 'Could not connect to MetaMask.');
+      }
       return null;
+    } finally {
+      this.connecting = false;
     }
   }
 };
@@ -617,7 +1050,7 @@ function renderDataCard(item) {
   const bc = badgeClass(item.category);
   const targetId = item.id ?? item.blockchainId ?? item.onChainId ?? '';
   const detailHref = targetId !== ''
-    ? `dataset.html?id=${encodeURIComponent(String(targetId))}`
+      ? PageNavigation.datasetHref(targetId, 'marketplace')
     : null;
   console.info('[Marketplace detail link]', {
     datasetId: targetId,
@@ -686,25 +1119,233 @@ function parseRevert(err) {
   return err.reason || err.shortMessage || err.message || 'Transaction failed.';
 }
 
-function syncWalletUI(addr) {
+function syncWalletUI(addr, checking = false) {
   document.querySelectorAll('.wallet-addr-txt').forEach(el =>
-    el.textContent = addr ? Wallet.short(addr) : 'Not connected'
+    el.textContent = addr ? Wallet.short(addr) : checking ? 'Checking wallet…' : 'Not connected'
   );
   document.querySelectorAll('.w-dot').forEach(d =>
     d.classList.toggle('on', !!addr)
   );
   document.querySelectorAll('[data-wallet-connect]').forEach(btn => {
+    const linked = Auth.role() === 'company' ? Auth.profile()?.walletAddress : null;
+    const mismatch = Boolean(addr && linked && !walletAddressMatches(addr, linked));
     if (addr) {
-      btn.textContent = 'Connected';
-      btn.disabled = true;
+      btn.textContent = mismatch ? 'Select linked wallet on Home' : `Wallet · ${Wallet.short(addr)}`;
+      btn.disabled = false;
       btn.classList.add('connected');
     } else {
-      btn.textContent = btn.dataset.walletLabel || 'Connect Wallet';
-      btn.disabled = false;
+      btn.textContent = checking ? 'Checking wallet…' : 'Connect from Home';
+      btn.disabled = checking;
       btn.classList.remove('connected');
     }
   });
+  if (Auth.role() === 'company') {
+    const linked = Auth.profile()?.walletAddress || null;
+    const wallet = WalletStatus.snapshot();
+    const mismatch = Boolean(addr && linked && !walletAddressMatches(addr, linked));
+    const wrongNetwork = Boolean(addr && !wallet.onSepolia);
+    const walletReady = Boolean(wallet.authenticated && addr && linked && !mismatch && wallet.onSepolia);
+    document.querySelectorAll('.company-header-wallet').forEach(chip => {
+      chip.classList.toggle('is-mismatch', Boolean(!checking && addr && (mismatch || wrongNetwork)));
+      const label = chip.querySelector('.company-wallet-label');
+      const state = chip.querySelector('.company-wallet-state');
+      if (label) label.textContent = checking ? 'Checking wallet…' : walletReady ? 'Connected' : addr ? mismatch ? 'Wrong account' : wrongNetwork ? 'Wrong network' : 'Not verified' : 'Not connected';
+      if (state) {
+        state.textContent = checking ? 'Verifying registered wallet…' : addr ? `Connected: ${Wallet.short(addr)}` : linked ? `Linked: ${Wallet.short(linked)}` : 'Not linked';
+        state.title = linked ? `Registered wallet ${Wallet.short(linked)}` : 'No linked wallet is stored on this account';
+      }
+    });
+    document.querySelectorAll('[data-home-wallet-connect]').forEach(btn => {
+      const profileReady = document.body.dataset.companyProfileReady === 'true';
+      btn.textContent = checking ? 'Checking wallet…' : !profileReady ? 'Verifying company profile…' : walletReady ? 'Switch Wallet' : addr ? mismatch ? 'Select registered wallet' : wrongNetwork ? 'Switch to Sepolia' : 'Verify wallet' : 'Connect MetaMask';
+      btn.disabled = checking || !profileReady;
+      btn.classList.toggle('connected', walletReady);
+    });
+    document.querySelectorAll('.company-header-wallet .w-dot').forEach(dot => dot.classList.toggle('on', walletReady));
+    document.querySelectorAll('.company-wallet-notice').forEach(notice => {
+      const showMismatch = !checking && Boolean(addr && mismatch);
+      const showWrongNetwork = !checking && Boolean(addr && !mismatch && wrongNetwork);
+      notice.classList.toggle('is-visible', showMismatch || showWrongNetwork);
+      notice.textContent = showMismatch
+        ? 'The connected MetaMask account differs from your registered company wallet. Company data remains protected until the registered wallet is selected.'
+        : showWrongNetwork
+          ? 'Switch MetaMask to Sepolia before using company wallet features.'
+          : '';
+    });
+  }
 }
+
+// A saved wallet address is not evidence that MetaMask is still connected.
+// Keep the current provider account separate from the authenticated profile.
+const WalletStatus = {
+  account: null,
+  chainId: null,
+  provider: null,
+  started: false,
+  initialization: null,
+  initialized: false,
+  lastPublishedStateKey: null,
+  requestId: 0,
+  lastRegisteredWallet: null,
+  error: null,
+  verificationStatus: 'checking',
+  snapshot() {
+    const registeredWallet = Auth.profile()?.walletAddress || null;
+    const connected = Boolean(this.account);
+    const matchesRegisteredWallet = Boolean(connected && registeredWallet && walletAddressMatches(this.account, registeredWallet));
+    const sepolia = isSepoliaChain(this.chainId);
+    return {
+      account: this.account,
+      registeredWallet,
+      chainId: this.chainId,
+      providerAvailable: Boolean(this.provider?.request),
+      connected,
+      matchesRegisteredWallet,
+      onSepolia: sepolia,
+      verificationStatus: this.verificationStatus,
+      initialized: this.initialized,
+      error: this.error,
+      locallyDisconnected: localStorage.getItem('dc_wallet_disconnected') === '1',
+      loggedOut: localStorage.getItem('dc_wallet_logged_out') === '1' && !Auth.token(),
+      authenticated: Boolean(Auth.token())
+    };
+  },
+  publish(account, notify = true, chainId = this.chainId, verificationError = null) {
+    ++this.requestId;
+    const previous = this.account;
+    this.account = this.providerStateSuppressed() ? null : account || null;
+    this.chainId = this.account ? chainId || null : null;
+    this.error = verificationError;
+    const registered = Auth.profile()?.walletAddress || null;
+    this.lastRegisteredWallet = registered;
+    if (localStorage.getItem('dc_wallet_disconnected') === '1') this.verificationStatus = 'locally-disconnected';
+    else if (localStorage.getItem('dc_wallet_logged_out') === '1' && !Auth.token()) this.verificationStatus = 'logged-out';
+    else if (this.error) this.verificationStatus = 'error';
+    else if (!this.provider?.request) { this.verificationStatus = 'unavailable'; this.error = 'MetaMask is not available in this browser.'; }
+    else if (!this.account) this.verificationStatus = 'disconnected';
+    else if (!Auth.token()) this.verificationStatus = 'unauthenticated';
+    else if (!registered) this.verificationStatus = 'unlinked';
+    else if (!walletAddressMatches(this.account, registered)) this.verificationStatus = 'mismatch';
+    else if (!this.chainId) this.verificationStatus = 'unverified';
+    else if (!isSepoliaChain(this.chainId)) this.verificationStatus = 'wrong-network';
+    else this.verificationStatus = 'verified';
+    if (this.account) Wallet.setAddress(this.account);
+    else Wallet.disconnect();
+    syncWalletUI(this.account);
+    if (notify && this.initialized && previous && !this.account) {
+      Toast.warning('Wallet disconnected — reconnect MetaMask to perform blockchain actions.');
+    } else if (notify && this.initialized && !previous && this.account) {
+      Toast.success('Wallet reconnected.');
+    }
+    this.initialized = true;
+    const state = this.snapshot();
+    const stateKey = JSON.stringify(state);
+    if (stateKey !== this.lastPublishedStateKey) {
+      this.lastPublishedStateKey = stateKey;
+      window.dispatchEvent(new CustomEvent('dc:wallet-state', { detail: state }));
+    }
+    return this.account;
+  },
+  syncProfile() {
+    const registered = Auth.profile()?.walletAddress || null;
+    if (!this.initialized) {
+      // Profile hydration can finish before eth_accounts / eth_chainId. Do not
+      // turn that still-pending provider snapshot into a disconnected publish.
+      this.lastRegisteredWallet = registered;
+      return this.account;
+    }
+    const previous = this.lastRegisteredWallet;
+    const unchanged = registered === previous || Boolean(registered && previous && walletAddressMatches(registered, previous));
+    if (unchanged) return this.account;
+    return this.publish(this.account, false, this.chainId);
+  },
+  providerStateSuppressed() {
+    return localStorage.getItem('dc_wallet_disconnected') === '1' ||
+      (localStorage.getItem('dc_wallet_logged_out') === '1' && !Auth.token());
+  },
+  async refresh() {
+    if (this.started && (window.ethereum || null) !== this.provider) {
+      this.stop();
+      return this.start();
+    }
+    const requestId = ++this.requestId;
+    if (this.providerStateSuppressed()) return this.publish(null, false);
+    if (!this.provider?.request) return this.publish(null);
+    let accounts, chainId;
+    try {
+      [accounts, chainId] = await Promise.all([
+        this.provider.request({ method: 'eth_accounts' }),
+        this.provider.request({ method: 'eth_chainId' })
+      ]);
+    } catch (error) {
+      if (requestId !== this.requestId) return this.account;
+      this.publish(null, false, null, error?.message || 'Could not verify the MetaMask account. Retry the connection check.');
+      return null;
+    }
+    if (requestId !== this.requestId) return this.account;
+    return this.publish(accounts?.[0] || null, true, chainId);
+  },
+  start() {
+    // start() is intentionally idempotent; callers that need a fresh provider
+    // snapshot should call refresh() explicitly.
+    if (this.started) return this.initialization || Promise.resolve(this.account);
+    this.started = true;
+    this.provider = window.ethereum || null;
+    this.onAccountsChanged = accounts => {
+      // During the first snapshot, do not publish a partial account-only state:
+      // it would invalidate the in-flight chain read and leave pages unverified.
+      if (!this.initialized) return this.refresh();
+      ++this.requestId;
+      if (this.providerStateSuppressed()) return this.publish(null, false);
+      this.publish(accounts?.[0] || null);
+    };
+    this.onDisconnect = () => {
+      ++this.requestId;
+      this.publish(null);
+    };
+    this.onConnect = () => this.refresh();
+    this.onChainChanged = chainId => {
+      // Resolve account and network together if a network event arrives before
+      // the initial passive snapshot has completed.
+      if (!this.initialized) return this.refresh();
+      ++this.requestId;
+      this.chainId = chainId || null;
+      this.publish(this.account, false, chainId);
+    };
+    this.onFocus = () => this.refresh();
+    this.onVisibilityChange = () => { if (!document.hidden) this.refresh(); };
+    this.provider?.on?.('accountsChanged', this.onAccountsChanged);
+    this.provider?.on?.('disconnect', this.onDisconnect);
+    this.provider?.on?.('chainChanged', this.onChainChanged);
+    this.provider?.on?.('connect', this.onConnect);
+    window.addEventListener('focus', this.onFocus);
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
+    const pending = this.refresh();
+    this.initialization = pending;
+    pending.then(() => { if (this.initialization === pending) this.initialization = null; });
+    return pending;
+  },
+  stop() {
+    if (!this.started) return;
+    this.started = false;
+    this.initialization = null;
+    ++this.requestId;
+    this.provider?.removeListener?.('accountsChanged', this.onAccountsChanged);
+    this.provider?.removeListener?.('disconnect', this.onDisconnect);
+    this.provider?.removeListener?.('chainChanged', this.onChainChanged);
+    this.provider?.removeListener?.('connect', this.onConnect);
+    window.removeEventListener('focus', this.onFocus);
+    document.removeEventListener('visibilitychange', this.onVisibilityChange);
+    this.provider = null;
+  },
+  disconnectLocally() {
+    localStorage.setItem('dc_wallet_disconnected', '1');
+    localStorage.removeItem('dc_wallet_logged_out');
+    this.chainId = null;
+    this.publish(null, false);
+    Toast.success('Wallet disconnected. Your DataChain session is still active.');
+  }
+};
 
 document.addEventListener('DOMContentLoaded', () => {
   injectSharedChrome();
@@ -717,23 +1358,31 @@ document.addEventListener('DOMContentLoaded', () => {
   );
 
   document.querySelectorAll('[data-wallet-connect]').forEach(btn =>
-    btn.addEventListener('click', async () => {
-      const addr = await Wallet.connect();
-      if (addr) syncWalletUI(addr);
+    btn.addEventListener('click', () => {
+      if (Auth.role() === 'company') location.assign('company-dashboard.html');
+      else location.assign('index.html');
     })
   );
 
-  syncWalletUI(Wallet.getAddress());
-
-  if (typeof window.ethereum !== 'undefined') {
-    window.ethereum.on('accountsChanged', (accounts) => {
-      if (accounts && accounts.length) {
-        Wallet.setAddress(accounts[0]);
-      } else {
-        Wallet.disconnect();
+  document.querySelectorAll('[data-home-wallet-connect]').forEach(btn =>
+    btn.addEventListener('click', async () => {
+      if (Auth.role() === 'company' && !Auth.profile()?.walletAddress) {
+        Toast.warning('Could not verify the registered company wallet. Refresh Company Home and try again.');
+        return;
       }
-      syncWalletUI(Wallet.getAddress());
-    });
+      btn.disabled = true;
+      btn.textContent = 'Connecting…';
+      try { await Wallet.connect(); }
+      finally { syncWalletUI(WalletStatus.account, !WalletStatus.initialized); }
+    })
+  );
+
+  if (!document.body.classList.contains('admin-workspace')) {
+    syncWalletUI(null, !WalletStatus.initialized);
+    WalletStatus.start();
+    window.addEventListener('dc:auth-profile', () => WalletStatus.syncProfile());
+    window.addEventListener('pagehide', () => WalletStatus.stop());
+    window.addEventListener('pageshow', () => { if (!WalletStatus.started) WalletStatus.start(); });
   }
 
   document.querySelectorAll('[data-auth-logout]').forEach(button =>
@@ -741,3 +1390,7 @@ document.addEventListener('DOMContentLoaded', () => {
   );
   Auth.guardPage();
 });
+
+// Replace static disconnected placeholders as soon as the shared script can
+// access the parsed page, while the passive provider snapshot is pending.
+if (!document.body.classList.contains('admin-workspace')) syncWalletUI(null, !WalletStatus.initialized);

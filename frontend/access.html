@@ -357,7 +357,14 @@ async function checkCompanyStatus(wallet) {
 /* ──────────────────────────────────────────────────────────
    Load access requests — GET /access-requests/company/:wallet
 ────────────────────────────────────────────────────────── */
+let accessRequestsLoadId = 0;
 async function loadAccessRequests(wallet) {
+  if (!WalletStatus.snapshot().initialized) return;
+  const loadId = ++accessRequestsLoadId;
+  const initialState = WalletStatus.snapshot();
+  if (!initialState.authenticated || !initialState.connected || !initialState.matchesRegisteredWallet || !initialState.onSepolia || !walletAddressMatches(initialState.account, wallet)) {
+    wallet = null;
+  }
   const listEl = document.getElementById('requests-list');
   if (!wallet) {
     listEl.innerHTML = `<div class="empty-state" style="padding:28px 0">
@@ -371,6 +378,8 @@ async function loadAccessRequests(wallet) {
 
   try {
     const res = await API.get(`/access-requests/company/${wallet}`);
+    const latestState = WalletStatus.snapshot();
+    if (loadId !== accessRequestsLoadId || !latestState.authenticated || !latestState.connected || !latestState.matchesRegisteredWallet || !latestState.onSepolia || !walletAddressMatches(latestState.account, wallet)) return;
     if (res.success && Array.isArray(res.data) && res.data.length) {
       listEl.innerHTML = '';
       res.data.forEach(req => {
@@ -396,6 +405,7 @@ async function loadAccessRequests(wallet) {
       </div>`;
     }
   } catch (err) {
+    if (loadId !== accessRequestsLoadId) return;
     console.warn('Access requests fetch error:', err.message);
     listEl.innerHTML = `<div class="empty-state" style="padding:28px 0">
       <h3>Could not load requests</h3>
@@ -475,44 +485,28 @@ document.getElementById('check-status-btn').addEventListener('click', async () =
 });
 
 document.getElementById('refresh-requests-btn').addEventListener('click', () => {
-  loadAccessRequests(Wallet.getAddress());
+  initPage();
 });
 
 /* ── Init ── */
 function initPage() {
-  const wallet = Wallet.getAddress();
-  if (wallet) {
+  const state = WalletStatus.snapshot();
+  if (!state.initialized) return;
+  const wallet = state.account;
+  const linked = Auth.profile()?.walletAddress;
+  if (state.authenticated && state.connected && state.matchesRegisteredWallet && state.onSepolia && linked && walletAddressMatches(wallet, linked)) {
     document.getElementById('no-wallet-nag').classList.add('hidden');
     checkCompanyStatus(wallet);
     loadAccessRequests(wallet);
+  } else {
+    accessRequestsLoadId++;
+    document.getElementById('no-wallet-nag').classList.remove('hidden');
+    loadAccessRequests(null);
   }
 }
 
-// Listen to wallet connect button
-document.querySelectorAll('[data-wallet-connect]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    setTimeout(() => {
-      const wallet = Wallet.getAddress();
-      if (wallet) {
-        document.getElementById('no-wallet-nag').classList.add('hidden');
-        checkCompanyStatus(wallet);
-        loadAccessRequests(wallet);
-      }
-    }, 800);
-  });
-});
-
-if (typeof window.ethereum !== 'undefined') {
-  window.ethereum.on('accountsChanged', (accounts) => {
-    if (accounts && accounts.length) {
-      Wallet.setAddress(accounts[0]);
-    } else {
-      Wallet.disconnect();
-    }
-    syncWalletUI(Wallet.getAddress());
-    initPage();
-  });
-}
+window.addEventListener('dc:wallet-state', initPage);
+window.addEventListener('dc:auth-profile', initPage);
 
 initPage();
 </script>

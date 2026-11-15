@@ -3,7 +3,8 @@ const {
     listDatasets,
     getAccessRequestsForOwner,
     getAccessRequestsForRequester,
-    getPurchaseEvents
+    getPurchaseEvents,
+    getCompanyPurchaseAudit
 } = require("../services/blockchainService");
 
 const router = express.Router();
@@ -129,6 +130,20 @@ router.get("/chain/purchases", requireAuth('user', 'company'), async (req, res) 
             success: false,
             message: error.message
         });
+    }
+});
+
+router.get("/chain/purchases/audit", requireAuth('company'), async (req, res) => {
+    try {
+        const wallet = req.company.walletAddress;
+        if (!wallet) {
+            return res.status(403).json({ success: false, message: 'Link a wallet to your company account before auditing purchases' });
+        }
+        const data = await getCompanyPurchaseAudit(wallet);
+        res.json({ success: true, data });
+    } catch (error) {
+        console.error("GET /chain/purchases/audit error:", error.message);
+        res.status(502).json({ success: false, message: 'Unable to audit confirmed company purchases' });
     }
 });
 

@@ -582,6 +582,40 @@ loadOnChainStats();
 (async function initUserAccountCenter() {
   const center = document.getElementById('user-account-center');
   const legacyProfile = document.querySelector('.profile-layout');
+  async function bindNotificationPreference(role) {
+    const notifications = document.getElementById('uc-notifications-toggle');
+    const preferencePath = role === 'company' ? '/company/notifications/preferences' : '/notifications/preferences';
+    const help = notifications.closest('.uc-toggle-row').querySelector('small');
+    notifications.disabled = true;
+    help.textContent = 'Loading notification preference…';
+    try {
+      const preference = await API.get(preferencePath);
+      notifications.checked = preference.notificationsEnabled !== false;
+      notifications.disabled = false;
+      help.textContent = 'Receive account and marketplace activity in DataChain.';
+    } catch (error) {
+      notifications.disabled = true;
+      notifications.title = 'Notification preference could not be loaded';
+      help.textContent = 'Notification preference could not be loaded.';
+      Toast.error(error.message || 'Could not load notification preference.');
+      return;
+    }
+    notifications.addEventListener('change', async () => {
+      const requested = notifications.checked;
+      notifications.disabled = true;
+      try {
+        const saved = await API.patch(preferencePath, { notificationsEnabled: requested });
+        notifications.checked = saved.notificationsEnabled !== false;
+        window.dispatchEvent(new CustomEvent('dc:notification-preference-updated', {
+          detail: { role, notificationsEnabled: notifications.checked }
+        }));
+        Toast.success(notifications.checked ? 'In-app notifications enabled.' : 'In-app notifications disabled.');
+      } catch (error) {
+        notifications.checked = !requested;
+        Toast.error(error.message || 'Could not save notification preference.');
+      } finally { notifications.disabled = false; }
+    });
+  }
   try {
     const session = await Auth.me();
     if (session.role === 'company' && session.data) {
@@ -616,9 +650,7 @@ loadOnChainStats();
       center.querySelector('#uc-security-title + p').textContent = 'Your verified session is active.';
       center.querySelector('#uc-security-title').closest('.uc-card').querySelector('.uc-help').textContent = 'Your company registration details are managed through verification.';
       center.querySelector('#uc-wallet-title').closest('.uc-card').querySelector('.uc-help').textContent = 'Connect the wallet registered to your company.';
-      const notifications = document.getElementById('uc-notifications-toggle');
-      notifications.disabled = true;
-      notifications.closest('.uc-toggle-row').querySelector('small').textContent = 'Company notifications are not available for this account.';
+      await bindNotificationPreference('company');
       document.getElementById('uc-account-dialog-title').textContent = 'Edit display name';
       document.querySelector('#uc-profile-form .uc-dialog-header p').textContent = 'Saved on this device.';
       document.querySelector('label[for="uc-name"]').textContent = 'Display name';
@@ -821,28 +853,7 @@ loadOnChainStats();
       document.body.classList.remove('dark');
       location.reload();
     });
-    const notifications = document.getElementById('uc-notifications-toggle');
-    try {
-      const preference = await API.get('/notifications/preferences');
-      notifications.checked = preference.notificationsEnabled !== false;
-      notifications.disabled = false;
-    } catch (error) {
-      notifications.disabled = true;
-      notifications.title = 'Notification preference could not be loaded';
-      Toast.error(error.message || 'Could not load notification preference.');
-    }
-    notifications.addEventListener('change', async () => {
-      const requested = notifications.checked;
-      notifications.disabled = true;
-      try {
-        const saved = await API.patch('/notifications/preferences', { notificationsEnabled: requested });
-        notifications.checked = saved.notificationsEnabled !== false;
-        Toast.success(notifications.checked ? 'In-app notifications enabled.' : 'In-app notifications disabled.');
-      } catch (error) {
-        notifications.checked = !requested;
-        Toast.error(error.message || 'Could not save notification preference.');
-      } finally { notifications.disabled = false; }
-    });
+    await bindNotificationPreference('user');
   } catch (error) {
     console.warn('User Account & Security Center could not load:', error.message);
   }

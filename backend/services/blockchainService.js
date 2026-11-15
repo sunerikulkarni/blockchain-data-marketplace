@@ -6,6 +6,7 @@ const contractABI = [
     "function dataCount() view returns (uint256)",
     "function getAccessStatus(uint256,address) view returns (uint8)",
     "function hasAccess(uint256,address) view returns (bool)",
+    "function buyData(uint256) payable",
     "event DataAdded(uint indexed dataId, address indexed owner, uint price)",
     "event AccessRequested(uint indexed dataId, address indexed requester)",
     "event AccessApproved(uint indexed dataId, address indexed requester)",
@@ -24,6 +25,8 @@ const ACCESS_STATUS = {
 
 const BLOCKSCOUT_API = "https://eth-sepolia.blockscout.com/api/v2";
 const MAX_EVENT_LOG_PAGES = 20;
+const EXPECTED_CHAIN_ID = 11155111n;
+const { calculatePurchaseAudit } = require('./purchaseAudit');
 
 function requireRpc() {
     if (!process.env.BLOCKCHAIN_RPC_URL) {
@@ -173,8 +176,7 @@ async function getAccessStatus(datasetId, user) {
     };
 }
 
-async function queryEventLogs(eventName) {
-    const contract = getReadContract();
+async function queryBlockscoutEventLogs(eventName, contract) {
     const eventTopic = contract.interface.getEvent(eventName).topicHash.toLowerCase();
     const address = process.env.CONTRACT_ADDRESS.toLowerCase();
     const logs = [];
@@ -216,6 +218,7 @@ async function queryEventLogs(eventName) {
                     args: parsed.args,
                     blockNumber: Number(item.block_number),
                     transactionHash: item.transaction_hash,
+                    logIndex: Number(item.index ?? item.log_index ?? 0),
                     timestamp: item.block_timestamp || item.timestamp || null
                 });
             } catch (error) {
@@ -231,6 +234,170 @@ async function queryEventLogs(eventName) {
     } while (nextPage);
 
     return logs;
+}
+
+async function queryPurchaseEventSources() {
+    const contract = getReadContract();
+    const address = process.env.CONTRACT_ADDRESS.toLowerCase();
+    let indexedLogs = [];
+    let eventIndexAvailable = true;
+    try {
+        indexedLogs = await queryBlockscoutEventLogs("DataPurchased", contract);
+    } catch {
+        eventIndexAvailable = false;
+        console.warn("Could not read DataPurchased events from the Sepolia event index.");
+    }
+
+    let receiptLogs = [];
+    let receiptDiscoveryComplete = false;
+    try {
+        const result = await queryPurchaseReceiptLogs(contract, address);
+        receiptLogs = result.logs;
+        receiptDiscoveryComplete = result.complete;
+    } catch {
+        console.warn("Could not supplement DataPurchased logs from receipts; audit coverage may be incomplete.");
+    }
+
+    return {
+        contract,
+        indexedLogs,
+        receiptLogs,
+        receiptDiscoveryComplete,
+        eventIndexAvailable,
+        mergedLogs: dedupeAndSortEventLogs([...indexedLogs, ...receiptLogs])
+    };
+}
+
+async function queryEventLogs(eventName) {
+    if (eventName === "DataPurchased") {
+        return (await queryPurchaseEventSources()).mergedLogs;
+    }
+    const contract = getReadContract();
+    return dedupeAndSortEventLogs(await queryBlockscoutEventLogs(eventName, contract));
+}
+
+function dedupeAndSortEventLogs(logs) {
+    const unique = new Map();
+    for (const log of logs) {
+        const txHash = String(log.transactionHash || "").toLowerCase();
+        if (!txHash) continue;
+        const logIndex = Number(log.logIndex ?? 0);
+        const key = `${txHash}:${logIndex}`;
+        if (!unique.has(key)) unique.set(key, { ...log, logIndex });
+    }
+    return [...unique.values()].sort((a, b) =>
+        (b.blockNumber || 0) - (a.blockNumber || 0) || b.logIndex - a.logIndex
+    );
+}
+
+async function queryPurchaseReceiptLogs(contract, contractAddress) {
+    const provider = contract.runner?.provider;
+    if (!provider) throw new Error("Configured Sepolia RPC provider is unavailable");
+    const network = await provider.getNetwork();
+    if (network.chainId !== EXPECTED_CHAIN_ID) {
+        throw new Error(`Configured RPC is not Sepolia (chain ID ${network.chainId})`);
+    }
+
+    const buyDataSelector = contract.interface.getFunction("buyData").selector.toLowerCase();
+    const receiptLogs = [];
+    let nextPage = null;
+    let pagesRead = 0;
+    let complete = true;
+
+    do {
+        const url = new URL(`${BLOCKSCOUT_API}/addresses/${contractAddress}/transactions`);
+        if (nextPage) {
+            for (const [key, value] of Object.entries(nextPage)) {
+                if (value !== null && value !== undefined) url.searchParams.set(key, String(value));
+            }
+        }
+
+        const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
+        if (!response.ok) throw new Error(`Sepolia transaction index returned HTTP ${response.status}`);
+        const page = await response.json();
+        if (!Array.isArray(page.items)) throw new Error("Sepolia transaction index returned an invalid page");
+
+        for (const item of page.items) {
+            const destination = item.to?.hash || item.to || "";
+            const input = item.raw_input || item.input || "";
+            const selector = typeof input === "string" ? input.slice(0, 10).toLowerCase() : "";
+            if (destination.toLowerCase() !== contractAddress || selector !== buyDataSelector) continue;
+            if (!ethers.isHexString(item.hash || "", 32)) continue;
+
+            let receipt;
+            try {
+                receipt = await provider.getTransactionReceipt(item.hash);
+            } catch {
+                complete = false;
+                continue;
+            }
+            if (!receipt) {
+                complete = false;
+                continue;
+            }
+            if (Number(receipt.status) !== 1) continue;
+            const effectiveGasPrice = receipt.effectiveGasPrice ?? receipt.gasPrice;
+            const gasFeeWei = receipt.gasUsed !== undefined && effectiveGasPrice !== undefined
+                ? (BigInt(receipt.gasUsed) * BigInt(effectiveGasPrice)).toString()
+                : null;
+
+            for (const log of receipt.logs) {
+                if (log.address.toLowerCase() !== contractAddress) continue;
+                try {
+                    const parsed = contract.interface.parseLog({ topics: log.topics, data: log.data });
+                    if (!parsed || parsed.name !== "DataPurchased") continue;
+                    receiptLogs.push({
+                        args: parsed.args,
+                        blockNumber: Number(log.blockNumber ?? receipt.blockNumber),
+                        transactionHash: log.transactionHash || receipt.hash,
+                        logIndex: Number(log.index ?? log.logIndex ?? 0),
+                        timestamp: item.timestamp || null,
+                        gasFeeWei
+                    });
+                } catch {
+                    // Ignore receipt logs that do not match the marketplace ABI.
+                }
+            }
+        }
+
+        nextPage = page.next_page_params;
+        pagesRead += 1;
+        if (nextPage && pagesRead >= MAX_EVENT_LOG_PAGES) {
+            complete = false;
+            break;
+        }
+    } while (nextPage);
+
+    return { logs: receiptLogs, complete };
+}
+
+async function getCompanyPurchaseAudit(wallet) {
+    if (!wallet || !ethers.isAddress(wallet)) {
+        throw new Error("A valid company wallet is required");
+    }
+    const normalizedWallet = wallet.toLowerCase();
+    const sources = await queryPurchaseEventSources();
+    const isBuyer = (log) => String(log.args.buyer ?? log.args[1]).toLowerCase() === normalizedWallet;
+    const withReceiptDetails = (log) => ({
+        dataId: String(log.args.dataId ?? log.args[0]),
+        txHash: log.transactionHash,
+        logIndex: log.logIndex,
+        buyer: log.args.buyer ?? log.args[1],
+        owner: log.args.owner ?? log.args[2],
+        amountWei: String(log.args.amount ?? log.args[3]),
+        gasFeeWei: log.gasFeeWei ?? null,
+        blockNumber: log.blockNumber
+    });
+    const verifiedPurchases = dedupeAndSortEventLogs(sources.receiptLogs.filter(isBuyer)).map(withReceiptDetails);
+    const dataChainPurchases = dedupeAndSortEventLogs(sources.mergedLogs.filter(isBuyer)).map(withReceiptDetails);
+    const indexedPurchases = sources.indexedLogs.filter(isBuyer).map(withReceiptDetails);
+    return calculatePurchaseAudit({
+        verifiedPurchases,
+        dataChainPurchases,
+        indexedPurchases,
+        receiptDiscoveryComplete: sources.receiptDiscoveryComplete,
+        eventIndexAvailable: sources.eventIndexAvailable
+    });
 }
 
 async function getAccessRequestsForOwner(ownerWallet) {
@@ -353,6 +520,7 @@ module.exports = {
     getAccessRequestsForOwner,
     getAccessRequestsForRequester,
     getPurchaseEvents,
+    getCompanyPurchaseAudit,
     getConfirmedMarketplaceTransaction,
     ACCESS_STATUS
 };

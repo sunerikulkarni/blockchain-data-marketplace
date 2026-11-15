@@ -33,7 +33,8 @@ function publicCompany(company) {
     walletAddress: company.walletAddress,
     description: company.description,
     verificationStatus: company.verificationStatus,
-    rejectionReason: company.rejectionReason || null
+    rejectionReason: company.rejectionReason || null,
+    notificationsEnabled: company.notificationsEnabled !== false
   };
 }
 

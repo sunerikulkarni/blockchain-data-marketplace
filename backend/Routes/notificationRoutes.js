@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const Notification = require('../models/Notification');
 const User = require('../models/User');
+const Company = require('../models/Company');
 const requireAuth = require('../middleware/authMiddleware');
 const { ingestConfirmedTransaction } = require('../services/notificationService');
 
@@ -155,6 +156,27 @@ router.patch('/notifications/preferences', userAuth, async (req, res) => {
     res.json({ success: true, notificationsEnabled: user.notificationsEnabled !== false });
   } catch (error) {
     console.error('PATCH notification preference failed:', error.message);
+    res.status(503).json({ success: false, message: 'Notification preference could not be saved' });
+  }
+});
+
+router.get('/company/notifications/preferences', companyAuth, (req, res) => {
+  res.json({ success: true, notificationsEnabled: req.company.notificationsEnabled !== false });
+});
+
+router.patch('/company/notifications/preferences', companyAuth, async (req, res) => {
+  if (typeof req.body?.notificationsEnabled !== 'boolean') {
+    return res.status(400).json({ success: false, message: 'notificationsEnabled must be true or false' });
+  }
+  try {
+    const company = await Company.findByIdAndUpdate(req.company._id,
+      { $set: { notificationsEnabled: req.body.notificationsEnabled } },
+      { new: true, projection: 'notificationsEnabled' }
+    );
+    if (!company) return res.status(404).json({ success: false, message: 'Company account was not found' });
+    res.json({ success: true, notificationsEnabled: company.notificationsEnabled !== false });
+  } catch (error) {
+    console.error('Company notification preference failed:', error.message);
     res.status(503).json({ success: false, message: 'Notification preference could not be saved' });
   }
 });

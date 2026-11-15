@@ -51,8 +51,8 @@ async function notifyCompanyAccessRequest(request, status) {
 
 async function insertForWallet(wallet, details, txHash) {
   if (!wallet) return false;
-  const recipient = await User.findOne({ walletAddress: wallet.toLowerCase() }).select('_id walletAddress notificationsEnabled');
-  if (!recipient || recipient.notificationsEnabled === false) return false;
+  const recipient = await User.findOne({ walletAddress: wallet.toLowerCase() }).select('_id walletAddress');
+  if (!recipient) return false;
 
   const notificationKey = `${details.type}:${txHash.toLowerCase()}:${recipient._id}`;
   try {

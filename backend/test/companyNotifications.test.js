@@ -112,3 +112,27 @@ test('off-chain request notice follows persisted request identity and status', a
   assert.equal(records.size, 2);
   assert.deepEqual([...records.values()].map(x => x.type), ['ACCESS_REQUEST_SUBMITTED', 'ACCESS_REQUEST_APPROVED']);
 });
+
+test('user notifications are persisted even when the preference is disabled', async () => {
+  const { service, records } = setup({ transactionHash: hash, from: owner,
+    events: [{ name: 'DataAdded', args: { dataId: 7n, owner } }] });
+  User.findOne = () => ({ select: async () => ({ _id: 'user-owner', walletAddress: owner, notificationsEnabled: false }) });
+  await service.ingestConfirmedTransaction({ transactionHash: hash, actorRole: 'user', actorWallet: owner });
+  assert.equal(records.size, 1);
+  assert.equal([...records.values()][0].recipientUserId, 'user-owner');
+  assert.equal([...records.values()][0].read, false);
+});
+
+test('company notifications are persisted even when the preference is disabled', async () => {
+  const { service, records } = setup(null);
+  Company.findById = () => ({ select: async () => ({
+    _id: 'company-a', walletAddress: walletA, verificationStatus: 'verified', notificationsEnabled: false
+  }) });
+  await service.notifyCompanyAccessRequest({
+    _id: 'request-off', companyId: 'company-a', buyerWallet: walletA,
+    dataId: { _id: 'dataset-off', name: 'Climate data' }
+  }, 'pending');
+  assert.equal(records.size, 1);
+  assert.equal([...records.values()][0].recipientCompanyId, 'company-a');
+  assert.equal([...records.values()][0].read, false);
+});

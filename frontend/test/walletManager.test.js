@@ -423,7 +423,7 @@ test('Company wallet state survives page navigation and refresh and follows prov
 });
 
 test('Company navbar wallet controls show pending and verified states and retain verification gates', () => {
-  const app = fs.readFileSync(path.join(frontendDir, 'app.js'), 'utf8');
+  const app = fs.readFileSync(path.join(frontendDir, 'app.js'), 'utf8').replace(/\r\n/g, '\n');
   const start = app.indexOf('function syncWalletUI(');
   const end = app.indexOf('\n}\n\n// A saved wallet address', start);
   assert.notEqual(start, -1);

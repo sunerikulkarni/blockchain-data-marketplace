@@ -68,6 +68,11 @@ const CompanySchema = new mongoose.Schema(
       default: 'pending',
     },
 
+    notificationsEnabled: {
+      type: Boolean,
+      default: true,
+    },
+
     // Optional reason when admin rejects a company
     rejectionReason: {
       type: String,

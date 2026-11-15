@@ -652,16 +652,30 @@ function installUserNotificationCenter(role = 'user') {
   const markAll = root.querySelector('.dc-notification-mark-all');
   const clearAll = root.querySelector('.dc-notification-clear');
   const basePath = role === 'company' ? '/company/notifications' : '/notifications';
-  const companyKey = role === 'company' ? `dc_company_seen_notifications_${Auth.profile()?.walletAddress?.toLowerCase() || 'unknown'}` : null;
+  const preferencePath = `${basePath}/preferences`;
+  const profile = Auth.profile() || {};
+  const accountKey = profile.id || profile.walletAddress?.toLowerCase() || 'unknown';
+  const seenKey = `dc_notification_seen_v1_${role}_${accountKey}`;
   let notifications = [];
   let unreadCount = 0;
   let loading = false;
+  let notificationsEnabled = false;
+  let preferenceReady = false;
+  let seenIds = new Set();
+  let hasNotificationBaseline = false;
+  const activeToasts = new Set();
+
+  try {
+    const storedIds = JSON.parse(localStorage.getItem(seenKey) || 'null');
+    if (Array.isArray(storedIds)) seenIds = new Set(storedIds);
+  } catch { /* Storage may be unavailable. */ }
 
   const updateCount = count => {
     unreadCount = Math.max(0, Number(count) || 0);
-    countBadge.hidden = unreadCount === 0;
-    countBadge.textContent = unreadCount > 99 ? '99+' : String(unreadCount);
-    button.setAttribute('aria-label', unreadCount ? `Notifications, ${unreadCount} unread` : 'Notifications');
+    const visibleCount = preferenceReady && notificationsEnabled ? unreadCount : 0;
+    countBadge.hidden = visibleCount === 0;
+    countBadge.textContent = visibleCount > 99 ? '99+' : String(visibleCount);
+    button.setAttribute('aria-label', visibleCount ? `Notifications, ${visibleCount} unread` : 'Notifications');
     markAll.hidden = unreadCount === 0;
   };
   const relativeTime = dateValue => {
@@ -746,6 +760,50 @@ function installUserNotificationCenter(role = 'user') {
       updateCount(result.count);
     } catch { /* Header can still be used if notifications are temporarily unavailable. */ }
   }
+  async function refreshPreference() {
+    try {
+      const result = await API.get(preferencePath);
+      notificationsEnabled = result.notificationsEnabled !== false;
+      preferenceReady = true;
+      if (!notificationsEnabled) dismissToasts();
+      updateCount(unreadCount);
+    } catch {
+      notificationsEnabled = false;
+      preferenceReady = false;
+      dismissToasts();
+      updateCount(unreadCount);
+    }
+  }
+  function persistSeenIds() {
+    try { localStorage.setItem(seenKey, JSON.stringify([...seenIds].slice(-200))); } catch { /* Storage may be unavailable. */ }
+  }
+  function showNotificationToast(item) {
+    const toast = document.createElement('button');
+    toast.type = 'button';
+    toast.className = 'toast toast-default dc-notification-toast';
+    const title = document.createElement('strong'); title.textContent = item.title || 'DataChain update';
+    const message = document.createElement('span'); message.textContent = item.message || '';
+    toast.append(title, message);
+    const dismiss = () => { toast.remove(); activeToasts.delete(toast); };
+    toast.addEventListener('click', () => { setOpen(true); dismiss(); });
+    activeToasts.add(toast);
+    Toast._init(); Toast._el.appendChild(toast);
+    setTimeout(dismiss, 5500);
+  }
+  function dismissToasts() {
+    for (const toast of activeToasts) toast.remove();
+    activeToasts.clear();
+  }
+  function observeNotifications(items) {
+    for (const item of items.slice().reverse()) {
+      const id = String(item._id || '');
+      if (!id || seenIds.has(id)) continue;
+      if (hasNotificationBaseline && preferenceReady && notificationsEnabled) showNotificationToast(item);
+      seenIds.add(id);
+    }
+    hasNotificationBaseline = true;
+    persistSeenIds();
+  }
   async function loadNotifications() {
     if (loading) return;
     loading = true;
@@ -753,7 +811,7 @@ function installUserNotificationCenter(role = 'user') {
       if (!panel.hidden && !notifications.length) list.innerHTML = '<p class="dc-notification-empty">Loading notifications…</p>';
       const result = await API.get(basePath);
       notifications = Array.isArray(result.data) ? result.data : [];
-      if (companyKey) announceNewCompanyNotifications(notifications);
+      observeNotifications(notifications);
       render();
       await refreshCount();
     } catch (error) {
@@ -788,30 +846,21 @@ function installUserNotificationCenter(role = 'user') {
   });
   document.addEventListener('click', event => { if (!root.contains(event.target)) setOpen(false); });
   document.addEventListener('keydown', event => { if (event.key === 'Escape') setOpen(false); });
-  function announceNewCompanyNotifications(items) {
-    let previous;
-    try { previous = JSON.parse(localStorage.getItem(companyKey) || 'null'); } catch { previous = null; }
-    const known = new Set(Array.isArray(previous) ? previous : []);
-    if (previous !== null) {
-      for (const item of items.slice().reverse()) {
-        if (known.has(item._id)) continue;
-        const toast = document.createElement('button');
-        toast.type = 'button';
-        toast.className = 'toast toast-default dc-notification-toast';
-        const title = document.createElement('strong'); title.textContent = item.title || 'DataChain update';
-        const message = document.createElement('span'); message.textContent = item.message || '';
-        toast.append(title, message);
-        toast.addEventListener('click', () => { setOpen(true); toast.remove(); });
-        Toast._init(); Toast._el.appendChild(toast);
-        setTimeout(() => toast.remove(), 5500);
-      }
-    }
-    const next = [...new Set([...items.map(item => item._id), ...known])].slice(0, 200);
-    try { localStorage.setItem(companyKey, JSON.stringify(next)); } catch { /* Private browsing can disable storage. */ }
+  async function pollNotifications() {
+    await refreshPreference();
+    await loadNotifications();
   }
-  if (companyKey) loadNotifications(); else refreshCount();
-  window.addEventListener('dc:notifications-updated', () => { if (companyKey || !panel.hidden) loadNotifications(); else refreshCount(); });
-  window.setInterval(() => { if (companyKey || !panel.hidden) loadNotifications(); else refreshCount(); }, 15000);
+  window.addEventListener('dc:notification-preference-updated', event => {
+    if (event.detail?.role !== role) return;
+    notificationsEnabled = event.detail.notificationsEnabled !== false;
+    preferenceReady = true;
+    if (!notificationsEnabled) dismissToasts();
+    updateCount(unreadCount);
+    if (notificationsEnabled) refreshCount();
+  });
+  window.addEventListener('dc:notifications-updated', pollNotifications);
+  pollNotifications();
+  window.setInterval(pollNotifications, 15000);
 }
 
 const Transactions = {
